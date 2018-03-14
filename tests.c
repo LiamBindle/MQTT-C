@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <arpa/inet.h> //< htons, ntohs
 
 #include <mqtt.h>
 
@@ -106,8 +107,40 @@ static void test_mqtt_fixed_header(void** state) {
     rv = mqtt_pack_fixed_header(buf, sizeof(buf), &fixed_header);
     assert_true(rv == 3);
     assert_true(memcmp(correct_buf, buf, 3) == 0);
+
+    /* check bad inputs */
+    assert_true( mqtt_pack_fixed_header(NULL, 5, &fixed_header) == MQTT_ERROR_NULLPTR );
+    assert_true( mqtt_pack_fixed_header(buf, 5, NULL) == MQTT_ERROR_NULLPTR );
+    assert_true( mqtt_pack_fixed_header(buf, 2, &fixed_header) == 0 );
+
+    assert_true( mqtt_unpack_fixed_header(NULL, buf, 5) == MQTT_ERROR_NULLPTR );
+    assert_true( mqtt_unpack_fixed_header(&fixed_header, NULL, 5) == MQTT_ERROR_NULLPTR );
+    assert_true( mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 0 );
 }
 
+static void test_mqtt_variable_header(void** state) {
+    uint8_t buf[2];
+    uint8_t buf2[2];
+    struct mqtt_variable_header variable_header;
+
+    /* simple sanity check */
+    *(uint16_t*) buf = (uint16_t) htons(0x63F2);
+    
+    assert_true(mqtt_unpack_variable_header(&variable_header, buf, 2) == 2);
+    assert_true(variable_header.packet_idenfier == 0x63F2);
+
+    assert_true(mqtt_pack_variable_header(buf2, 2, &variable_header) == 2);
+    assert_true(memcmp(buf, buf2, 2) == 0);
+
+    /* check bad inputs */
+    assert_true(mqtt_unpack_variable_header(&variable_header, buf, 1) == 0);
+    assert_true(mqtt_unpack_variable_header(NULL, buf, 2) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_unpack_variable_header(&variable_header, NULL, 2) == MQTT_ERROR_NULLPTR);
+
+    assert_true(mqtt_pack_variable_header(buf2, 1, &variable_header) == 0);
+    assert_true(mqtt_pack_variable_header(NULL, 2, &variable_header) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_pack_variable_header(buf2, 2, NULL) == MQTT_ERROR_NULLPTR);
+}
 
 
 int main(void)
@@ -115,6 +148,7 @@ int main(void)
     const struct CMUnitTest tests[] =
     {
         cmocka_unit_test(test_mqtt_fixed_header),
+        cmocka_unit_test(test_mqtt_variable_header),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
