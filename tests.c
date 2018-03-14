@@ -8,73 +8,104 @@
 #include <mqtt.h>
 
 static void test_mqtt_fixed_header(void** state) {
-    const uint8_t sample_fixed_header[] = {
-        (11u << 4) | 6u, 193u, 2
-    };
-    uint8_t buf[3];
+    uint8_t correct_buf[5];
+    uint8_t buf[5];
     struct mqtt_fixed_header fixed_header;
+    ssize_t rv;
 
-    /* sanity check */
-    ssize_t rv = mqtt_unpack_fixed_header(&fixed_header, sample_fixed_header, 3);
+    /* sanity check with valid fixed_header */
+    correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 0;
+    correct_buf[1] = 193u;
+    correct_buf[2] = 2u;
+
+    /* check that unpack is correct */
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
     assert_true(rv == 3);
-    assert_true(fixed_header.control_type == MQTT_CONTROL_UNSUBACK);
-    assert_true(fixed_header.control_flags == 6);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNECT);
+    assert_true(fixed_header.control_flags == 0);
     assert_true(fixed_header.remaining_length == 321);
 
-    rv = mqtt_pack_fixed_header(buf, 3, &fixed_header);
+    /* check that unpack is correct */
+    rv = mqtt_pack_fixed_header(buf, sizeof(buf), &fixed_header);
     assert_true(rv == 3);
-    assert_true(memcmp(buf, sample_fixed_header, 3) == 0);
+    assert_true(memcmp(correct_buf, buf, 3) == 0);
 
-    uint8_t test2[] = {
-        (MQTT_CONTROL_SUBACK << 4) | 7u, 64, 0
-    };
 
-    rv = mqtt_unpack_fixed_header(&fixed_header, test2, 3);
+    /* check that invalid flags are caught */
+    correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 1;
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
+    assert_true(rv == MQTT_ERROR_CONTROL_INVALID_FLAGS);
+
+    /* check that valid flags are ok when there is a required bit */
+    correct_buf[0] = (MQTT_CONTROL_PUBREL << 4) | 2;
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
+    assert_true(rv == 3);
+
+    /* check that invalid flags are ok when there is a required bit */
+    correct_buf[0] = (MQTT_CONTROL_PUBREL << 4) | 3;
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
+    assert_true(rv == MQTT_ERROR_CONTROL_INVALID_FLAGS);
+
+    /* check that valid flags are ok when there are optional flags */
+    correct_buf[0] = (MQTT_CONTROL_PUBLISH << 4) | 0xF;
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
+    assert_true(rv == 3);
+    
+    correct_buf[0] = (MQTT_CONTROL_PUBLISH << 4) | 3;
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
+    assert_true(rv == 3);
+
+
+    /* check that remaining length is packed/unpacked correctly */
+    correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 0;
+    correct_buf[1] = 64;
+
+    /* check that unpack is correct */
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
     assert_true(rv == 2);
-    assert_true(fixed_header.control_type == MQTT_CONTROL_SUBACK);
-    assert_true(fixed_header.control_flags == 7);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNECT);
+    assert_true(fixed_header.control_flags == 0);
     assert_true(fixed_header.remaining_length == 64);
 
-    rv = mqtt_pack_fixed_header(buf, 3, &fixed_header);
+    /* check that unpack is correct */
+    rv = mqtt_pack_fixed_header(buf, sizeof(buf), &fixed_header);
     assert_true(rv == 2);
-    assert_true(memcmp(buf, test2, 2) == 0);
+    assert_true(memcmp(correct_buf, buf, 2) == 0);
 
-    test2[1] = 127;
 
-    rv = mqtt_unpack_fixed_header(&fixed_header, test2, 3);
+    /* check that remaining length is packed/unpacked correctly */
+    correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 0;
+    correct_buf[1] = 127;
+
+    /* check that unpack is correct */
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
     assert_true(rv == 2);
-    assert_true(fixed_header.control_type == MQTT_CONTROL_SUBACK);
-    assert_true(fixed_header.control_flags == 7);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNECT);
+    assert_true(fixed_header.control_flags == 0);
     assert_true(fixed_header.remaining_length == 127);
 
-    rv = mqtt_pack_fixed_header(buf, 3, &fixed_header);
+    /* check that unpack is correct */
+    rv = mqtt_pack_fixed_header(buf, sizeof(buf), &fixed_header);
     assert_true(rv == 2);
-    assert_true(memcmp(buf, test2, 2) == 0);
+    assert_true(memcmp(correct_buf, buf, 2) == 0);
 
-    test2[1] = 128;
-    test2[2] = 1;
 
-    rv = mqtt_unpack_fixed_header(&fixed_header, test2, 3);
+    /* check that remaining length is packed/unpacked correctly */
+    correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 0;
+    correct_buf[1] = 128;
+    correct_buf[2] = 1;
+
+    /* check that unpack is correct */
+    rv = mqtt_unpack_fixed_header(&fixed_header, correct_buf, sizeof(correct_buf));
     assert_true(rv == 3);
-    assert_true(fixed_header.control_type == MQTT_CONTROL_SUBACK);
-    assert_true(fixed_header.control_flags == 7);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNECT);
+    assert_true(fixed_header.control_flags == 0);
     assert_true(fixed_header.remaining_length == 128);
 
-    rv = mqtt_pack_fixed_header(buf, 3, &fixed_header);
+    /* check that unpack is correct */
+    rv = mqtt_pack_fixed_header(buf, sizeof(buf), &fixed_header);
     assert_true(rv == 3);
-    assert_true(memcmp(buf, test2, 3) == 0);
-
-    /* check errors */
-    assert_true(mqtt_pack_fixed_header(NULL, 10, &fixed_header) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_pack_fixed_header(buf, 0, &fixed_header) == 0);
-    assert_true(mqtt_pack_fixed_header(buf, 10, NULL) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_pack_fixed_header(buf, 2, &fixed_header) == 0);
-    
-    assert_true(mqtt_unpack_fixed_header(NULL, buf, 10) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, NULL, 10) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 0) == 0);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 0);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 3) == 3);
+    assert_true(memcmp(correct_buf, buf, 3) == 0);
 }
 
 

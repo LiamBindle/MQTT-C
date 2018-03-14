@@ -16,6 +16,6 @@ enum MqttErrors {
     __ALL_MQTT_ERRORS(GENERATE_ENUM)
 };
 
-const char* mqtt_error_message(enum MqttErrors error);
+const char* mqtt_error_str(enum MqttErrors error);
 
 #endif
