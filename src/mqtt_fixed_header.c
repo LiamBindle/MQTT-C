@@ -4,9 +4,12 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
     const uint8_t *start = buf;
     
     /* check for null pointers or empty buffer */
-    if (fixed_header == NULL || buf == NULL || bufsz == 0) {
-        return -1;
+    if (fixed_header == NULL || buf == NULL) {
+        return MQTT_ERROR_NULLPTR;
     }
+
+    /* check that bufsz is not zero */
+    if (bufsz == 0) return 0;
 
     /* parse control type and flags */
     fixed_header->control_type  = *buf >> 4;
@@ -20,7 +23,7 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
         /* consume byte and assert at least 1 byte left */
         --bufsz;
         ++buf;
-        if (bufsz == 0) return -1;
+        if (bufsz == 0) return 0;
 
         /* parse next byte*/
         fixed_header->remaining_length += (*buf & 0x7F) << lshift;
@@ -39,9 +42,12 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
     const uint8_t *start = buf;
     
     /* check for null pointers or empty buffer */
-    if (fixed_header == NULL || buf == NULL || bufsz == 0) {
-        return -1;
+    if (fixed_header == NULL || buf == NULL) {
+        return MQTT_ERROR_NULLPTR;
     }
+
+    /* check that bufsz is not zero */
+    if (bufsz == 0) return 0;
 
     /* pack control type and flags */
     *buf =  (((uint8_t) fixed_header->control_type) << 4) & 0xF0;
@@ -52,7 +58,7 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
         /* consume byte and assert at least 1 byte left */
         --bufsz;
         ++buf;
-        if (bufsz == 0) return -1;
+        if (bufsz == 0) return 0;
         
         /* pack next byte */
         *buf  = remaining_length & 0x7F;

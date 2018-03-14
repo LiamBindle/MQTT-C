@@ -6,6 +6,8 @@
 #include <stddef.h>     //< size_t
 #include <sys/types.h>  //< ssize_t
 
+#include <mqtt_errors.h>
+
 
 struct mqtt_string {
     uint16_t length; //< string length, big-endian

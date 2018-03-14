@@ -65,17 +65,19 @@ static void test_mqtt_fixed_header(void** state) {
     assert_true(memcmp(buf, test2, 3) == 0);
 
     /* check errors */
-    assert_true(mqtt_pack_fixed_header(NULL, 10, &fixed_header) == -1);
-    assert_true(mqtt_pack_fixed_header(buf, 0, &fixed_header) == -1);
-    assert_true(mqtt_pack_fixed_header(buf, 10, NULL) == -1);
-    assert_true(mqtt_pack_fixed_header(buf, 2, &fixed_header) == -1);
+    assert_true(mqtt_pack_fixed_header(NULL, 10, &fixed_header) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_pack_fixed_header(buf, 0, &fixed_header) == 0);
+    assert_true(mqtt_pack_fixed_header(buf, 10, NULL) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_pack_fixed_header(buf, 2, &fixed_header) == 0);
     
-    assert_true(mqtt_unpack_fixed_header(NULL, buf, 10) == -1);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, NULL, 10) == -1);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 0) == -1);
-    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 2) == -1);
+    assert_true(mqtt_unpack_fixed_header(NULL, buf, 10) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_unpack_fixed_header(&fixed_header, NULL, 10) == MQTT_ERROR_NULLPTR);
+    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 0) == 0);
+    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 0);
     assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 3) == 3);
 }
+
+
 
 int main(void)
 {
