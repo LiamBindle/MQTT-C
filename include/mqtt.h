@@ -42,24 +42,6 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
                                      uint8_t connect_flags,
                                      uint16_t keep_alive);
 
-/***************************************************************************
- *                               CONNACK                               
- ***************************************************************************/
-
-
-/**
- * @brief Unpack a connection response to a struct mqtt_connection_response object.
- * 
- * @param[out] response the servers response.
- * @param[in] fixed_header the associated fixed header.
- * @param[in] buf the buffer to unpack \c response from.
- * @param[in] bufsz the number of bytes in the buffer.
- * 
- * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
- *          buffer. A negative value is an error code.
- */
-ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-
 
 /***************************************************************************
  *                               PUBLISH                               
@@ -75,12 +57,10 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
                                   size_t appilcation_message_size,
                                   uint8_t publish_flags);
 
-
-ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-
 /***************************************************************************
  *                               PUBACK                               
  ***************************************************************************/
+ssize_t mqtt_pack_puback_request(uint8_t *buf, size_t bufsz, uint16_t packet_id);
 
 
 

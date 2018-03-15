@@ -49,5 +49,9 @@ struct mqtt_response {
 };
 
 
+ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_puback_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+
 
 #endif

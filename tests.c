@@ -274,6 +274,26 @@ static void test_mqtt_unpack_connection_response(void** state) {
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 }
 
+static void test_mqtt_puback(void** state) {
+    uint8_t buf[256];
+    ssize_t rv;
+    struct mqtt_response response;
+    uint8_t correct_bytes[] = {
+        MQTT_CONTROL_PUBACK << 4, 2,
+        0, 213u
+    };
+
+    rv = mqtt_pack_puback_request(buf, 256, 213u);
+    assert_true(rv == 4);
+    assert_true(memcmp(correct_bytes, buf, 4) == 0);
+
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
+    assert_true(rv == 2);
+    rv = mqtt_unpack_puback_response(&response, buf + 2, 254);
+    assert_true(rv == 2);
+    assert_true(response.decoded.puback.packet_id == 213u);
+}
+
 static void test_mqtt_pack_disconnect(void** state) {
     uint8_t buf[2];
     assert_true(mqtt_pack_disconnect(buf, 2) == 2);   
@@ -286,8 +306,9 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
-        cmocka_unit_test(test_mosquitto_connect_disconnect),
+        //cmocka_unit_test(test_mosquitto_connect_disconnect),
         cmocka_unit_test(test_mqtt_pack_publish),
+        cmocka_unit_test(test_mqtt_puback),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
