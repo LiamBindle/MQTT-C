@@ -1,18 +1,15 @@
 #ifndef __MQTT_H__
 #define __MQTT_H__
 
-
 #include <stdint.h>     //< uintXX_t ...
 #include <stddef.h>     //< size_t
+#include <string.h>     //< strlen ...
+#include <limits.h>     //< INT_MIN
 #include <sys/types.h>  //< ssize_t
+#include <arpa/inet.h>  //< htons ntohs
 
-#include <mqtt_errors.h>
 
-
-struct mqtt_string {
-    uint16_t length; //< string length, big-endian
-    char *str;       //< string
-};
+#define MQTT_PROTOCOL_LEVEL 0x04
 
 enum MQTTControlPacketType {
     MQTT_CONTROL_CONNECT=1,
@@ -63,10 +60,44 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
  */
 ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fixed_header *fixed_header);
 
-struct mqtt_variable_header {
-    uint16_t packet_idenfier;
+/* connect */
+#define MQTT_CONNECT_RESERVED       0x01
+#define MQTT_CONNECT_CLEAN_SESSION  0x02
+#define MQTT_CONNECT_WILL_FLAG      0x04
+#define MQTT_CONNECT_WILL_QOS(qos)  (qos & 0x03) << 3
+#define MQTT_CONNECT_WILL_RETAIN    0x20
+#define MQTT_CONNECT_PASSWORD       0x40
+#define MQTT_CONNECT_USER_NAME      0x80
+
+struct mqtt_connection_request {
+    const char* client_id;
+    const char* will_topic;
+    const char* will_message; 
+    const char* user_name;
+    const char* password;
+    uint8_t connect_flags;
+    uint16_t keep_alive;
 };
-ssize_t mqtt_unpack_variable_header(struct mqtt_variable_header *variable_header, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_pack_variable_header(uint8_t* buf, size_t bufsz, const struct mqtt_variable_header *variable_header);
+
+ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *packet);
+
+
+/* errors */
+#define __ALL_MQTT_ERRORS(MQTT_ERROR) \
+    MQTT_ERROR(MQTT_ERROR_NULLPTR) \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)   \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)    \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)     \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)  \
+
+#define GENERATE_ENUM(ENUM) ENUM,
+#define GENERATE_STRING(STRING) #STRING,
+
+enum MqttErrors {
+    MQTT_ERROR_UNKNOWN=INT_MIN,
+    __ALL_MQTT_ERRORS(GENERATE_ENUM)
+};
+
+const char* mqtt_error_str(enum MqttErrors error);
 
 #endif

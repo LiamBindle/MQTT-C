@@ -118,37 +118,16 @@ static void test_mqtt_fixed_header(void** state) {
     assert_true( mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 0 );
 }
 
-static void test_mqtt_variable_header(void** state) {
-    uint8_t buf[2];
-    uint8_t buf2[2];
-    struct mqtt_variable_header variable_header;
+static void test_mqtt_connection_request (void** state) {
 
-    /* simple sanity check */
-    *(uint16_t*) buf = (uint16_t) htons(0x63F2);
-    
-    assert_true(mqtt_unpack_variable_header(&variable_header, buf, 2) == 2);
-    assert_true(variable_header.packet_idenfier == 0x63F2);
-
-    assert_true(mqtt_pack_variable_header(buf2, 2, &variable_header) == 2);
-    assert_true(memcmp(buf, buf2, 2) == 0);
-
-    /* check bad inputs */
-    assert_true(mqtt_unpack_variable_header(&variable_header, buf, 1) == 0);
-    assert_true(mqtt_unpack_variable_header(NULL, buf, 2) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_unpack_variable_header(&variable_header, NULL, 2) == MQTT_ERROR_NULLPTR);
-
-    assert_true(mqtt_pack_variable_header(buf2, 1, &variable_header) == 0);
-    assert_true(mqtt_pack_variable_header(NULL, 2, &variable_header) == MQTT_ERROR_NULLPTR);
-    assert_true(mqtt_pack_variable_header(buf2, 2, NULL) == MQTT_ERROR_NULLPTR);
 }
-
 
 int main(void)
 {
     const struct CMUnitTest tests[] =
     {
         cmocka_unit_test(test_mqtt_fixed_header),
-        cmocka_unit_test(test_mqtt_variable_header),
+        cmocka_unit_test(test_mqtt_connection_request),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

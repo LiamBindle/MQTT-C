@@ -1,5 +1,6 @@
 #include <mqtt.h>
-#include <mqtt_rules.h>
+
+#define MQTT_BITFIELD_RULE_VIOLOATION(bitfield, rule_value, rule_mask) ((bitfield ^ rule_value) & rule_mask)
 
 struct {
     const uint8_t control_type_is_valid[16];
