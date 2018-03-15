@@ -7,6 +7,7 @@
 #include <limits.h>     //< INT_MIN
 #include <sys/types.h>  //< ssize_t
 #include <arpa/inet.h>  //< htons ntohs
+#include <stdarg.h>
 
 #include <mqtt_fixed_header.h>
 #include <mqtt_responses.h>
@@ -58,13 +59,17 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
                                   uint8_t publish_flags);
 
 /***************************************************************************
- *                               PUBACK                               
+ *                               PUBXXX                               
  ***************************************************************************/
 ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
                                  enum MQTTControlPacketType control_type,
                                  uint16_t packet_id);
 
-ssize_t mqtt_pack_puback_request(uint8_t *buf, size_t bufsz, uint16_t packet_id);
+
+/***************************************************************************
+ *                               SUBSCRIBE                               
+ ***************************************************************************/
+ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
 
 
 
@@ -101,6 +106,7 @@ ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
     MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)    \
     MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)     \
     MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)      \
+    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)  \
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,

@@ -290,6 +290,10 @@ static void test_mqtt_pubxxx(void** state) {
         MQTT_CONTROL_PUBREL << 4 | 2u, 2,
         0, 213u
     };
+    uint8_t pubcomp_correct_bytes[] = {
+        MQTT_CONTROL_PUBCOMP << 4, 2,
+        0, 213u
+    };
 
     /* puback */
     rv = mqtt_pack_pubxxx_request(buf, 256, MQTT_CONTROL_PUBACK, 213u);
@@ -326,6 +330,34 @@ static void test_mqtt_pubxxx(void** state) {
     rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
     assert_true(rv == 2);
     assert_true(response.decoded.pubrel.packet_id == 213u);
+
+    /* pubcomp */
+    rv = mqtt_pack_pubxxx_request(buf, 256, MQTT_CONTROL_PUBCOMP, 213u);
+    assert_true(rv == 4);
+    assert_true(memcmp(pubcomp_correct_bytes, buf, 4) == 0);
+
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
+    assert_true(rv == 2);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBCOMP);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    assert_true(rv == 2);
+    assert_true(response.decoded.pubcomp.packet_id == 213u);
+}
+
+static void test_mqtt_pack_subscribe(void** state) {
+    uint8_t buf[256];
+    ssize_t rv;
+    const uint8_t correct[] = {
+        MQTT_CONTROL_SUBSCRIBE << 4 | 2u, 23,
+        0, 132u,
+        0, 3, 'a', '/', 'b', 0u,
+        0, 5, 'b', 'b', 'b', '/', 'x', 1u,
+        0, 4, 'c', '/', 'd', 'd', 0u,
+    };
+
+    rv = mqtt_pack_subscribe_request(buf, 256, 132, "a/b", 0, "bbb/x", 1, "c/dd", 0, NULL);
+    assert_true(rv == 25);
+    assert_true(memcmp(buf, correct, 25) == 0);
 }
 
 static void test_mqtt_pack_disconnect(void** state) {
@@ -343,6 +375,7 @@ int main(void)
         //cmocka_unit_test(test_mosquitto_connect_disconnect),
         cmocka_unit_test(test_mqtt_pack_publish),
         cmocka_unit_test(test_mqtt_pubxxx),
+        cmocka_unit_test(test_mqtt_pack_subscribe),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

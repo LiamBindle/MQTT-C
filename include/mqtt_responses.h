@@ -44,6 +44,9 @@ struct mqtt_response_pubrec {
 struct mqtt_response_pubrel {
     uint16_t packet_id;
 };
+struct mqtt_response_pubcomp {
+    uint16_t packet_id;
+};
 
 struct mqtt_response {
     struct mqtt_fixed_header fixed_header;
@@ -53,6 +56,7 @@ struct mqtt_response {
         struct mqtt_response_puback  puback;
         struct mqtt_response_pubrec  pubrec;
         struct mqtt_response_pubrel  pubrel;
+        struct mqtt_response_pubcomp pubcomp;
     } decoded;
 };
 

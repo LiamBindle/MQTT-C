@@ -26,6 +26,10 @@ const char* mqtt_error_str(enum MqttErrors error) {
     int offset = error - MQTT_ERROR_UNKNOWN;
     if (offset >= 0) {
         return MQTT_ERRORS_STR[offset];
+    } else if (error == 0) {
+        return "MQTT_ERROR: Buffer too small.";
+    } else if (error > 0) {
+        return "MQTT_ERROR: Not an error.";
     } else {
         return MQTT_ERRORS_STR[0];
     }
