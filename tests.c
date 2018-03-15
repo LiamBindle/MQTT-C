@@ -274,24 +274,58 @@ static void test_mqtt_unpack_connection_response(void** state) {
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 }
 
-static void test_mqtt_puback(void** state) {
+static void test_mqtt_pubxxx(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     struct mqtt_response response;
-    uint8_t correct_bytes[] = {
+    uint8_t puback_correct_bytes[] = {
         MQTT_CONTROL_PUBACK << 4, 2,
         0, 213u
     };
+    uint8_t pubrec_correct_bytes[] = {
+        MQTT_CONTROL_PUBREC << 4, 2,
+        0, 213u
+    };
+    uint8_t pubrel_correct_bytes[] = {
+        MQTT_CONTROL_PUBREL << 4 | 2u, 2,
+        0, 213u
+    };
 
-    rv = mqtt_pack_puback_request(buf, 256, 213u);
+    /* puback */
+    rv = mqtt_pack_pubxxx_request(buf, 256, MQTT_CONTROL_PUBACK, 213u);
     assert_true(rv == 4);
-    assert_true(memcmp(correct_bytes, buf, 4) == 0);
+    assert_true(memcmp(puback_correct_bytes, buf, 4) == 0);
 
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
     assert_true(rv == 2);
-    rv = mqtt_unpack_puback_response(&response, buf + 2, 254);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBACK);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
     assert_true(rv == 2);
     assert_true(response.decoded.puback.packet_id == 213u);
+
+    /* pubrec */
+    rv = mqtt_pack_pubxxx_request(buf, 256, MQTT_CONTROL_PUBREC, 213u);
+    assert_true(rv == 4);
+    assert_true(memcmp(pubrec_correct_bytes, buf, 4) == 0);
+
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
+    assert_true(rv == 2);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBREC);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    assert_true(rv == 2);
+    assert_true(response.decoded.pubrec.packet_id == 213u);
+
+    /* pubrel */
+    rv = mqtt_pack_pubxxx_request(buf, 256, MQTT_CONTROL_PUBREL, 213u);
+    assert_true(rv == 4);
+    assert_true(memcmp(pubrel_correct_bytes, buf, 4) == 0);
+
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
+    assert_true(rv == 2);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBREL);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    assert_true(rv == 2);
+    assert_true(response.decoded.pubrel.packet_id == 213u);
 }
 
 static void test_mqtt_pack_disconnect(void** state) {
@@ -308,7 +342,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_disconnect),
         //cmocka_unit_test(test_mosquitto_connect_disconnect),
         cmocka_unit_test(test_mqtt_pack_publish),
-        cmocka_unit_test(test_mqtt_puback),
+        cmocka_unit_test(test_mqtt_pubxxx),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -38,6 +38,12 @@ struct mqtt_response_publish {
 struct mqtt_response_puback {
     uint16_t packet_id;
 };
+struct mqtt_response_pubrec {
+    uint16_t packet_id;
+};
+struct mqtt_response_pubrel {
+    uint16_t packet_id;
+};
 
 struct mqtt_response {
     struct mqtt_fixed_header fixed_header;
@@ -45,13 +51,15 @@ struct mqtt_response {
         struct mqtt_response_connack connack;
         struct mqtt_response_publish publish;
         struct mqtt_response_puback  puback;
+        struct mqtt_response_pubrec  pubrec;
+        struct mqtt_response_pubrel  pubrel;
     } decoded;
 };
 
 
 ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
 ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_puback_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
 
 
 #endif

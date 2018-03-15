@@ -60,6 +60,10 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 /***************************************************************************
  *                               PUBACK                               
  ***************************************************************************/
+ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
+                                 enum MQTTControlPacketType control_type,
+                                 uint16_t packet_id);
+
 ssize_t mqtt_pack_puback_request(uint8_t *buf, size_t bufsz, uint16_t packet_id);
 
 
