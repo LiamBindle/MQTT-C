@@ -60,6 +60,7 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
  */
 ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fixed_header *fixed_header);
 
+
 /* connect */
 #define MQTT_CONNECT_RESERVED       0x01
 #define MQTT_CONNECT_CLEAN_SESSION  0x02
@@ -78,17 +79,45 @@ struct mqtt_connection_request {
     uint8_t connect_flags;
     uint16_t keep_alive;
 };
+ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *request);
 
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *packet);
+enum ConnackReturnCode {
+    MQTT_CONNACK_ACCEPTED = 0,
+    MQTT_CONNACK_REFUSED_PROTOCOL_VERSION = 1,
+    MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED = 2,
+    MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE = 3,
+    MQTT_CONNACK_REFUSED_BAD_USER_NAME_OR_PASSWORD = 4,
+    MQTT_CONNACK_REFUSED_NOT_AUTHORIZED = 5
+};
+
+struct mqtt_connection_response {
+    uint8_t session_present_flag;
+    enum ConnackReturnCode connect_return_code;
+};
+ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *connack, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz);
+
+/* disconnect */
+ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
+
+
+
+
+
+
+
+
 
 
 /* errors */
-#define __ALL_MQTT_ERRORS(MQTT_ERROR) \
-    MQTT_ERROR(MQTT_ERROR_NULLPTR) \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)   \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)    \
+#define __ALL_MQTT_ERRORS(MQTT_ERROR)                 \
+    MQTT_ERROR(MQTT_ERROR_NULLPTR)                    \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)     \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)      \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)         \
     MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)     \
     MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)  \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)    \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)     \
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,

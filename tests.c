@@ -119,7 +119,9 @@ static void test_mqtt_fixed_header(void** state) {
 }
 
 static void test_mqtt_connection_request (void** state) {
-
+    struct mqtt_connection_request connection_request = {0};
+    connection_request.client_id = "liam";
+    
 }
 
 int main(void)
