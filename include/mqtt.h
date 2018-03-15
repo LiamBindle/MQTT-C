@@ -79,6 +79,19 @@ struct mqtt_connection_request {
     uint8_t connect_flags;
     uint16_t keep_alive;
 };
+
+/**
+ * @brief Serialize a connection request.
+ * 
+ * @param[out] buf the buffer to serialize the request into.
+ * @param[in] bufsz the number of bytes in the buffer.
+ * @param[in] request the connection request to be serialized.
+ * 
+ * @attention Remember set all unused bytes in \a request to zero (i.e. memset to zero after declaration).
+ * 
+ * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
+ *          buffer. A negative value is an error code.
+ */
 ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *request);
 
 enum ConnackReturnCode {
@@ -94,9 +107,28 @@ struct mqtt_connection_response {
     uint8_t session_present_flag;
     enum ConnackReturnCode connect_return_code;
 };
-ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *connack, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz);
+/**
+ * @brief Unpack a connection response to a struct mqtt_connection_response object.
+ * 
+ * @param[out] response the servers response.
+ * @param[in] fixed_header the associated fixed header.
+ * @param[in] buf the buffer to unpack \c response from.
+ * @param[in] bufsz the number of bytes in the buffer.
+ * 
+ * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
+ *          buffer. A negative value is an error code.
+ */
+ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *response, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz);
 
-/* disconnect */
+/**
+ * @brief Pack a disconnect packet.
+ * 
+ * @param[out] buf the buffer to serialize the request into.
+ * @param[in] bufsz the number of bytes in the buffer.
+ * 
+ * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
+ *          buffer. A negative value is an error code.
+ */
 ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
 
 /* client */

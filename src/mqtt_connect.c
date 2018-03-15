@@ -99,10 +99,10 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mq
     return buf - start;
 }
 
-ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *connack, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz) {
+ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *response, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz) {
     const uint8_t const *start = buf;
     /* check for null pointers */
-    if (connack == NULL || fixed_header == NULL || buf == NULL) {
+    if (response == NULL || fixed_header == NULL || buf == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
 
@@ -121,14 +121,14 @@ ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *connack
         /* only bit 1 can be set */
         return MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS;
     } else {
-        connack->session_present_flag = *buf++;
+        response->session_present_flag = *buf++;
     }
 
     if (*buf > 5u) {
         /* only bit 1 can be set */
         return MQTT_ERROR_CONNACK_FORBIDDEN_CODE;
     } else {
-        connack->connect_return_code = (enum ConnackReturnCode) *buf++;
+        response->connect_return_code = (enum ConnackReturnCode) *buf++;
     }
     return buf - start;
 }
