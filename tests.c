@@ -193,6 +193,35 @@ static void test_mqtt_pack_connection_request(void** state) {
     assert_true(memcmp(correct_bytes, buf, sizeof(correct_bytes)));
 }
 
+static void test_mqtt_pack_publish(void** state) {
+    uint8_t buf[256];
+    ssize_t rv;
+    const uint8_t correct_bytes[] = {
+        (MQTT_CONTROL_PUBLISH << 4) | MQTT_PUBLISH_RETAIN, 20,
+        0, 6, 't', 'o', 'p', 'i', 'c', '1', 0, 23,
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
+    struct mqtt_response mqtt_response;
+    struct mqtt_response_publish *response;
+    response = &(mqtt_response.decoded.publish);
+    
+    
+    rv = mqtt_pack_publish_request(buf, 256, "topic1", 23, "0123456789", 10, MQTT_PUBLISH_RETAIN);
+    assert_true(rv == 22);
+    assert_true(memcmp(buf, correct_bytes, 22) == 0);
+
+    rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, 22);
+    assert_true(rv == 2);
+    rv = mqtt_unpack_publish_response(&mqtt_response, buf + 2, 20);
+    assert_true(response->qos_level == 0);
+    assert_true(response->retain_flag == 1);
+    assert_true(response->dup_flag == 0);
+    assert_true(response->topic_name_size == 6);
+    assert_true(memcmp(response->topic_name, "topic1", 6) == 0);
+    assert_true(response->appilcation_message_size == 10);
+    assert_true(memcmp(response->application_message, "0123456789", 10) == 0);
+}
+
 static void test_mosquitto_connect_disconnect(void** state) {
     uint8_t buf[256];
     const char* addr = "test.mosquitto.org";
@@ -201,8 +230,7 @@ static void test_mosquitto_connect_disconnect(void** state) {
     struct sockaddr_storage sockaddr;
     struct mqtt_client client;
     ssize_t rv;
-    struct mqtt_fixed_header fixed_header;
-    struct mqtt_connection_response response;
+    struct mqtt_response mqtt_response;
 
     hints.ai_family = AF_INET;         /* use IPv4 */
     hints.ai_socktype = SOCK_STREAM;    /* TCP */
@@ -215,10 +243,10 @@ static void test_mosquitto_connect_disconnect(void** state) {
 
     /* receive connack */
     assert_true(recv(client.socketfd, buf, sizeof(buf), 0) != -1);
-    rv = mqtt_unpack_fixed_header(&fixed_header, buf, sizeof(buf));
+    rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
     assert_true(rv > 0);
-    assert_true(mqtt_unpack_connection_response(&response, &fixed_header, buf + rv, sizeof(buf)) > 0);
-    assert_true(response.connect_return_code == MQTT_CONNACK_ACCEPTED);
+    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv, sizeof(buf)) > 0);
+    assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 
     /* disconnect */
     rv = mqtt_pack_disconnect(buf, sizeof(buf));
@@ -234,17 +262,16 @@ static void test_mqtt_unpack_connection_response(void** state) {
         (MQTT_CONTROL_CONNACK << 4) | 0, 2,        
         0, MQTT_CONNACK_ACCEPTED
     };
-    struct mqtt_fixed_header fixed_header;
-    struct mqtt_connection_response response;
-    ssize_t rv = mqtt_unpack_fixed_header(&fixed_header, buf, sizeof(buf));
+    struct mqtt_response mqtt_response;
+    ssize_t rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
     assert_true(rv == 2);
-    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNACK);
+    assert_true(mqtt_response.fixed_header.control_type == MQTT_CONTROL_CONNACK);
 
     /* unpack response */
-    rv = mqtt_unpack_connection_response(&response, &fixed_header, buf+2, sizeof(buf)-2);
+    rv = mqtt_unpack_connack_response(&mqtt_response, buf+2, sizeof(buf)-2);
     assert_true(rv == 2);
-    assert_true(response.session_present_flag == 0);
-    assert_true(response.connect_return_code == MQTT_CONNACK_ACCEPTED);
+    assert_true(mqtt_response.decoded.connack.session_present_flag == 0);
+    assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 }
 
 static void test_mqtt_pack_disconnect(void** state) {
@@ -260,6 +287,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
         cmocka_unit_test(test_mosquitto_connect_disconnect),
+        cmocka_unit_test(test_mqtt_pack_publish),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

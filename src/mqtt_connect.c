@@ -31,19 +31,19 @@ ssize_t mqtt_pack_connection_request(
         return MQTT_ERROR_CONNECT_NULL_CLIENT_ID;
     } else {
         /* mqtt_string length is strlen + 2 */
-        remaining_length += 2 + strlen(client_id);
+        remaining_length += __mqtt_packed_cstrlen(client_id);
     }
     
     if (will_topic != NULL) {
         /* there is a will */
         connect_flags |= MQTT_CONNECT_WILL_FLAG;
-        remaining_length += 2 + strlen(will_topic);
+        remaining_length += __mqtt_packed_cstrlen(will_topic);
         
         if (will_message == NULL) {
             /* if there's a will there MUST be a will message */
             return MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE;
         }
-        remaining_length += 2 + strlen(will_message);
+        remaining_length += __mqtt_packed_cstrlen(will_message);
 
         /* assert that the will QOS is valid (i.e. not 3) */
         temp = connect_flags & MQTT_CONNECT_WILL_QOS(0x03); /* mask to QOS */
@@ -61,7 +61,7 @@ ssize_t mqtt_pack_connection_request(
     if (user_name != NULL) {
         /* a user name is present */
         connect_flags |= MQTT_CONNECT_USER_NAME;
-        remaining_length += 2 + strlen(user_name);
+        remaining_length += __mqtt_packed_cstrlen(user_name);
     } else {
         connect_flags &= ~MQTT_CONNECT_USER_NAME;
     }
@@ -69,7 +69,7 @@ ssize_t mqtt_pack_connection_request(
     if (password != NULL) {
         /* a password is present */
         connect_flags |= MQTT_CONNECT_PASSWORD;
-        remaining_length += 2 + strlen(password);
+        remaining_length += __mqtt_packed_cstrlen(password);
     } else {
         connect_flags &= ~MQTT_CONNECT_PASSWORD;
     }
@@ -120,12 +120,16 @@ ssize_t mqtt_pack_connection_request(
     return buf - start;
 }
 
-ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *response, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz) {
+ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz) {
     const uint8_t const *start = buf;
+    struct mqtt_fixed_header *fixed_header;
+    struct mqtt_response_connack *response;
     /* check for null pointers */
-    if (response == NULL || fixed_header == NULL || buf == NULL) {
+    if (mqtt_response == NULL || buf == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
+    fixed_header = &(mqtt_response->fixed_header);
+    response = &(mqtt_response->decoded.connack);
 
     /* check that the fixed header is the correct type */
     if (fixed_header->control_type != MQTT_CONTROL_CONNACK) {
@@ -149,7 +153,7 @@ ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *respons
         /* only bit 1 can be set */
         return MQTT_ERROR_CONNACK_FORBIDDEN_CODE;
     } else {
-        response->connect_return_code = (enum ConnackReturnCode) *buf++;
+        response->return_code = (enum ConnackReturnCode) *buf++;
     }
     return buf - start;
 }

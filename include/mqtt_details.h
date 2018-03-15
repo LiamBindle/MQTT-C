@@ -5,4 +5,6 @@
 
 ssize_t __mqtt_pack_str(uint8_t *buf, const char* str);
 
+#define __mqtt_packed_cstrlen(x) (2 + strlen(x))
+
 #endif

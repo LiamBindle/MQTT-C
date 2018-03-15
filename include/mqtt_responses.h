@@ -1,0 +1,53 @@
+#ifndef __MQTT_RESPONSES_H__
+#define __MQTT_RESPONSES_H__
+
+#include <stdint.h>     //< uintXX_t ...
+#include <stddef.h>     //< size_t
+#include <sys/types.h>  //< ssize_t
+
+
+#include <mqtt_fixed_header.h>
+
+
+enum ConnackReturnCode {
+    MQTT_CONNACK_ACCEPTED = 0,
+    MQTT_CONNACK_REFUSED_PROTOCOL_VERSION = 1,
+    MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED = 2,
+    MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE = 3,
+    MQTT_CONNACK_REFUSED_BAD_USER_NAME_OR_PASSWORD = 4,
+    MQTT_CONNACK_REFUSED_NOT_AUTHORIZED = 5
+};
+struct mqtt_response_connack {
+    uint8_t session_present_flag;
+    enum ConnackReturnCode return_code;
+};
+
+struct mqtt_response_publish {
+    uint8_t dup_flag;
+    uint8_t qos_level;
+    uint8_t retain_flag;
+
+    uint16_t topic_name_size;
+    const void* topic_name;
+    uint16_t packet_id;
+
+    const void* application_message;
+    size_t appilcation_message_size;
+};
+
+struct mqtt_response_puback {
+    uint16_t packet_id;
+};
+
+struct mqtt_response {
+    struct mqtt_fixed_header fixed_header;
+    union {
+        struct mqtt_response_connack connack;
+        struct mqtt_response_publish publish;
+        struct mqtt_response_puback  puback;
+    } decoded;
+};
+
+
+
+#endif
