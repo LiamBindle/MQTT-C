@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -Wextra -Wall -std=c99 -Iinclude -fPIC -Lbin
+CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -fPIC -Lbin
 LDFLAGS = -shared
 VPATH = include:src
 

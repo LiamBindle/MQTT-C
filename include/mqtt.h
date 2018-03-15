@@ -99,8 +99,10 @@ ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *connack
 /* disconnect */
 ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
 
-
-
+/* client */
+struct mqtt_client {
+    int socketfd;
+};
 
 
 
