@@ -8,8 +8,16 @@
 #include <sys/types.h>  //< ssize_t
 #include <arpa/inet.h>  //< htons ntohs
 
-
 #define MQTT_PROTOCOL_LEVEL 0x04
+
+/* client */
+struct mqtt_client {
+    int socketfd;
+};
+
+/***************************************************************************
+ *                              Fixed Header                               
+ ***************************************************************************/
 
 enum MQTTControlPacketType {
     MQTT_CONTROL_CONNECT=1,
@@ -60,8 +68,10 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
  */
 ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fixed_header *fixed_header);
 
+/***************************************************************************
+ *                               CONNECT                               
+ ***************************************************************************/
 
-/* connect */
 #define MQTT_CONNECT_RESERVED       0x01
 #define MQTT_CONNECT_CLEAN_SESSION  0x02
 #define MQTT_CONNECT_WILL_FLAG      0x04
@@ -70,7 +80,9 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
 #define MQTT_CONNECT_PASSWORD       0x40
 #define MQTT_CONNECT_USER_NAME      0x80
 
-
+/**
+ * @brief Pack a connection request packet.
+ */
 ssize_t mqtt_pack_connection_request(
     uint8_t* buf, size_t bufsz, 
     const char* client_id,
@@ -81,6 +93,10 @@ ssize_t mqtt_pack_connection_request(
     uint8_t connect_flags,
     uint16_t keep_alive
 );
+
+/***************************************************************************
+ *                               CONNACK                               
+ ***************************************************************************/
 
 enum ConnackReturnCode {
     MQTT_CONNACK_ACCEPTED = 0,
@@ -108,6 +124,19 @@ struct mqtt_connection_response {
  */
 ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *response, const struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz);
 
+
+/***************************************************************************
+ *                               PUBLISH                               
+ ***************************************************************************/
+#define MQTT_PUBLISH_DUP 0x08
+#define MQTT_PUBLISH_QOS(qos) ((qos << 1) 0x06)
+#define MQTT_PUBLISH_RETAIN 0x01
+
+
+/***************************************************************************
+ *                               DISCONNECT                               
+ ***************************************************************************/
+
 /**
  * @brief Pack a disconnect packet.
  * 
@@ -119,18 +148,13 @@ ssize_t mqtt_unpack_connection_response(struct mqtt_connection_response *respons
  */
 ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
 
-/* client */
-struct mqtt_client {
-    int socketfd;
-};
 
 
 
 
-
-
-
-/* errors */
+/***************************************************************************
+ *                               MQTT ERRORS                                
+ ***************************************************************************/
 #define __ALL_MQTT_ERRORS(MQTT_ERROR)                 \
     MQTT_ERROR(MQTT_ERROR_NULLPTR)                    \
     MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)     \
@@ -138,6 +162,7 @@ struct mqtt_client {
     MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)         \
     MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)     \
     MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)  \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS) \
     MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)    \
     MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)     \
 

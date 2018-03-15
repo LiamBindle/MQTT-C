@@ -16,17 +16,18 @@ ssize_t mqtt_pack_connection_request(
     uint32_t remaining_length;
     const uint8_t const* start = buf;
     ssize_t rv;
-
-    /* build up connect flags */
-    connect_flags = connect_flags & MQTT_CONNECT_RESERVED; /* reserved */
+    uint8_t temp;
 
     /* pack the fixed header */
     fixed_header.control_type = MQTT_CONTROL_CONNECT;
     fixed_header.control_flags = 0x00;
 
-    /* calculate remaining length */
+    /* calculate remaining length and build connect_flags at the same time */
+    connect_flags = connect_flags & MQTT_CONNECT_RESERVED;
     remaining_length = 10; /* size of variable header */
+
     if (client_id == NULL) {
+        /* client_id is a mandatory parameter */
         return MQTT_ERROR_CONNECT_NULL_CLIENT_ID;
     } else {
         /* mqtt_string length is strlen + 2 */
@@ -34,20 +35,31 @@ ssize_t mqtt_pack_connection_request(
     }
     
     if (will_topic != NULL) {
+        /* there is a will */
         connect_flags |= MQTT_CONNECT_WILL_FLAG;
         remaining_length += 2 + strlen(will_topic);
         
         if (will_message == NULL) {
+            /* if there's a will there MUST be a will message */
             return MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE;
         }
         remaining_length += 2 + strlen(will_message);
+
+        /* assert that the will QOS is valid (i.e. not 3) */
+        temp = connect_flags & MQTT_CONNECT_WILL_QOS(0x03); /* mask to QOS */
+        temp = ~(temp ^ MQTT_CONNECT_WILL_QOS(0x03));       /* bitwise equality*/
+        if (temp) {
+            return MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS;
+        }
     } else {
+        /* there is no will so set all will flags to zero */
         connect_flags &= ~MQTT_CONNECT_WILL_FLAG;
         connect_flags &= ~MQTT_CONNECT_WILL_QOS(0x3);
         connect_flags &= ~MQTT_CONNECT_WILL_RETAIN;
     }
 
     if (user_name != NULL) {
+        /* a user name is present */
         connect_flags |= MQTT_CONNECT_USER_NAME;
         remaining_length += 2 + strlen(user_name);
     } else {
@@ -55,21 +67,26 @@ ssize_t mqtt_pack_connection_request(
     }
 
     if (password != NULL) {
+        /* a password is present */
         connect_flags |= MQTT_CONNECT_PASSWORD;
         remaining_length += 2 + strlen(password);
     } else {
         connect_flags &= ~MQTT_CONNECT_PASSWORD;
     }
 
+    /* fixed header length is now calculated*/
     fixed_header.remaining_length = remaining_length;
 
-    /* pack fixed header */
+    /* pack fixed header and perform error checks */
     rv = mqtt_pack_fixed_header(buf, bufsz, &fixed_header);
-    if (rv <= 0) return rv; /* error or not enough space in buffer */
+    if (rv <= 0) {
+        /* something went wrong */
+        return rv;
+    }
     buf += rv;
     bufsz -= rv;
 
-    /* check that we have enough space in the buffer still */
+    /* check that the buffer has enough space to fit the remaining length */
     if (bufsz < fixed_header.remaining_length) {
         return 0;
     }
@@ -99,6 +116,7 @@ ssize_t mqtt_pack_connection_request(
         buf += __mqtt_pack_str(buf, password);
     }
 
+    /* return the number of bytes that were consumed */
     return buf - start;
 }
 
