@@ -2,20 +2,23 @@
 #include <mqtt_details.h>
 
 
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *request) {
+ssize_t mqtt_pack_connection_request(
+    uint8_t* buf, size_t bufsz, 
+    const char* client_id,
+    const char* will_topic,
+    const char* will_message,
+    const char* user_name,
+    const char* password,
+    uint8_t connect_flags,
+    uint16_t keep_alive)
+{ 
     struct mqtt_fixed_header fixed_header;
     uint32_t remaining_length;
-    uint8_t connect_flags;
     const uint8_t const* start = buf;
     ssize_t rv;
 
-    /* check for null pointer */
-    if (request == NULL) {
-        return MQTT_ERROR_NULLPTR;
-    }
-
     /* build up connect flags */
-    connect_flags = request->connect_flags & ~MQTT_CONNECT_RESERVED;
+    connect_flags = connect_flags & MQTT_CONNECT_RESERVED; /* reserved */
 
     /* pack the fixed header */
     fixed_header.control_type = MQTT_CONTROL_CONNECT;
@@ -23,37 +26,37 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mq
 
     /* calculate remaining length */
     remaining_length = 10; /* size of variable header */
-    if (request->client_id == NULL) {
+    if (client_id == NULL) {
         return MQTT_ERROR_CONNECT_NULL_CLIENT_ID;
     } else {
         /* mqtt_string length is strlen + 2 */
-        remaining_length += 2 + strlen(request->client_id);
+        remaining_length += 2 + strlen(client_id);
     }
     
-    if (request->will_topic != NULL) {
+    if (will_topic != NULL) {
         connect_flags |= MQTT_CONNECT_WILL_FLAG;
-        remaining_length += 2 + strlen(request->will_topic);
+        remaining_length += 2 + strlen(will_topic);
         
-        if (request->will_message == NULL) {
+        if (will_message == NULL) {
             return MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE;
         }
-        remaining_length += 2 + strlen(request->will_message);
+        remaining_length += 2 + strlen(will_message);
     } else {
         connect_flags &= ~MQTT_CONNECT_WILL_FLAG;
         connect_flags &= ~MQTT_CONNECT_WILL_QOS(0x3);
         connect_flags &= ~MQTT_CONNECT_WILL_RETAIN;
     }
 
-    if (request->user_name != NULL) {
+    if (user_name != NULL) {
         connect_flags |= MQTT_CONNECT_USER_NAME;
-        remaining_length += 2 + strlen(request->user_name);
+        remaining_length += 2 + strlen(user_name);
     } else {
         connect_flags &= ~MQTT_CONNECT_USER_NAME;
     }
 
-    if (request->password != NULL) {
+    if (password != NULL) {
         connect_flags |= MQTT_CONNECT_PASSWORD;
-        remaining_length += 2 + strlen(request->password);
+        remaining_length += 2 + strlen(password);
     } else {
         connect_flags &= ~MQTT_CONNECT_PASSWORD;
     }
@@ -80,20 +83,20 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mq
     *buf++ = (uint8_t) 'T';
     *buf++ = MQTT_PROTOCOL_LEVEL;
     *buf++ = connect_flags;
-    *(uint16_t*) buf = (uint16_t) htons(request->keep_alive);
+    *(uint16_t*) buf = (uint16_t) htons(keep_alive);
     buf += 2;
 
     /* pack the payload */
-    buf += __mqtt_pack_str(buf, request->client_id);
+    buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
-        buf += __mqtt_pack_str(buf, request->will_topic);
-        buf += __mqtt_pack_str(buf, request->will_message);
+        buf += __mqtt_pack_str(buf, will_topic);
+        buf += __mqtt_pack_str(buf, will_message);
     }
     if (connect_flags & MQTT_CONNECT_USER_NAME) {
-        buf += __mqtt_pack_str(buf, request->user_name);
+        buf += __mqtt_pack_str(buf, user_name);
     }
     if (connect_flags & MQTT_CONNECT_PASSWORD) {
-        buf += __mqtt_pack_str(buf, request->password);
+        buf += __mqtt_pack_str(buf, password);
     }
 
     return buf - start;

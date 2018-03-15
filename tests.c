@@ -179,12 +179,9 @@ static void test_mqtt_pack_connection_request(void** state) {
         0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
         0, 4, 'l', 'i', 'a', 'm'
     };
-    struct mqtt_connection_request request = {0};
     struct mqtt_fixed_header fixed_header;
-    request.client_id = "liam";
-    request.keep_alive = 120;
-    
-    rv = mqtt_pack_connection_request(buf, sizeof(buf), &request);
+
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", NULL, NULL, NULL, NULL, 0, 120u);
     assert_true(rv == 18);
 
     /* check that fixed header is correct */
@@ -204,7 +201,6 @@ static void test_mosquitto_connect_disconnect(void** state) {
     struct sockaddr_storage sockaddr;
     struct mqtt_client client;
     ssize_t rv;
-    struct mqtt_connection_request request = {0};
     struct mqtt_fixed_header fixed_header;
     struct mqtt_connection_response response;
 
@@ -213,10 +209,7 @@ static void test_mosquitto_connect_disconnect(void** state) {
     client.socketfd = conf_client(addr, port, &hints, &sockaddr);
     assert_true(client.socketfd != -1);
 
-    /* send connection request */
-    request.client_id = "liam-123456";
-    request.keep_alive = 30;
-    rv = mqtt_pack_connection_request(buf, sizeof(buf), &request);
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam-123456", NULL, NULL, NULL, NULL, 0, 30);
     assert_true(rv > 0);
     assert_true(send(client.socketfd, buf, rv, 0) != -1);
 

@@ -70,29 +70,17 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
 #define MQTT_CONNECT_PASSWORD       0x40
 #define MQTT_CONNECT_USER_NAME      0x80
 
-struct mqtt_connection_request {
-    const char* client_id;
-    const char* will_topic;
-    const char* will_message; 
-    const char* user_name;
-    const char* password;
-    uint8_t connect_flags;
-    uint16_t keep_alive;
-};
 
-/**
- * @brief Serialize a connection request.
- * 
- * @param[out] buf the buffer to serialize the request into.
- * @param[in] bufsz the number of bytes in the buffer.
- * @param[in] request the connection request to be serialized.
- * 
- * @attention Remember set all unused bytes in \a request to zero (i.e. memset to zero after declaration).
- * 
- * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
- *          buffer. A negative value is an error code.
- */
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, const struct mqtt_connection_request *request);
+ssize_t mqtt_pack_connection_request(
+    uint8_t* buf, size_t bufsz, 
+    const char* client_id,
+    const char* will_topic,
+    const char* will_message,
+    const char* user_name,
+    const char* password,
+    uint8_t connect_flags,
+    uint16_t keep_alive
+);
 
 enum ConnackReturnCode {
     MQTT_CONNACK_ACCEPTED = 0,
