@@ -118,18 +118,61 @@ static void test_mqtt_fixed_header(void** state) {
     assert_true( mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 0 );
 }
 
-static void test_mqtt_connection_request (void** state) {
-    struct mqtt_connection_request connection_request = {0};
-    connection_request.client_id = "liam";
+static void test_mqtt_pack_connection_request(void** state) {
+    uint8_t buf[256];
+    ssize_t rv;
+    const uint8_t correct_bytes[] = {
+        (MQTT_CONTROL_DISCONNECT << 4) | 0, 16,
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
+        0, 4, 'l', 'i', 'a', 'm'
+    };
+    struct mqtt_connection_request request = {0};
+    struct mqtt_fixed_header fixed_header;
+    request.client_id = "liam";
+    request.keep_alive = 120;
     
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), &request);
+    assert_true(rv == 18);
+
+    /* check that fixed header is correct */
+    rv = mqtt_unpack_fixed_header(&fixed_header, buf, rv);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNECT);
+    assert_true(fixed_header.remaining_length == 16);
+
+    /* check that memory is correct */
+    assert_true(memcmp(correct_bytes, buf, sizeof(correct_bytes)));
+}
+
+static void test_mqtt_unpack_connection_response(void** state) {
+    uint8_t buf[] = {
+        (MQTT_CONTROL_CONNACK << 4) | 0, 2,        
+        0, MQTT_CONNACK_ACCEPTED
+    };
+    struct mqtt_fixed_header fixed_header;
+    struct mqtt_connection_response response;
+    ssize_t rv = mqtt_unpack_fixed_header(&fixed_header, buf, sizeof(buf));
+    assert_true(rv == 2);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_CONNACK);
+
+    /* unpack response */
+    rv = mqtt_unpack_connection_response(&response, &fixed_header, buf+2, sizeof(buf)-2);
+    assert_true(rv == 2);
+    assert_true(response.session_present_flag == 0);
+    assert_true(response.connect_return_code == MQTT_CONNACK_ACCEPTED);
+}
+
+static void test_mqtt_pack_disconnect(void** state) {
+    uint8_t buf[2];
+    assert_true(mqtt_pack_disconnect(buf, 2) == 2);
 }
 
 int main(void)
 {
-    const struct CMUnitTest tests[] =
-    {
+    const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_mqtt_fixed_header),
-        cmocka_unit_test(test_mqtt_connection_request),
+        cmocka_unit_test(test_mqtt_pack_connection_request),
+        cmocka_unit_test(test_mqtt_unpack_connection_response),
+        cmocka_unit_test(test_mqtt_pack_disconnect),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
