@@ -62,8 +62,8 @@ int conf_client(const char* addr, const char* port, const struct addrinfo* hints
 }
 
 static void test_mqtt_fixed_header(void** state) {
-    uint8_t correct_buf[5];
-    uint8_t buf[5];
+    uint8_t correct_buf[1024];
+    uint8_t buf[1024];
     struct mqtt_fixed_header fixed_header;
     ssize_t rv;
 

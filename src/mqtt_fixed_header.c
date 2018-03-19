@@ -130,6 +130,11 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const u
         return errcode;
     }
 
+    /* check that the buffer size if GT remaining length */
+    if (bufsz < fixed_header->remaining_length) {
+        return 0;
+    }
+
     /* return how many bytes were consumed */
     return buf - start;
 }
@@ -173,6 +178,11 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
     /* consume last byte */
     --bufsz;
     ++buf;
+
+    /* check that there's still enough space in buffer for packet */
+    if (bufsz < fixed_header->remaining_length) {
+        return 0;
+    }
 
     /* return how many bytes were consumed */
     return buf - start;

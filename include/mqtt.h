@@ -11,6 +11,7 @@
 
 #include <mqtt_fixed_header.h>
 #include <mqtt_responses.h>
+#include <mqtt_requests.h>
 
 #define MQTT_PROTOCOL_LEVEL 0x04
 
@@ -18,91 +19,6 @@
 struct mqtt_client {
     int socketfd;
 };
-
-/***************************************************************************
- *                               CONNECT                               
- ***************************************************************************/
-
-#define MQTT_CONNECT_RESERVED       0x01
-#define MQTT_CONNECT_CLEAN_SESSION  0x02
-#define MQTT_CONNECT_WILL_FLAG      0x04
-#define MQTT_CONNECT_WILL_QOS(qos)  (qos & 0x03) << 3
-#define MQTT_CONNECT_WILL_RETAIN    0x20
-#define MQTT_CONNECT_PASSWORD       0x40
-#define MQTT_CONNECT_USER_NAME      0x80
-
-/**
- * @brief Pack a connection request packet.
- */
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
-                                     const char* client_id,
-                                     const char* will_topic,
-                                     const char* will_message,
-                                     const char* user_name,
-                                     const char* password,
-                                     uint8_t connect_flags,
-                                     uint16_t keep_alive);
-
-
-/***************************************************************************
- *                               PUBLISH                               
- ***************************************************************************/
-#define MQTT_PUBLISH_DUP 0x08
-#define MQTT_PUBLISH_QOS(qos) ((qos << 1) & 0x06)
-#define MQTT_PUBLISH_RETAIN 0x01
-
-ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
-                                  const char* topic_name,
-                                  uint16_t packet_id,
-                                  void* application_message,
-                                  size_t appilcation_message_size,
-                                  uint8_t publish_flags);
-
-/***************************************************************************
- *                               PUBXXX                               
- ***************************************************************************/
-ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
-                                 enum MQTTControlPacketType control_type,
-                                 uint16_t packet_id);
-
-
-/***************************************************************************
- *                               SUBSCRIBE
- ***************************************************************************/
-#define MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS 8
-ssize_t mqtt_pack_subscribe_request  (uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
-
-/***************************************************************************
- *                               UNSUBSCRIBE
- ***************************************************************************/
-#define MQTT_UNSUBSCRIBE_REQUEST_MAX_NUM_TOPICS 8
-ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
-
-
-/***************************************************************************
- *                                  PING
- ***************************************************************************/
-ssize_t mqtt_pack_ping_request(uint8_t *buf, size_t bufsz);
-
-
-/***************************************************************************
- *                               DISCONNECT                               
- ***************************************************************************/
-
-/**
- * @brief Pack a disconnect packet.
- * 
- * @param[out] buf the buffer to serialize the request into.
- * @param[in] bufsz the number of bytes in the buffer.
- * 
- * @returns Number of bytes that were packed into the buffer. Zero if there isn't enough space in the 
- *          buffer. A negative value is an error code.
- */
-ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
-
-
-
-
 
 /***************************************************************************
  *                               MQTT ERRORS                                

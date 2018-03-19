@@ -2,15 +2,14 @@
 #include <mqtt_details.h>
 
 
-ssize_t mqtt_pack_connection_request(
-    uint8_t* buf, size_t bufsz, 
-    const char* client_id,
-    const char* will_topic,
-    const char* will_message,
-    const char* user_name,
-    const char* password,
-    uint8_t connect_flags,
-    uint16_t keep_alive)
+ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
+                                     const char* client_id,
+                                     const char* will_topic,
+                                     const char* will_message,
+                                     const char* user_name,
+                                     const char* password,
+                                     uint8_t connect_flags, 
+                                     uint16_t keep_alive)
 { 
     struct mqtt_fixed_header fixed_header;
     uint32_t remaining_length;
