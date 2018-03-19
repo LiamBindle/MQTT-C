@@ -41,6 +41,11 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
     const uint8_t const *start = buf;
     uint16_t packet_id;
 
+    /* assert remaining length is correct */
+    if (mqtt_response->fixed_header.remaining_length != 2) {
+        return MQTT_ERROR_MALFORMED_RESPONSE;
+    }
+
     /* parse packet_id */
     packet_id = (uint16_t) ntohs(*(uint16_t*) buf);
     buf += 2;

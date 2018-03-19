@@ -80,6 +80,11 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     response->qos_level = (fixed_header->control_flags & MQTT_PUBLISH_QOS(3)) >> 1;
     response->retain_flag = fixed_header->control_flags & MQTT_PUBLISH_RETAIN;
 
+    /* make sure that remaining length is valid */
+    if (mqtt_response->fixed_header.remaining_length < 4) {
+        return MQTT_ERROR_MALFORMED_RESPONSE;
+    }
+
     /* parse variable header */
     response->topic_name_size = (uint16_t) ntohs(*(uint16_t*) buf);
     buf += 2;

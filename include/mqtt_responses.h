@@ -68,17 +68,20 @@ struct mqtt_response_unsuback {
     uint16_t packet_id;
 };
 
+struct mqtt_response_pingresp {};
+
 struct mqtt_response {
     struct mqtt_fixed_header fixed_header;
     union {
-        struct mqtt_response_connack connack;
-        struct mqtt_response_publish publish;
-        struct mqtt_response_puback  puback;
-        struct mqtt_response_pubrec  pubrec;
-        struct mqtt_response_pubrel  pubrel;
-        struct mqtt_response_pubcomp pubcomp;
-        struct mqtt_response_suback  suback;
+        struct mqtt_response_connack  connack;
+        struct mqtt_response_publish  publish;
+        struct mqtt_response_puback   puback;
+        struct mqtt_response_pubrec   pubrec;
+        struct mqtt_response_pubrel   pubrel;
+        struct mqtt_response_pubcomp  pubcomp;
+        struct mqtt_response_suback   suback;
         struct mqtt_response_unsuback unsuback;
+        struct mqtt_response_pingresp pingresp;
     } decoded;
 };
 

@@ -4,7 +4,7 @@ ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const
 {
     const uint8_t const *start = buf;
 
-    if (mqtt_response->fixed_header.remaining_length < 2) {
+    if (mqtt_response->fixed_header.remaining_length != 2) {
         return MQTT_ERROR_MALFORMED_RESPONSE;
     }
 
