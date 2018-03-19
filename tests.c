@@ -360,6 +360,27 @@ static void test_mqtt_pack_subscribe(void** state) {
     assert_true(memcmp(buf, correct, 25) == 0);
 }
 
+static void test_mqtt_unpack_suback(void** state) {
+    ssize_t rv;
+    struct mqtt_response response;
+    const uint8_t buf[] = {
+        MQTT_CONTROL_SUBACK << 4, 5,
+        0, 132u,
+        MQTT_SUBACK_SUCCESS_MAX_QOS_0,
+        MQTT_SUBACK_SUCCESS_MAX_QOS_1,
+        MQTT_SUBACK_FAILURE
+    };
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, sizeof(buf));
+    assert_true(rv == 2);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_SUBACK);
+    rv = mqtt_unpack_suback_response(&response, buf + 2, sizeof(buf) - 2);
+    assert_true(response.decoded.suback.packet_id == 132u);
+    assert_true(response.decoded.suback.num_return_codes == 3);
+    assert_true(response.decoded.suback.return_codes[0] == MQTT_SUBACK_SUCCESS_MAX_QOS_0);
+    assert_true(response.decoded.suback.return_codes[1] == MQTT_SUBACK_SUCCESS_MAX_QOS_1);
+    assert_true(response.decoded.suback.return_codes[2] == MQTT_SUBACK_FAILURE);
+}
+
 static void test_mqtt_pack_disconnect(void** state) {
     uint8_t buf[2];
     assert_true(mqtt_pack_disconnect(buf, 2) == 2);   
@@ -372,10 +393,11 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
-        //cmocka_unit_test(test_mosquitto_connect_disconnect),
+        cmocka_unit_test(test_mosquitto_connect_disconnect),
         cmocka_unit_test(test_mqtt_pack_publish),
         cmocka_unit_test(test_mqtt_pubxxx),
         cmocka_unit_test(test_mqtt_pack_subscribe),
+        cmocka_unit_test(test_mqtt_unpack_suback),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

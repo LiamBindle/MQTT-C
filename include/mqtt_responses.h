@@ -48,6 +48,16 @@ struct mqtt_response_pubcomp {
     uint16_t packet_id;
 };
 
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_0 0x00
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_1 0x01
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_2 0x02
+#define MQTT_SUBACK_FAILURE           0x80
+struct mqtt_response_suback {
+    uint16_t packet_id;
+    const uint8_t *return_codes;
+    size_t num_return_codes;
+};
+
 struct mqtt_response {
     struct mqtt_fixed_header fixed_header;
     union {
@@ -57,13 +67,15 @@ struct mqtt_response {
         struct mqtt_response_pubrec  pubrec;
         struct mqtt_response_pubrel  pubrel;
         struct mqtt_response_pubcomp pubcomp;
+        struct mqtt_response_suback  suback;
     } decoded;
 };
 
 
 ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
 ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_pubxxx_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
 
 
 #endif
