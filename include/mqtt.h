@@ -79,6 +79,11 @@ ssize_t mqtt_pack_subscribe_request  (uint8_t *buf, size_t bufsz, uint16_t packe
 ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
 
 
+/***************************************************************************
+ *                                  PING
+ ***************************************************************************/
+ssize_t mqtt_pack_ping_request(uint8_t *buf, size_t bufsz);
+
 
 /***************************************************************************
  *                               DISCONNECT                               

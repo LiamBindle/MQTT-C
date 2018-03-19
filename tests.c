@@ -419,6 +419,61 @@ static void test_mqtt_pack_disconnect(void** state) {
     assert_true(mqtt_pack_disconnect(buf, 2) == 2);   
 }
 
+static void test_mqtt_pack_ping(void** state) {
+    uint8_t buf[2];
+    struct mqtt_fixed_header fixed_header;
+    assert_true(mqtt_pack_ping_request(buf, 2) == 2);   
+    assert_true(mqtt_unpack_fixed_header(&fixed_header, buf, 2) == 2);
+    assert_true(fixed_header.control_type == MQTT_CONTROL_PINGREQ);
+    assert_true(fixed_header.remaining_length == 0);
+}
+
+static void test_mqtt_connect_and_ping(void** state) {
+    uint8_t buf[256];
+    const char* addr = "test.mosquitto.org";
+    const char* port = "1883";
+    struct addrinfo hints = {0};
+    struct sockaddr_storage sockaddr;
+    struct mqtt_client client;
+    ssize_t rv;
+    struct mqtt_response mqtt_response;
+
+    hints.ai_family = AF_INET;         /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    client.socketfd = conf_client(addr, port, &hints, &sockaddr);
+    assert_true(client.socketfd != -1);
+
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "this-is-me", NULL, NULL, NULL, NULL, 0, 30);
+    assert_true(rv > 0);
+    assert_true(send(client.socketfd, buf, rv, 0) != -1);
+
+    /* receive connack */
+    assert_true(recv(client.socketfd, buf, sizeof(buf), 0) != -1);
+    rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
+    assert_true(rv > 0);
+    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv, sizeof(buf)) > 0);
+    assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
+
+    /* send ping request */
+    rv = mqtt_pack_ping_request(buf, sizeof(buf));
+    assert_true(rv > 0);
+    assert_true(send(client.socketfd, buf, rv, 0) != -1);
+
+    /* receive ping response */
+    assert_true(recv(client.socketfd, buf, sizeof(buf), 0) != -1);
+    rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
+    assert_true(rv > 0);
+    assert_true(mqtt_response.fixed_header.control_type == MQTT_CONTROL_PINGRESP);
+
+    /* disconnect */
+    rv = mqtt_pack_disconnect(buf, sizeof(buf));
+    assert_true(rv > 0);
+    assert_true(send(client.socketfd, buf, rv, 0) != -1);
+
+    /*close the socket */
+    close(client.socketfd);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -433,6 +488,8 @@ int main(void)
         cmocka_unit_test(test_mqtt_unpack_suback),
         cmocka_unit_test(test_mqtt_pack_unsubscribe),
         cmocka_unit_test(test_mqtt_unpack_unsuback),
+        cmocka_unit_test(test_mqtt_pack_ping),
+        cmocka_unit_test(test_mqtt_connect_and_ping),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
