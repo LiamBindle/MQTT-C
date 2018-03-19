@@ -5,8 +5,14 @@
 #include <stddef.h>     //< size_t
 #include <sys/types.h>  //< ssize_t
 
-
 #include <mqtt_fixed_header.h>
+
+/* mqtt_response.h
+ * This file contains functions for unpacking responses from the MQTT broker.
+ * 
+ * These ONLY error checks that these functions perform is checking that the 
+ * brokers response is minimally valid (i.e. interperable).
+ */
 
 
 enum ConnackReturnCode {
@@ -77,11 +83,11 @@ struct mqtt_response {
 };
 
 
-ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_pubxxx_response  (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_suback_response  (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const uint8_t *buf);
+ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const uint8_t *buf);
+ssize_t mqtt_unpack_pubxxx_response  (struct mqtt_response *mqtt_response, const uint8_t *buf);
+ssize_t mqtt_unpack_suback_response  (struct mqtt_response *mqtt_response, const uint8_t *buf);
+ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const uint8_t *buf);
 
 
 #endif

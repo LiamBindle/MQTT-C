@@ -1,7 +1,7 @@
 #include <mqtt.h>
 
 
-ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz) {
+ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const uint8_t *buf) {
     const uint8_t const *start = buf;
     uint32_t remaining_length = mqtt_response->fixed_header.remaining_length;
     

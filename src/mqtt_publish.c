@@ -66,15 +66,12 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     return buf - start;
 }
 
-ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz)
+ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf)
 {    
     const uint8_t const *start = buf;
     struct mqtt_fixed_header *fixed_header;
     struct mqtt_response_publish *response;
-    /* check for null pointers */
-    if (mqtt_response == NULL || buf == NULL) {
-        return MQTT_ERROR_NULLPTR;
-    }
+    
     fixed_header = &(mqtt_response->fixed_header);
     response = &(mqtt_response->decoded.publish);
 
@@ -82,11 +79,6 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     response->dup_flag = (fixed_header->control_flags & MQTT_PUBLISH_DUP) >> 3;
     response->qos_level = (fixed_header->control_flags & MQTT_PUBLISH_QOS(3)) >> 1;
     response->retain_flag = fixed_header->control_flags & MQTT_PUBLISH_RETAIN;
-
-    /* check that buffer has full response */
-    if (bufsz < fixed_header->remaining_length) {
-        return 0;
-    }
 
     /* parse variable header */
     response->topic_name_size = (uint16_t) ntohs(*(uint16_t*) buf);

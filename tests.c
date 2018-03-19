@@ -212,7 +212,7 @@ static void test_mqtt_pack_publish(void** state) {
 
     rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, 22);
     assert_true(rv == 2);
-    rv = mqtt_unpack_publish_response(&mqtt_response, buf + 2, 20);
+    rv = mqtt_unpack_publish_response(&mqtt_response, buf + 2);
     assert_true(response->qos_level == 0);
     assert_true(response->retain_flag == 1);
     assert_true(response->dup_flag == 0);
@@ -245,7 +245,7 @@ static void test_mosquitto_connect_disconnect(void** state) {
     assert_true(recv(client.socketfd, buf, sizeof(buf), 0) != -1);
     rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
     assert_true(rv > 0);
-    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv, sizeof(buf)) > 0);
+    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv) > 0);
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 
     /* disconnect */
@@ -268,7 +268,7 @@ static void test_mqtt_unpack_connection_response(void** state) {
     assert_true(mqtt_response.fixed_header.control_type == MQTT_CONTROL_CONNACK);
 
     /* unpack response */
-    rv = mqtt_unpack_connack_response(&mqtt_response, buf+2, sizeof(buf)-2);
+    rv = mqtt_unpack_connack_response(&mqtt_response, buf+2);
     assert_true(rv == 2);
     assert_true(mqtt_response.decoded.connack.session_present_flag == 0);
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
@@ -303,7 +303,7 @@ static void test_mqtt_pubxxx(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBACK);
-    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2);
     assert_true(rv == 2);
     assert_true(response.decoded.puback.packet_id == 213u);
 
@@ -315,7 +315,7 @@ static void test_mqtt_pubxxx(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBREC);
-    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2);
     assert_true(rv == 2);
     assert_true(response.decoded.pubrec.packet_id == 213u);
 
@@ -327,7 +327,7 @@ static void test_mqtt_pubxxx(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBREL);
-    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2);
     assert_true(rv == 2);
     assert_true(response.decoded.pubrel.packet_id == 213u);
 
@@ -339,7 +339,7 @@ static void test_mqtt_pubxxx(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 256);
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_PUBCOMP);
-    rv = mqtt_unpack_pubxxx_response(&response, buf + 2, 254);
+    rv = mqtt_unpack_pubxxx_response(&response, buf + 2);
     assert_true(rv == 2);
     assert_true(response.decoded.pubcomp.packet_id == 213u);
 }
@@ -373,7 +373,7 @@ static void test_mqtt_unpack_suback(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, sizeof(buf));
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_SUBACK);
-    rv = mqtt_unpack_suback_response(&response, buf + 2, sizeof(buf) - 2);
+    rv = mqtt_unpack_suback_response(&response, buf + 2);
     assert_true(rv == 5);
     assert_true(response.decoded.suback.packet_id == 132u);
     assert_true(response.decoded.suback.num_return_codes == 3);
@@ -409,7 +409,7 @@ static void test_mqtt_unpack_unsuback(void** state) {
     rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 4);
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_UNSUBACK);
-    rv = mqtt_unpack_unsuback_response(&response, buf + 2, 2);
+    rv = mqtt_unpack_unsuback_response(&response, buf + 2);
     assert_true(rv == 2);
     assert_true(response.decoded.unsuback.packet_id == 213u);
 }
@@ -451,7 +451,7 @@ static void test_mqtt_connect_and_ping(void** state) {
     assert_true(recv(client.socketfd, buf, sizeof(buf), 0) != -1);
     rv = mqtt_unpack_fixed_header(&mqtt_response.fixed_header, buf, sizeof(buf));
     assert_true(rv > 0);
-    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv, sizeof(buf)) > 0);
+    assert_true(mqtt_unpack_connack_response(&mqtt_response, buf + rv) > 0);
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 
     /* send ping request */
