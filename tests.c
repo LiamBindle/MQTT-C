@@ -374,11 +374,44 @@ static void test_mqtt_unpack_suback(void** state) {
     assert_true(rv == 2);
     assert_true(response.fixed_header.control_type == MQTT_CONTROL_SUBACK);
     rv = mqtt_unpack_suback_response(&response, buf + 2, sizeof(buf) - 2);
+    assert_true(rv == 5);
     assert_true(response.decoded.suback.packet_id == 132u);
     assert_true(response.decoded.suback.num_return_codes == 3);
     assert_true(response.decoded.suback.return_codes[0] == MQTT_SUBACK_SUCCESS_MAX_QOS_0);
     assert_true(response.decoded.suback.return_codes[1] == MQTT_SUBACK_SUCCESS_MAX_QOS_1);
     assert_true(response.decoded.suback.return_codes[2] == MQTT_SUBACK_FAILURE);
+}
+
+static void test_mqtt_pack_unsubscribe(void** state) {
+    uint8_t buf[256];
+    ssize_t rv;
+    const uint8_t correct[] = {
+        MQTT_CONTROL_UNSUBSCRIBE << 4 | 2u, 20,
+        0, 132u,
+        0, 3, 'a', '/', 'b',
+        0, 5, 'b', 'b', 'b', '/', 'x',
+        0, 4, 'c', '/', 'd', 'd',
+    };
+
+    rv = mqtt_pack_unsubscribe_request(buf, 256, 132, "a/b", "bbb/x", "c/dd", NULL);
+    assert_true(rv == 22);
+    assert_true(memcmp(buf, correct, sizeof(correct)) == 0);
+}
+
+static void test_mqtt_unpack_unsuback(void** state) {
+    uint8_t buf[] = {
+        MQTT_CONTROL_UNSUBACK << 4, 2,
+        0, 213u
+    };
+    ssize_t rv;
+    struct mqtt_response response;
+
+    rv = mqtt_unpack_fixed_header(&response.fixed_header, buf, 4);
+    assert_true(rv == 2);
+    assert_true(response.fixed_header.control_type == MQTT_CONTROL_UNSUBACK);
+    rv = mqtt_unpack_unsuback_response(&response, buf + 2, 2);
+    assert_true(rv == 2);
+    assert_true(response.decoded.unsuback.packet_id == 213u);
 }
 
 static void test_mqtt_pack_disconnect(void** state) {
@@ -398,6 +431,8 @@ int main(void)
         cmocka_unit_test(test_mqtt_pubxxx),
         cmocka_unit_test(test_mqtt_pack_subscribe),
         cmocka_unit_test(test_mqtt_unpack_suback),
+        cmocka_unit_test(test_mqtt_pack_unsubscribe),
+        cmocka_unit_test(test_mqtt_unpack_unsuback),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

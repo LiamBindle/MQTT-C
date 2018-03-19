@@ -5,9 +5,9 @@ ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const 
     const uint8_t const *start = buf;
     uint32_t remaining_length = mqtt_response->fixed_header.remaining_length;
     
-    /* assert remaining length is at least 2 (for packet id) */
-    if (remaining_length < 2) {
-        return MQTT_ERROR_SUBACK_TOO_SMALL;
+    /* assert remaining length is at least 3 (for packet id and at least 1 topic) */
+    if (remaining_length < 3) {
+        return MQTT_ERROR_MALFORMED_RESPONSE;
     }
 
     /* unpack packet_id */

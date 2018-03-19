@@ -58,6 +58,10 @@ struct mqtt_response_suback {
     size_t num_return_codes;
 };
 
+struct mqtt_response_unsuback {
+    uint16_t packet_id;
+};
+
 struct mqtt_response {
     struct mqtt_fixed_header fixed_header;
     union {
@@ -68,14 +72,16 @@ struct mqtt_response {
         struct mqtt_response_pubrel  pubrel;
         struct mqtt_response_pubcomp pubcomp;
         struct mqtt_response_suback  suback;
+        struct mqtt_response_unsuback unsuback;
     } decoded;
 };
 
 
-ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_pubxxx_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
-ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_pubxxx_response  (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_suback_response  (struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
+ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const uint8_t *buf, size_t bufsz);
 
 
 #endif

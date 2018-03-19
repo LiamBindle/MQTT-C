@@ -67,9 +67,16 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
 
 
 /***************************************************************************
- *                               SUBSCRIBE                               
+ *                               SUBSCRIBE
  ***************************************************************************/
-ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
+#define MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS 8
+ssize_t mqtt_pack_subscribe_request  (uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
+
+/***************************************************************************
+ *                               UNSUBSCRIBE
+ ***************************************************************************/
+#define MQTT_UNSUBSCRIBE_REQUEST_MAX_NUM_TOPICS 8
+ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...); /* null terminated */
 
 
 
@@ -95,19 +102,20 @@ ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
 /***************************************************************************
  *                               MQTT ERRORS                                
  ***************************************************************************/
-#define __ALL_MQTT_ERRORS(MQTT_ERROR)                 \
-    MQTT_ERROR(MQTT_ERROR_NULLPTR)                    \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)     \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)      \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)         \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)     \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)  \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS) \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)    \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)     \
-    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)      \
-    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)  \
-    MQTT_ERROR(MQTT_ERROR_SUBACK_TOO_SMALL)  \
+#define __ALL_MQTT_ERRORS(MQTT_ERROR)                  \
+    MQTT_ERROR(MQTT_ERROR_NULLPTR)                     \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)      \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)       \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)          \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)      \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)   \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)  \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)     \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)      \
+    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)       \
+    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)   \
+    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)          \
+    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS) \
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
