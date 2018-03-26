@@ -36,13 +36,13 @@ enum MQTTConnackReturnCode {
  */
 struct mqtt_response_connack {
     /** 
-     * Allows client and broker to check if they have a consistent view about whether there is
+     * @brief Allows client and broker to check if they have a consistent view about whether there is
      * already a stored session state.
     */
     uint8_t session_present_flag;
 
     /** 
-     * The return code of the connection request. 
+     * @brief The return code of the connection request. 
      * 
      * @see MQTTConnackReturnCode
      */
@@ -62,13 +62,13 @@ struct mqtt_response_connack {
   */
 struct mqtt_response_publish {
     /** 
-     * The DUP flag. DUP flag is 0 if its the first attempt to send this publish packet. A DUP flag
+     * @brief The DUP flag. DUP flag is 0 if its the first attempt to send this publish packet. A DUP flag
      * of 1 means that this might be a re-delivery of the packet.
      */
     uint8_t dup_flag;
 
     /** 
-     * The quality of service level.
+     * @brief The quality of service level.
      * 
      * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_3.11_-">
      * MQTT v3.1.1: QoS Definitions
@@ -76,26 +76,26 @@ struct mqtt_response_publish {
      */
     uint8_t qos_level;
 
-    /** The retain flag of this publish message. */
+    /** @brief The retain flag of this publish message. */
     uint8_t retain_flag;
 
-    /** Size of the topic name (number of characters). */
+    /** @brief Size of the topic name (number of characters). */
     uint16_t topic_name_size;
 
     /** 
-     * The topic name. 
+     * @brief The topic name. 
      * @note topic_name is not null terminated. Therefore topic_name_size must be used to get the 
      *       string length.
      */
     const void* topic_name;
 
-    /** The publish message's packet ID. */
+    /** @brief The publish message's packet ID. */
     uint16_t packet_id;
 
-    /** The publish message's application message.*/
+    /** @brief The publish message's application message.*/
     const void* application_message;
 
-    /** The size of the application message in bytes. */
+    /** @brief The size of the application message in bytes. */
     size_t appilcation_message_size;
 };
 
@@ -109,7 +109,7 @@ struct mqtt_response_publish {
  *
  */
 struct mqtt_response_puback {
-    /** The published messages packet ID. */
+    /** @brief The published messages packet ID. */
     uint16_t packet_id;
 };
 
@@ -123,7 +123,7 @@ struct mqtt_response_puback {
  *
  */
 struct mqtt_response_pubrec {
-    /** The published messages packet ID. */
+    /** @brief The published messages packet ID. */
     uint16_t packet_id;
 };
 
@@ -137,7 +137,7 @@ struct mqtt_response_pubrec {
  *
  */
 struct mqtt_response_pubrel {
-    /** The published messages packet ID. */
+    /** @brief The published messages packet ID. */
     uint16_t packet_id;
 };
 
@@ -151,7 +151,7 @@ struct mqtt_response_pubrel {
  *
  */
 struct mqtt_response_pubcomp {
-    /** The published messages packet ID. */
+    /** T@brief he published messages packet ID. */
     uint16_t packet_id;
 };
 
@@ -179,7 +179,7 @@ enum MQTTSubackReturnCodes {
  * </a> 
  */
 struct mqtt_response_suback {
-    /** The published messages packet ID. */
+    /** @brief The published messages packet ID. */
     uint16_t packet_id;
 
     /** 
@@ -202,7 +202,7 @@ struct mqtt_response_suback {
  * </a> 
  */
 struct mqtt_response_unsuback {
-    /** The published messages packet ID. */
+    /** @brief The published messages packet ID. */
     uint16_t packet_id;
 };
 
@@ -223,11 +223,11 @@ struct mqtt_response_pingresp {};
  * @ingroup unpackers
  */
 struct mqtt_response {
-    /** The mqtt_fixed_header of the deserialized packet. */
+    /** @brief The mqtt_fixed_header of the deserialized packet. */
     struct mqtt_fixed_header fixed_header;
 
     /**
-     * A union of the possible responses from the broker.
+     * @brief A union of the possible responses from the broker.
      * 
      * @note The fixed_header contains the control type. This control type corresponds to the
      *       member of this union that should be accessed. For example if 
@@ -267,7 +267,7 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *
  * @brief Deserialize a CONNACK response from \p buf.
  * @ingroup unpackers
  * 
- * @pre mqtt_unpack_fixed_header must have returned a positive value and the control packet type
+ * @pre \ref mqtt_unpack_fixed_header must have returned a positive value and the control packet type
  *      must be \c MQTT_CONTROL_CONNACK.
  * 
  * @param[out] mqtt_response the mqtt_response that will be initialized.
@@ -285,7 +285,7 @@ ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const
  * @brief Deserialize a publish response from \p buf.
  * @ingroup unpackers
  * 
- * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
+ * @pre \ref mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
  *      have a control type of \c MQTT_CONTROL_PUBLISH.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
@@ -302,7 +302,7 @@ ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const
  * @brief Deserialize a PUBACK/PUBREC/PUBREL/PUBCOMP packet from \p buf.
  * @ingroup unpackers
  * 
- * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
+ * @pre \ref mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
  *      have a control type of \c MQTT_CONTROL_PUBACK, \c MQTT_CONTROL_PUBREC, \c MQTT_CONTROL_PUBREL
  *      or \c MQTT_CONTROL_PUBCOMP.
  * 
@@ -320,7 +320,7 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
  * @brief Deserialize a SUBACK packet from \p buf.
  * @ingroup unpacker
  *  
- * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
+ * @pre \ref mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
  *      have a control type of \c MQTT_CONTROL_SUBACK.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
@@ -337,7 +337,7 @@ ssize_t mqtt_unpack_suback_response(struct mqtt_response *mqtt_response, const u
  * @brief Deserialize an UNSUBACK packet from \p buf.
  * @ingroup unpacker
  *  
- * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
+ * @pre \ref mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
  *      have a control type of \c MQTT_CONTROL_UNSUBACK.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.

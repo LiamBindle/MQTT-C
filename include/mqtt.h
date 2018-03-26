@@ -25,7 +25,7 @@
  * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
  *
  * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
- *       function you will need).
+ *       function you need).
  */
 
 
