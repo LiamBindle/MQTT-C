@@ -45,15 +45,15 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         remaining_length += __mqtt_packed_cstrlen(will_message);
 
         /* assert that the will QOS is valid (i.e. not 3) */
-        temp = connect_flags & MQTT_CONNECT_WILL_QOS(0x03); /* mask to QOS */
-        temp = ~(temp ^ MQTT_CONNECT_WILL_QOS(0x03));       /* bitwise equality*/
+        temp = connect_flags & 0x18; /* mask to QOS */
+        temp = ~(temp ^ 0x18);       /* bitwise equality with QoS 3 (invalid)*/
         if (temp) {
             return MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS;
         }
     } else {
         /* there is no will so set all will flags to zero */
         connect_flags &= ~MQTT_CONNECT_WILL_FLAG;
-        connect_flags &= ~MQTT_CONNECT_WILL_QOS(0x3);
+        connect_flags &= ~0x18;
         connect_flags &= ~MQTT_CONNECT_WILL_RETAIN;
     }
 

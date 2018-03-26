@@ -220,7 +220,7 @@ static void test_mqtt_pack_publish(void** state) {
     assert_true(response->dup_flag == 0);
     assert_true(response->topic_name_size == 6);
     assert_true(memcmp(response->topic_name, "topic1", 6) == 0);
-    assert_true(response->appilcation_message_size == 10);
+    assert_true(response->application_message_size == 10);
     assert_true(memcmp(response->application_message, "0123456789", 10) == 0);
 }
 

@@ -5,7 +5,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
                                   const char* topic_name,
                                   uint16_t packet_id,
                                   void* application_message,
-                                  size_t appilcation_message_size,
+                                  size_t application_message_size,
                                   uint8_t publish_flags)
 {
     const uint8_t const *start = buf;
@@ -24,18 +24,18 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 
     /* calculate remaining length */
     remaining_length = __mqtt_packed_cstrlen(topic_name) + 2; /* variable header size */
-    remaining_length += appilcation_message_size;
+    remaining_length += application_message_size;
     fixed_header.remaining_length = remaining_length;
 
     /* force dup to 0 if qos is 0 */
-    temp = publish_flags & MQTT_PUBLISH_QOS(0x3); /* mask */
+    temp = publish_flags & 0x06; /* mask */
     if (temp == 0) {
         /* qos is zero */
         publish_flags &= ~MQTT_PUBLISH_DUP;
     }
 
     /* make sure that qos is not 3 */
-    if (temp == MQTT_PUBLISH_QOS(0x3)) {
+    if (temp == 0x06) {
         return MQTT_ERROR_PUBLISH_FORBIDDEN_QOS;
     }
     fixed_header.control_flags = publish_flags;
@@ -60,8 +60,8 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     buf += 2;
 
     /* pack payload */
-    memcpy(buf, application_message, appilcation_message_size);
-    buf += appilcation_message_size;
+    memcpy(buf, application_message, application_message_size);
+    buf += application_message_size;
 
     return buf - start;
 }
@@ -77,7 +77,7 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
 
     /* get flags */
     response->dup_flag = (fixed_header->control_flags & MQTT_PUBLISH_DUP) >> 3;
-    response->qos_level = (fixed_header->control_flags & MQTT_PUBLISH_QOS(3)) >> 1;
+    response->qos_level = (fixed_header->control_flags & 0x06) >> 1;
     response->retain_flag = fixed_header->control_flags & MQTT_PUBLISH_RETAIN;
 
     /* make sure that remaining length is valid */
@@ -96,8 +96,8 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
 
     /* get payload */
     response->application_message = buf;
-    response->appilcation_message_size = fixed_header->remaining_length - response->topic_name_size - 4;
-    buf += response->appilcation_message_size;
+    response->application_message_size = fixed_header->remaining_length - response->topic_name_size - 4;
+    buf += response->application_message_size;
     
     /* return number of bytes consumed */
     return buf - start;

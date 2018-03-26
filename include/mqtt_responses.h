@@ -96,7 +96,7 @@ struct mqtt_response_publish {
     const void* application_message;
 
     /** @brief The size of the application message in bytes. */
-    size_t appilcation_message_size;
+    size_t application_message_size;
 };
 
 /**
