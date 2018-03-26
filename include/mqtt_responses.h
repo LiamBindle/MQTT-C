@@ -5,6 +5,9 @@
 #include <stddef.h>     //< size_t
 #include <sys/types.h>  //< ssize_t
 
+/**
+ * @file 
+ */
 
 /**
  * @brief An enumeration of the return codes returned in a CONNACK packet.
@@ -228,7 +231,7 @@ struct mqtt_response {
      * 
      * @note The fixed_header contains the control type. This control type corresponds to the
      *       member of this union that should be accessed. For example if 
-     *       fixed_header#control_type == MQTT_CONTROL_PUBLISH then 
+     *       fixed_header#control_type == \c MQTT_CONTROL_PUBLISH then 
      *       decoded#publish should be accessed.
      */
     union {
@@ -265,7 +268,7 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *
  * @ingroup unpackers
  * 
  * @pre mqtt_unpack_fixed_header must have returned a positive value and the control packet type
- *      must be MQTT_CONTROL_CONNACK.
+ *      must be \c MQTT_CONTROL_CONNACK.
  * 
  * @param[out] mqtt_response the mqtt_response that will be initialized.
  * @param[in] buf the buffer that contains the variable header and payload of the packet. The 
@@ -283,7 +286,7 @@ ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const
  * @ingroup unpackers
  * 
  * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
- *      have a control type of MQTT_CONTROL_PUBLISH.
+ *      have a control type of \c MQTT_CONTROL_PUBLISH.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
  * @param[in] buf the buffer with the incoming data.
@@ -300,8 +303,8 @@ ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const
  * @ingroup unpackers
  * 
  * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
- *      have a control type of MQTT_CONTROL_PUBACK, MQTT_CONTROL_PUBREC, MQTT_CONTROL_PUBREL
- *      or MQTT_CONTROL_PUBCOMP.
+ *      have a control type of \c MQTT_CONTROL_PUBACK, \c MQTT_CONTROL_PUBREC, \c MQTT_CONTROL_PUBREL
+ *      or \c MQTT_CONTROL_PUBCOMP.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
  * @param[in] buf the buffer with the incoming data.
@@ -318,7 +321,7 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
  * @ingroup unpacker
  *  
  * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
- *      have a control type of MQTT_CONTROL_SUBACK.
+ *      have a control type of \c MQTT_CONTROL_SUBACK.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
  * @param[in] buf the buffer with the incoming data.
@@ -335,7 +338,7 @@ ssize_t mqtt_unpack_suback_response(struct mqtt_response *mqtt_response, const u
  * @ingroup unpacker
  *  
  * @pre mqtt_unpack_fixed_header must have returned a positive value and the mqtt_response must
- *      have a control type of MQTT_CONTROL_UNSUBACK.
+ *      have a control type of \c MQTT_CONTROL_UNSUBACK.
  * 
  * @param[out] mqtt_response the response that is initialized from the contents of \p buf.
  * @param[in] buf the buffer with the incoming data.

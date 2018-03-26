@@ -16,13 +16,16 @@
  * Welcome 
  * 
  * @defgroup api API
- * @brief API documentation.
+ * @brief Application programmer interface documentation.
  * 
  * @defgroup packers Control Packet Serialization
  * @brief Documentation of functions and datastructures for MQTT control packet serialization.
  * 
  * @defgroup unpackers Control Packet Deserialization
  * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
+ *
+ * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
+ *       function you will need).
  */
 
 
