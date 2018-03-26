@@ -88,15 +88,17 @@ ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_h
     return 0;
 }
 
-ssize_t mqtt_unpack_fixed_header(struct mqtt_fixed_header *fixed_header, const uint8_t *buf, size_t bufsz) {
+ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *buf, size_t bufsz) {
+    struct mqtt_fixed_header *fixed_header;
     const uint8_t *start = buf;
     int lshift;
     ssize_t errcode;
     
     /* check for null pointers or empty buffer */
-    if (fixed_header == NULL || buf == NULL) {
+    if (response == NULL || buf == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
+    fixed_header = &(response->fixed_header);
 
     /* check that bufsz is not zero */
     if (bufsz == 0) return 0;

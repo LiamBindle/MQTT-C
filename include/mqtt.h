@@ -9,13 +9,74 @@
 #include <arpa/inet.h>  //< htons ntohs
 #include <stdarg.h>
 
-#include <mqtt_fixed_header.h>
+ /**
+  * @brief An enumeration of the MQTT control packet types. 
+  * @ingroup unpackers
+  *
+  * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718021">
+  * MQTT v3.1.1: MQTT Control Packet Types
+  * </a>
+  */
+  enum MQTTControlPacketType {
+    MQTT_CONTROL_CONNECT=1u,
+    MQTT_CONTROL_CONNACK=2u,
+    MQTT_CONTROL_PUBLISH=3u,
+    MQTT_CONTROL_PUBACK=4u,
+    MQTT_CONTROL_PUBREC=5u,
+    MQTT_CONTROL_PUBREL=6u,
+    MQTT_CONTROL_PUBCOMP=7u,
+    MQTT_CONTROL_SUBSCRIBE=8u,
+    MQTT_CONTROL_SUBACK=9u,
+    MQTT_CONTROL_UNSUBSCRIBE=10u,
+    MQTT_CONTROL_UNSUBACK=11u,
+    MQTT_CONTROL_PINGREQ=12u,
+    MQTT_CONTROL_PINGRESP=13u,
+    MQTT_CONTROL_DISCONNECT=14u
+};
+
+/**
+ * @brief The fixed header of an MQTT control packet.
+ * @ingroup unpackers
+ * 
+ * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020">
+ * MQTT v3.1.1: Fixed Header
+ * </a>
+ */
+struct mqtt_fixed_header {
+    /** The type of packet. */
+    enum MQTTControlPacketType control_type;
+
+    /** The packets control flags.*/
+    uint8_t control_flags: 4;
+
+    /** The remaining size of the packet in bytes (i.e. the size of variable header and payload).*/
+    uint32_t remaining_length;
+};
+
 #include <mqtt_responses.h>
 #include <mqtt_requests.h>
 
+/**
+ * @file
+ * 
+ * @mainpage 
+ * Welcome 
+ * 
+ * @defgroup api API
+ * @brief API documentation.
+ * 
+ * @defgroup packers Control Packet Serialization
+ * @brief Documentation of functions and datastructures for MQTT control packet serialization.
+ * 
+ * @defgroup unpackers Control Packet Deserialization
+ * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
+ */
+
 #define MQTT_PROTOCOL_LEVEL 0x04
 
-/* client */
+/**
+ * @brief An MQTT client. 
+ */
 struct mqtt_client {
     int socketfd;
 };

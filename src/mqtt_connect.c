@@ -17,7 +17,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     ssize_t rv;
     uint8_t temp;
 
-    /* pack the fixed header */
+    /* pack the fixed headr */
     fixed_header.control_type = MQTT_CONTROL_CONNECT;
     fixed_header.control_flags = 0x00;
 

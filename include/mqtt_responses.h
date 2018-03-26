@@ -85,6 +85,21 @@ struct mqtt_response {
     } decoded;
 };
 
+/**
+ * @brief Deserialize the contents of \p buf into an mqtt_fixed_header object.
+ * @ingroup unpackers
+ * 
+ * @note This function performs complete error checking and a positive return value
+ *       means the entire mqtt_response can be deserialized from \p buf.
+ * 
+ * @param[out] fixed_header the fixed header object that will be initialized.
+ * @param[in] buf the buffer.
+ * @param[in] bufsz the total number of bytes in the buffer.
+ * 
+ * @returns The number of bytes that were consumed, or 0 if the buffer does not contain enough 
+ *          bytes to parse the packet, or a negative value if there was a protocol violation.
+ */
+ssize_t mqtt_unpack_fixed_header     (struct mqtt_response *response, const uint8_t *buf, size_t bufsz);
 
 ssize_t mqtt_unpack_connack_response (struct mqtt_response *mqtt_response, const uint8_t *buf);
 ssize_t mqtt_unpack_publish_response (struct mqtt_response *mqtt_response, const uint8_t *buf);
