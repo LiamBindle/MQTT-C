@@ -9,6 +9,23 @@
 #include <arpa/inet.h>  //< htons ntohs
 #include <stdarg.h>
 
+/**
+ * @file
+ * 
+ * @mainpage 
+ * Welcome 
+ * 
+ * @defgroup api API
+ * @brief API documentation.
+ * 
+ * @defgroup packers Control Packet Serialization
+ * @brief Documentation of functions and datastructures for MQTT control packet serialization.
+ * 
+ * @defgroup unpackers Control Packet Deserialization
+ * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
+ */
+
+
  /**
   * @brief An enumeration of the MQTT control packet types. 
   * @ingroup unpackers
@@ -53,25 +70,6 @@ struct mqtt_fixed_header {
     uint32_t remaining_length;
 };
 
-#include <mqtt_responses.h>
-#include <mqtt_requests.h>
-
-/**
- * @file
- * 
- * @mainpage 
- * Welcome 
- * 
- * @defgroup api API
- * @brief API documentation.
- * 
- * @defgroup packers Control Packet Serialization
- * @brief Documentation of functions and datastructures for MQTT control packet serialization.
- * 
- * @defgroup unpackers Control Packet Deserialization
- * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
- */
-
 #define MQTT_PROTOCOL_LEVEL 0x04
 
 /**
@@ -84,20 +82,21 @@ struct mqtt_client {
 /***************************************************************************
  *                               MQTT ERRORS                                
  ***************************************************************************/
-#define __ALL_MQTT_ERRORS(MQTT_ERROR)                  \
-    MQTT_ERROR(MQTT_ERROR_NULLPTR)                     \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)      \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)       \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)          \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)      \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)   \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)  \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)     \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)      \
-    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)       \
-    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)   \
-    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)          \
-    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS) \
+#define __ALL_MQTT_ERRORS(MQTT_ERROR)                    \
+    MQTT_ERROR(MQTT_ERROR_NULLPTR)                       \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)         \
+    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)            \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)        \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)     \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)    \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)       \
+    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)        \
+    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)         \
+    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)     \
+    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
+    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
+    MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
@@ -108,5 +107,8 @@ enum MqttErrors {
 };
 
 const char* mqtt_error_str(enum MqttErrors error);
+
+#include <mqtt_responses.h>
+#include <mqtt_requests.h>
 
 #endif

@@ -24,7 +24,7 @@ ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const 
         /* only bit 1 can be set */
         return MQTT_ERROR_CONNACK_FORBIDDEN_CODE;
     } else {
-        response->return_code = (enum ConnackReturnCode) *buf++;
+        response->return_code = (enum MQTTConnackReturnCode) *buf++;
     }
     return buf - start;
 }
