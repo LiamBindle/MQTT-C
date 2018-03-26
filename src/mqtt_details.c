@@ -1,5 +1,4 @@
  #include <mqtt.h>
- #include <mqtt_details.h>
  
  ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
     uint16_t length = strlen(str);

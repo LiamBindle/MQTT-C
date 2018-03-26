@@ -1,5 +1,4 @@
 #include <mqtt.h>
-#include <mqtt_details.h>
 
 
 ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf) {

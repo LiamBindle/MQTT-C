@@ -1,5 +1,4 @@
 #include <mqtt.h>
-#include <mqtt_details.h>
 
 
 ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
