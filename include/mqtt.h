@@ -73,18 +73,28 @@ struct mqtt_fixed_header {
     uint32_t remaining_length;
 };
 
+/**
+ * @brief The protocol identifier for MQTT v3.1.1.
+ * @ingroup packers
+ * 
+ * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030">
+ * MQTT v3.1.1: CONNECT Variable Header.
+ * </a>  
+ */
 #define MQTT_PROTOCOL_LEVEL 0x04
 
 /**
  * @brief An MQTT client. 
  */
 struct mqtt_client {
+    /** @brief the socket connected to the broker. */
     int socketfd;
 };
 
-/***************************************************************************
- *                               MQTT ERRORS                                
- ***************************************************************************/
+/** 
+ * @brief A macro used to declare the enum MqttErrors and associated 
+ *        error messages (the members of the num) at the same time.
+ */
 #define __ALL_MQTT_ERRORS(MQTT_ERROR)                    \
     MQTT_ERROR(MQTT_ERROR_NULLPTR)                       \
     MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \
@@ -101,14 +111,40 @@ struct mqtt_client {
     MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
 
+/** 
+ * @brief A macro used to generate the enum MqttErrors from 
+ *        \ref __ALL_MQTT_ERRORS
+ * @see __ALL_MQTT_ERRORS
+*/
 #define GENERATE_ENUM(ENUM) ENUM,
+
+/** 
+ * @brief A macro used to generate the error messages associated with 
+ *        MqttErrors from \ref __ALL_MQTT_ERRORS
+ * @see __ALL_MQTT_ERRORS
+*/
 #define GENERATE_STRING(STRING) #STRING,
 
+
+/** 
+ * @brief An enumeration of error codes. Error messages can be retrieved by calling \ref mqtt_error_str.
+ * @ingroup api
+ * 
+ * @see mqtt_error_str
+ */
 enum MqttErrors {
     MQTT_ERROR_UNKNOWN=INT_MIN,
     __ALL_MQTT_ERRORS(GENERATE_ENUM)
 };
 
+/** 
+ * @brief Returns an error message for error code, \p error.
+ * @ingroup api
+ * 
+ * @param[in] error the error code.
+ * 
+ * @returns The associated error message.
+ */
 const char* mqtt_error_str(enum MqttErrors error);
 
 #include <mqtt_responses.h>
