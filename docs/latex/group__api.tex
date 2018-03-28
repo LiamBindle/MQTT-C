@@ -1,0 +1,76 @@
+\hypertarget{group__api}{}\section{A\+PI}
+\label{group__api}\index{A\+PI@{A\+PI}}
+
+
+Application programmer interface documentation.  
+
+
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{Mqtt\+Errors} \{ \\*
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+U\+N\+K\+N\+O\+WN} =I\+N\+T\+\_\+\+M\+IN, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+N\+U\+L\+L\+P\+TR}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+T\+Y\+PE}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+I\+N\+V\+A\+L\+I\+D\+\_\+\+F\+L\+A\+GS}, 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+W\+R\+O\+N\+G\+\_\+\+T\+Y\+PE}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+N\+U\+L\+L\+\_\+\+C\+L\+I\+E\+N\+T\+\_\+\+ID}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+N\+U\+L\+L\+\_\+\+W\+I\+L\+L\+\_\+\+M\+E\+S\+S\+A\+GE}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+W\+I\+L\+L\+\_\+\+Q\+OS}, 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+N\+A\+C\+K\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+F\+L\+A\+GS}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+N\+A\+C\+K\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+C\+O\+DE}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+Q\+OS}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+T\+O\+O\+\_\+\+M\+A\+N\+Y\+\_\+\+T\+O\+P\+I\+CS}, 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+M\+A\+L\+F\+O\+R\+M\+E\+D\+\_\+\+R\+E\+S\+P\+O\+N\+SE}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+T\+O\+O\+\_\+\+M\+A\+N\+Y\+\_\+\+T\+O\+P\+I\+CS}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+R\+E\+S\+P\+O\+N\+S\+E\+\_\+\+I\+N\+V\+A\+L\+I\+D\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+T\+Y\+PE}
+ \}\begin{DoxyCompactList}\small\item\em An enumeration of error codes. Error messages can be retrieved by calling \hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str}. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char $\ast$ \hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str} (enum \hyperlink{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{Mqtt\+Errors} error)
+\begin{DoxyCompactList}\small\item\em Returns an error message for error code, {\ttfamily error}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Application programmer interface documentation. 
+
+
+
+\subsection{Enumeration Type Documentation}
+\index{A\+PI@{A\+PI}!Mqtt\+Errors@{Mqtt\+Errors}}
+\index{Mqtt\+Errors@{Mqtt\+Errors}!A\+PI@{A\+PI}}
+\subsubsection[{\texorpdfstring{Mqtt\+Errors}{MqttErrors}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Mqtt\+Errors}}\hypertarget{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{}\label{group__api_gabfef25ed21446904fd8b3a71cfa1f203}
+
+
+An enumeration of error codes. Error messages can be retrieved by calling \hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str}. 
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str} 
+\end{DoxySeeAlso}
+
+
+\subsection{Function Documentation}
+\index{A\+PI@{A\+PI}!mqtt\+\_\+error\+\_\+str@{mqtt\+\_\+error\+\_\+str}}
+\index{mqtt\+\_\+error\+\_\+str@{mqtt\+\_\+error\+\_\+str}!A\+PI@{A\+PI}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+error\+\_\+str(enum Mqtt\+Errors error)}{mqtt_error_str(enum MqttErrors error)}}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ mqtt\+\_\+error\+\_\+str (
+\begin{DoxyParamCaption}
+\item[{enum {\bf Mqtt\+Errors}}]{error}
+\end{DoxyParamCaption}
+)}\hypertarget{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{}\label{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}
+
+
+Returns an error message for error code, {\ttfamily error}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em error} & the error code.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The associated error message. 
+\end{DoxyReturn}
