@@ -83,20 +83,6 @@ struct mqtt_fixed_header {
  */
 #define MQTT_PROTOCOL_LEVEL 0x04
 
-/**
- * @brief An MQTT client. 
- */
-struct mqtt_client {
-    /** @brief the socket connected to the broker. */
-    int socketfd;
-
-    /** @brief */
-    uint16_t prev_packet_id;
-};
-
-uint16_t mqtt_next_packet_id(struct mqtt_client *client);
-
-
 /** 
  * @brief A macro used to declare the enum MqttErrors and associated 
  *        error messages (the members of the num) at the same time.
@@ -116,8 +102,8 @@ uint16_t mqtt_next_packet_id(struct mqtt_client *client);
     MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
     MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
-    MQTT_ERROR(MQTT_ERROR_BUFFER_OVERFLOW)               \
-    MQTT_ERROR(MQTT_ERROR_BUFFER_TOO_SMALL)              \
+    MQTT_ERROR(MQTT_ERROR_CLIENT_NOT_CONNECTED)          \
+    MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
 
 /** 
  * @brief A macro used to generate the enum MqttErrors from 
@@ -143,6 +129,7 @@ uint16_t mqtt_next_packet_id(struct mqtt_client *client);
 enum MqttErrors {
     MQTT_ERROR_UNKNOWN=INT_MIN,
     __ALL_MQTT_ERRORS(GENERATE_ENUM)
+    MQTT_OK = 1
 };
 
 /** 
@@ -790,5 +777,147 @@ ssize_t mqtt_pack_ping_request(uint8_t *buf, size_t bufsz);
  *          packet, a negative value if there was a protocol violation.
  */
 ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
+
+
+/**
+ * @brief An enumeration of queued message states. 
+ */
+enum MQTTQueuedMessageState {
+    MQTT_QUEUED_UNSENT,
+    MQTT_QUEUED_AWAITING_ACK,
+    MQTT_QUEUED_COMPLETE
+};
+
+/**
+ * @brief A message in a mqtt_message_queue.
+ */
+struct mqtt_queued_message {
+    /** @brief A pointer to the start of the message. */
+    uint8_t *start;
+
+    /** @brief The number of bytes in the message. */
+    size_t size;
+
+    /** @brief The state of the message. */
+    enum MQTTQueuedMessageState state;
+
+    /** 
+     * @brief The time at which a timeout will occur. 
+     * 
+     * @note A timeout will only occur if the message is in
+     *       the MQTT_QUEUED_AWAITING_ACK \c state.
+     */
+    time_t timeout;
+
+    /**
+     * @brief The control type of the message.
+     * 
+     * @note This field is used to determine if \c timeout and \c packet_id
+     *       need to be used. 
+     */
+    enum MQTTControlPacketType control_type;
+
+    /** 
+     * @brief The packet id of the message.
+     * 
+     * @note This field is only used if the associate \c control_type has a 
+     *       \c packet_id field.
+     */
+    uint16_t packet_id;
+};
+
+/**
+ * @brief A message queue.
+ * 
+ * @note This struct is used internally to manage sending messages.
+ * @note The only members the user should use are \c curr and \c curr_sz. 
+ */
+struct mqtt_message_queue {
+    /** 
+     * @brief The start of the message queue's memory block. 
+     * 
+     * @warning This member should \em not be manually changed.
+     */
+    void *mem_start;
+    /** @brief The end of the message queue's memory block. */
+    void *mem_end;
+
+    /**
+     * @brief A pointer to the position in the buffer you can pack bytes at.
+     * 
+     * @note Immediately after packing bytes at \c curr you \em must call
+     *       mqtt_mq_register.
+     */
+    uint8_t *curr;
+
+    /**
+     * @brief The number of bytes that can be written to \c curr.
+     * 
+     * @note curr_sz will decrease by more than the number of bytes you write to 
+     *       \c curr. This is because the mqtt_queued_message structs share the 
+     *       same memory (and thus, a mqtt_queued_message must be allocated in 
+     *       the message queue's memory whenever a new message is registered).  
+     */
+    size_t curr_sz;
+    
+    /**
+     * @brief The tail of the array of mqtt_queued_messages's.
+     * 
+     * @note This member should not be used manually.
+     */
+    struct mqtt_queued_message *queue_tail;
+};
+
+/**
+ * @brief Initialize a message queue.
+ * 
+ * @param[out] mq The message queue to initialize.
+ * @param[in] buf The buffer for this message queue.
+ * @param[in] bufsz The number of bytes in the buffer. 
+ */
+void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
+
+/**
+ * @brief Clear as many messages from the front of the queue as possible.
+ * 
+ * @param mq The message queue.
+ */
+void mqtt_mq_clean(struct mqtt_message_queue *mq);
+
+/**
+ * @brief Register a message that was just added to the buffer.
+ * 
+ * @note This function should be called immediately following a call to a packer function
+ *       that returned a positive value. The positive value (number of bytes packed) should
+ *       be passed to this function.
+ * 
+ * @param mq The message queue.
+ * @param[in] nbytes The number of bytes that were just packed.
+ * 
+ * @note This function will step mqtt_message_queue::curr and update mqtt_message_queue::curr_sz.
+ * 
+ * @returns The newly added struct mqtt_queued_message.
+ */
+struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes);
+
+/**
+ * @brief Returns the mqtt_queued_message at \p index.
+ * 
+ * @param mq_ptr A pointer to the message queue.
+ * @param index The index of the message. 
+ *
+ * @returns The mqtt_queued_message at \p index.
+ */
+#define mqtt_mq_get(mq_ptr, index) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - 1 - index)
+
+/**
+ * @brief Returns the number of messages in the message queue, \p mq_ptr.
+ */
+#define mqtt_mq_length(mq_ptr) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - (mq_ptr)->queue_tail)
+
+/**
+ * @brief Used internally to recalculate the \c curr_sz.
+ */
+#define mqtt_mq_currsz(mq_ptr) (mq_ptr->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr
 
 #endif

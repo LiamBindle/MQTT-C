@@ -28,21 +28,8 @@ const char* mqtt_error_str(enum MqttErrors error) {
     } else if (error == 0) {
         return "MQTT_ERROR: Buffer too small.";
     } else if (error > 0) {
-        return "MQTT_ERROR: Not an error.";
+        return "MQTT_OK";
     } else {
         return MQTT_ERRORS_STR[0];
     }
-}
-
-uint16_t mqtt_next_packet_id(struct mqtt_client *client) {
-    if (client->prev_packet_id == 0) {
-        client->prev_packet_id = 163u;
-    }
-    /* LFSR taps taken from: https://en.wikipedia.org/wiki/Linear-feedback_shift_register */
-    unsigned lsb = client->prev_packet_id & 1;
-    (client->prev_packet_id) >>= 1;
-    if (lsb) {
-        client->prev_packet_id ^= 0xB400u;
-    }
-    return client->prev_packet_id;
 }

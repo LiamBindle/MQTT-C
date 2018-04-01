@@ -1,4 +1,4 @@
-#include <mqtt_mq.h>
+#include <mqtt.h>
 
 
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
@@ -10,22 +10,19 @@ void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)
     mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
-void mqtt_mq_register(struct mqtt_message_queue *mq, 
-                         enum MQTTControlPacketType control_type,
-                         uint16_t packet_id,
-                         size_t nbytes)
+struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)
 {
     /* make queued message header */
     --(mq->queue_tail);
     mq->queue_tail->start = mq->curr;
     mq->queue_tail->size = nbytes;
     mq->queue_tail->state = MQTT_QUEUED_UNSENT;
-    mq->queue_tail->control_type = control_type;
-    mq->queue_tail->packet_id = packet_id;
 
     /* move curr and recalculate curr_sz */
     mq->curr += nbytes;
     mq->curr_sz = mqtt_mq_currsz(mq);
+
+    return mq->queue_tail;
 }
 
 void mqtt_mq_clean(struct mqtt_message_queue *mq) {

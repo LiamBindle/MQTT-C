@@ -16,7 +16,7 @@
 #include <sys/wait.h>
 
 #include <mqtt.h>
-#include <mqtt_mq.h>
+#include <mqtt_client.h>
 
 int conf_client(const char* addr, const char* port, const struct addrinfo* hints, struct sockaddr_storage* sockaddr) {
     int sockfd = -1;
@@ -482,25 +482,34 @@ static void test_mqtt_connect_and_ping(void** state) {
 static void test_message_queue(void **unused) {
     uint8_t mem[32 + 4*QM_SZ];
     struct mqtt_message_queue mq;
+    struct mqtt_queued_message *tail;
     mqtt_mq_init(&mq, mem, sizeof(mem));
 
     /* check that it fills up correctly */
     assert_true(mqtt_mq_length(&mq) == 0);
     assert_true(mq.curr_sz == 32 + 3*QM_SZ);
     memset(mq.curr, 0, 8);
-    mqtt_mq_register(&mq, 2, 111, 8);
+    tail = mqtt_mq_register(&mq, 8);
+    tail->control_type = 2;
+    tail->packet_id = 111;
     assert_true(mqtt_mq_length(&mq) == 1);
     assert_true(mq.curr_sz == 24 + 2*QM_SZ);
     memset(mq.curr, 1, 8);
-    mqtt_mq_register(&mq, 3, 222, 8);
+    tail = mqtt_mq_register(&mq, 8);
+    tail->control_type = 3;
+    tail->packet_id = 222;
     assert_true(mqtt_mq_length(&mq) == 2);
     assert_true(mq.curr_sz == 16 + 1*QM_SZ);
     memset(mq.curr, 2, 8);
-    mqtt_mq_register(&mq, 4, 333, 8);
+    tail = mqtt_mq_register(&mq, 8);
+    tail->control_type = 4;
+    tail->packet_id = 333;
     assert_true(mqtt_mq_length(&mq) == 3);
     assert_true(mq.curr_sz == 8);
     memset(mq.curr, 3, 8);
-    mqtt_mq_register(&mq, 5, 444, 8);
+    tail = mqtt_mq_register(&mq, 8);
+    tail->control_type = 5;
+    tail->packet_id = 444;
     assert_true(mqtt_mq_length(&mq) == 4);
     assert_true(mq.curr_sz == 0);
     assert_true(mq.curr == (uint8_t*) mq.queue_tail);
@@ -558,12 +567,12 @@ static void test_message_queue(void **unused) {
 
 static void test_packet_id_lfsr(void **unused) {
     struct mqtt_client client;
-    client.prev_packet_id = 163u;
+    client.pid_lfsr = 163u;
     uint32_t period = 0;
     do {
-        mqtt_next_packet_id(&client);
+        mqtt_next_pid(&client);
         period++;
-    } while(client.prev_packet_id != 163u && client.prev_packet_id !=0);
+    } while(client.pid_lfsr != 163u && client.pid_lfsr !=0);
     assert_true(period == 65535u);
 }
 
