@@ -570,7 +570,7 @@ static void test_packet_id_lfsr(void **unused) {
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        /*cmocka_unit_test(test_mqtt_fixed_header),
+        cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -582,7 +582,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_unsubscribe),
         cmocka_unit_test(test_mqtt_unpack_unsuback),
         cmocka_unit_test(test_mqtt_pack_ping),
-        cmocka_unit_test(test_mqtt_connect_and_ping),*/
+        cmocka_unit_test(test_mqtt_connect_and_ping),
         cmocka_unit_test(test_message_queue),
         cmocka_unit_test(test_packet_id_lfsr),
     };
