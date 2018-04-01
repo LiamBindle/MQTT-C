@@ -604,11 +604,16 @@ static void test_message_queue(void **unused) {
     /**/
     memset(mq.curr, 'x', 16);
     mqtt_message_queue_register(&mq, MQTT_CONTROL_PINGREQ, 123, 16);
-    memset(mq.curr, 'y', 8);
-    mqtt_message_queue_register(&mq, MQTT_CONTROL_PUBACK, 234, 8);
-    printf("%d\n", mq.curr_sz);
-    memset(mq.curr, 'z', 8);
-    mqtt_message_queue_register(&mq, MQTT_CONTROL_CONNECT, 345, 8);
+    printf("%ld\n", mq.curr_sz);
+    memset(mq.curr, 'y', mq.curr_sz);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_PUBACK, 234, mq.curr_sz);
+    for(int i = 0; i < mqtt_message_queue_item(&mq, 0)->size; ++i) {
+        assert_true(mqtt_message_queue_item(&mq, 0)->start[i] == 'x');
+    }
+    for(int i = 0; i < mqtt_message_queue_item(&mq, 1)->size; ++i) {
+        assert_true(mqtt_message_queue_item(&mq, 1)->start[i] == 'y');
+    }
+    
 
 }
 

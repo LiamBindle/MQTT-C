@@ -55,11 +55,11 @@ void mqtt_message_queue_register(struct mqtt_message_queue *mq,
     mq->queue_next->control_type = control_type;
 
     mq->curr += nbytes;
-    mq->curr_sz -= nbytes + sizeof(struct mqtt_queued_message);
     --(mq->queue_next);
-
-    if (mq->curr_sz < 0) {
-        mqtt_message_queue_clean(mq);
+    if (mq->curr >= (uint8_t*)(mq->queue_next -1)) {
+        mq->curr_sz = 0;
+    } else {
+        mq->curr_sz = (uint8_t*) mq->queue_next - mq->curr - sizeof(struct mqtt_queued_message);
     }
 }
 
