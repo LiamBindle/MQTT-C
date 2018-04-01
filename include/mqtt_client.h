@@ -5,6 +5,8 @@
 
 #include <mqtt.h>
 
+
+
 /**
  * @brief An MQTT client. 
  */
@@ -26,19 +28,28 @@ struct mqtt_client {
 
     time_t time_of_last_send;
 
-    uint8_t *recvbuf;
-    size_t recvbufsz;
+    void (*publish_response_callback)(struct mqtt_response_publish *publish);
+
+    struct {
+        uint8_t *mem_start;
+        size_t mem_size;
+    
+        uint8_t *curr;
+        size_t curr_sz;
+    } recv_buffer;
     struct mqtt_message_queue mq;
 };
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client);
 ssize_t __mqtt_send(struct mqtt_client *client);
+ssize_t __mqtt_recv(struct mqtt_client *client);
 
 
 ssize_t mqtt_init(struct mqtt_client *client,
                   int sockfd,
                   uint8_t *sendbuf, size_t sendbufsz,
-                  uint8_t *recvbuf, size_t recvbufsz);
+                  uint8_t *recvbuf, size_t recvbufsz,
+                  void (*publish_response_callback)(struct mqtt_response_publish *publish));
 
 ssize_t mqtt_connect(struct mqtt_client *client,
                      const char* client_id,

@@ -106,6 +106,8 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
     MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \
     MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
+    MQTT_ERROR(MQTT_ERROR_RECV_BUFFER_TOO_SMALL)         \
+    MQTT_ERROR(MQTT_ERROR_ACK_OF_UNKNOWN)                \
 
 /** 
  * @brief A macro used to generate the enum MqttErrors from 
@@ -898,6 +900,8 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq);
  * @returns The newly added struct mqtt_queued_message.
  */
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes);
+
+struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id);
 
 /**
  * @brief Returns the mqtt_queued_message at \p index.
