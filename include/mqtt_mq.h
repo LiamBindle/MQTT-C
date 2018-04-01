@@ -18,38 +18,22 @@ struct mqtt_queued_message {
 };
 
 struct mqtt_message_queue {
-    /** @brief The start of the allocated memory space */
     void *mem_start;
-
-    /** @brief The end of the allocated memory space */
     void *mem_end;
 
-    /** @brief The current position in the buffer to start packing at. */
     uint8_t *curr;
-
-    /** @brief The number of bytes available (for packing) in the buffer. */
-    ssize_t curr_sz;
-
-    /** 
-     * @brief A pointer to the struct mqtt_message_queue to store for the \em next message to 
-     *        be queued in the buffer.
-     * 
-     * @note Queue elements are stored in reverse order. This means that the tail of the queue
-     *       is stored at \c {queue_next + 1}.
-     */
-    struct mqtt_queued_message *queue_next;
+    size_t curr_sz;
+    
+    struct mqtt_queued_message *queue_tail;
 };
 
-void mqtt_message_queue_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
+void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
+void mqtt_mq_clean(struct mqtt_message_queue *mq);
+void mqtt_mq_register(struct mqtt_message_queue *mq, 
+                         enum MQTTControlPacketType control_type,
+                         uint16_t packet_id,
+                         size_t nbytes);
+#define mqtt_mq_get(mq_ptr, index) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - 1 - index)
+#define mqtt_mq_length(mq_ptr) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - (mq_ptr)->queue_tail)
+#define mqtt_mq_currsz(mq_ptr) (mq_ptr->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr
 
-void mqtt_message_queue_clean(struct mqtt_message_queue *mq);
-
-void mqtt_message_queue_register(struct mqtt_message_queue *mq,
-                                    enum MQTTControlPacketType control_type,
-                                    uint16_t packet_id,
-                                    size_t nbytes);
-
-
-ssize_t mqtt_message_queue_length(struct mqtt_message_queue *mq);
-
-struct mqtt_queued_message* mqtt_message_queue_item(struct mqtt_message_queue *mq, int index);

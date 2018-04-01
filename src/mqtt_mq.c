@@ -1,72 +1,67 @@
 #include <mqtt_mq.h>
 
-void mqtt_message_queue_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) {
-    /* initialize message queue */
+
+void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
+{
     mq->mem_start = buf;
     mq->mem_end = buf + bufsz;
-    mq->curr = (uint8_t *) buf;
-    mq->queue_next = ((struct mqtt_queued_message*) mq->mem_end) - 1;
-    mq->curr_sz = bufsz - 2*sizeof(struct mqtt_queued_message);
+    mq->curr = buf;
+    mq->queue_tail = mq->mem_end;
+    mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
-void mqtt_message_queue_clean(struct mqtt_message_queue *mq) {
-    /* count how many MQTT_QUEUED_COMPLETE are at the start */
-    struct mqtt_queued_message *tail = mq->queue_next + 1;
-    struct mqtt_queued_message *head = ((struct mqtt_queued_message*) mq->mem_end) - 1;
-    struct mqtt_queued_message *new_first;
+void mqtt_mq_register(struct mqtt_message_queue *mq, 
+                         enum MQTTControlPacketType control_type,
+                         uint16_t packet_id,
+                         size_t nbytes)
+{
+    /* make queued message header */
+    --(mq->queue_tail);
+    mq->queue_tail->start = mq->curr;
+    mq->queue_tail->size = nbytes;
+    mq->queue_tail->state = MQTT_QUEUED_UNSENT;
+    mq->queue_tail->control_type = control_type;
+    mq->queue_tail->packet_id = packet_id;
 
-    /* find first queued message that is not complete */
-    for(new_first = head; new_first >= tail; --new_first) {
-        if (new_first->state != MQTT_QUEUED_COMPLETE) {
-            break;
-        }
+    /* move curr and recalculate curr_sz */
+    mq->curr += nbytes;
+    mq->curr_sz = mqtt_mq_currsz(mq);
+}
+
+void mqtt_mq_clean(struct mqtt_message_queue *mq) {
+    struct mqtt_queued_message *new_head;
+
+    for(new_head = mqtt_mq_get(mq, 0); new_head >= mq->queue_tail; --new_head) {
+        if (new_head->state != MQTT_QUEUED_COMPLETE) break;
     }
-
-    /* check if everything can be cleared */
-    if (new_first < tail) {
+    
+    /* check if everything can be removed */
+    if (new_head < mq->queue_tail) {
         mq->curr = mq->mem_start;
-        mq->queue_next = head;
-        mq->curr_sz = (mq->mem_end - mq->mem_start) - 2*sizeof(struct mqtt_queued_message);
+        mq->queue_tail = mq->mem_end;
+        mq->curr_sz = mqtt_mq_currsz(mq);
+        return;
+    } else if (new_head == mqtt_mq_get(mq, 0)) {
+        /* do nothing */
         return;
     }
 
-    /* memmove all awaiting to mem_start */
-    size_t n = mq->curr - new_first->start;
-    memmove(mq->mem_start, new_first->start, n);
+    /* move buffered data */
+    size_t n = mq->curr - new_head->start;
+    size_t removing = new_head->start - (uint8_t*) mq->mem_start;
+    memmove(mq->mem_start, new_head->start, n);
     mq->curr = mq->mem_start + n;
 
-    /* memmove struct queued_messages */
-    n = (new_first - mq->queue_next) * sizeof(struct mqtt_queued_message);
+    /* move queue */
+    ssize_t new_tail_idx = new_head - mq->queue_tail;
+    memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (new_tail_idx + 1));
+    mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
 
-    memmove(mq->mem_end - n, tail, n);
-    mq->queue_next =((struct mqtt_queued_message*) (mq->mem_end - n)) - 1;
-    mq->curr_sz = (ssize_t) (((void*) mq->queue_next) - ((void*) mq->curr)) - sizeof(struct mqtt_queued_message); 
-}
-
-void mqtt_message_queue_register(struct mqtt_message_queue *mq,
-                                    enum MQTTControlPacketType control_type,
-                                    uint16_t packet_id,
-                                    size_t nbytes) 
-{
-    mq->queue_next->start = mq->curr;
-    mq->queue_next->size = nbytes;
-    mq->queue_next->state = MQTT_QUEUED_UNSENT;
-    mq->queue_next->packet_id = packet_id;
-    mq->queue_next->control_type = control_type;
-
-    mq->curr += nbytes;
-    --(mq->queue_next);
-    if (mq->curr >= (uint8_t*)(mq->queue_next -1)) {
-        mq->curr_sz = 0;
-    } else {
-        mq->curr_sz = (uint8_t*) mq->queue_next - mq->curr - sizeof(struct mqtt_queued_message);
+    /* bump back start's */
+    for(ssize_t i = 0; i < new_tail_idx + 1; ++i) {
+        mqtt_mq_get(mq, i)->start -= removing;
     }
-}
 
-ssize_t mqtt_message_queue_length(struct mqtt_message_queue *mq) {
-    return (struct mqtt_queued_message*) mq->mem_end - mq->queue_next - 1;
-}
-
-struct mqtt_queued_message* mqtt_message_queue_item(struct mqtt_message_queue *mq, int index) {
-    return ((struct mqtt_queued_message*) mq->mem_end) - 1 - index;
+    /* get curr_sz */
+    mq->curr_sz = mqtt_mq_currsz(mq);
 }
