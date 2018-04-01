@@ -111,3 +111,23 @@ ssize_t mqtt_publish(struct mqtt_client *client,
 
     return MQTT_OK;
 }
+
+ssize_t __mqtt_puback(struct mqtt_client *client, uint16_t packet_id) {
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_pubxxx_request(
+            client->mq.curr, client->mq.curr_sz,
+            MQTT_CONTROL_PUBACK,
+            packet_id
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PUBLISH;
+    msg->packet_id = packet_id;
+
+    return MQTT_OK;
+}
