@@ -52,4 +52,8 @@ ssize_t __mqtt_pubrec(struct mqtt_client *client, uint16_t packet_id);
 ssize_t __mqtt_pubrel(struct mqtt_client *client, uint16_t packet_id);
 ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id);
 
+ssize_t mqtt_subscribe(struct mqtt_client *client,
+                       const char* topic_name,
+                       int max_qos_level);
+
 #endif

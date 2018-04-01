@@ -191,3 +191,29 @@ ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id) {
 
     return MQTT_OK;
 }
+
+ssize_t mqtt_subscribe(struct mqtt_client *client,
+                       const char* topic_name,
+                       int max_qos_level)
+{
+    uint16_t packet_id = __mqtt_next_pid(client);
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_subscribe_request(
+            client->mq.curr, client->mq.curr_sz,
+            packet_id,
+            topic_name,
+            max_qos_level,
+            NULL
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_SUBSCRIBE;
+    msg->packet_id = packet_id;
+
+    return MQTT_OK;
+}
