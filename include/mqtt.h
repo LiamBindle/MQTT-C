@@ -89,7 +89,13 @@ struct mqtt_fixed_header {
 struct mqtt_client {
     /** @brief the socket connected to the broker. */
     int socketfd;
+
+    /** @brief */
+    uint16_t prev_packet_id;
 };
+
+uint16_t mqtt_next_packet_id(struct mqtt_client *client);
+
 
 /** 
  * @brief A macro used to declare the enum MqttErrors and associated 

@@ -554,6 +554,25 @@ static void test_message_queue(void **unused) {
     assert_true(mqtt_mq_length(&mq) == 0);
     assert_true(mq.curr_sz == 32 + 3*QM_SZ);
     assert_true((void*) mq.queue_tail == mq.mem_end);
+
+    struct mqtt_client client;
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    printf("%u\n", mqtt_next_packet_id(&client));
+    
 }
 
 int main(void)

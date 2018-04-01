@@ -33,3 +33,15 @@ const char* mqtt_error_str(enum MqttErrors error) {
         return MQTT_ERRORS_STR[0];
     }
 }
+
+uint16_t mqtt_next_packet_id(struct mqtt_client *client) {
+    if (client->prev_packet_id == 0) {
+        client->prev_packet_id = 163u;
+    }
+    unsigned lsb = client->prev_packet_id & 1;
+    (client->prev_packet_id) >>= 1;
+    if (lsb) {
+        client->prev_packet_id ^= 0xB400u;
+    }
+    return client->prev_packet_id;
+}
