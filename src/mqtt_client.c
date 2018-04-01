@@ -131,3 +131,63 @@ ssize_t __mqtt_puback(struct mqtt_client *client, uint16_t packet_id) {
 
     return MQTT_OK;
 }
+
+ssize_t __mqtt_pubrec(struct mqtt_client *client, uint16_t packet_id) {
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_pubxxx_request(
+            client->mq.curr, client->mq.curr_sz,
+            MQTT_CONTROL_PUBREC,
+            packet_id
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PUBREC;
+    msg->packet_id = packet_id;
+
+    return MQTT_OK;
+}
+
+ssize_t __mqtt_pubrel(struct mqtt_client *client, uint16_t packet_id) {
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_pubxxx_request(
+            client->mq.curr, client->mq.curr_sz,
+            MQTT_CONTROL_PUBREL,
+            packet_id
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PUBREL;
+    msg->packet_id = packet_id;
+
+    return MQTT_OK;
+}
+
+ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id) {
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_pubxxx_request(
+            client->mq.curr, client->mq.curr_sz,
+            MQTT_CONTROL_PUBCOMP,
+            packet_id
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PUBCOMP;
+    msg->packet_id = packet_id;
+
+    return MQTT_OK;
+}

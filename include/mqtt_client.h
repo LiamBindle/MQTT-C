@@ -48,5 +48,8 @@ ssize_t mqtt_publish(struct mqtt_client *client,
                      uint8_t publish_flags);
 
 ssize_t __mqtt_puback(struct mqtt_client *client, uint16_t packet_id);
+ssize_t __mqtt_pubrec(struct mqtt_client *client, uint16_t packet_id);
+ssize_t __mqtt_pubrel(struct mqtt_client *client, uint16_t packet_id);
+ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id);
 
 #endif
