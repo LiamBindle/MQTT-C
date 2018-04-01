@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 
 #include <mqtt.h>
+#include <mqtt_mq.h>
 
 int conf_client(const char* addr, const char* port, const struct addrinfo* hints, struct sockaddr_storage* sockaddr) {
     int sockfd = -1;
@@ -477,10 +478,144 @@ static void test_mqtt_connect_and_ping(void** state) {
     close(client.socketfd);
 }
 
+static void test_message_queue(void **unused) {
+    char mem[32 + 4*sizeof(struct mqtt_queued_message)];
+    ssize_t tmp;
+
+    struct mqtt_message_queue mq;
+    mqtt_message_queue_init(&mq, mem, sizeof(mem));
+    assert_true(mq.mem_start == (void*) mem);
+    assert_true(mq.curr == (uint8_t*)mem);
+    assert_true(mq.mem_end == (void*) mem + sizeof(mem));
+    assert_true((void*)mq.queue_next == mq.mem_end - sizeof(struct mqtt_queued_message));
+    assert_true(mq.curr_sz == (void*) mq.queue_next - mq.mem_start - (ssize_t) sizeof(struct mqtt_queued_message));
+    tmp = mq.curr_sz;
+    assert_true(mqtt_message_queue_length(&mq) == 0);
+
+    /* register a message */
+    memset(mq.curr, 'a', 16);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_CONNECT, 123, 16);
+    assert_true(mq.curr == mq.mem_start + 16);
+    assert_true(mq.curr_sz == tmp - 16 - (ssize_t) sizeof(struct mqtt_queued_message));
+    assert_true((void*)mq.queue_next == mq.mem_end - 2*sizeof(struct mqtt_queued_message));
+    assert_true(mqtt_message_queue_length(&mq) == 1);
+    
+    /* check that indexing is correct */
+    assert_true(mqtt_message_queue_item(&mq, 0)->packet_id == 123);
+    assert_true(mqtt_message_queue_item(&mq, 0)->size == 16);
+    assert_true(mqtt_message_queue_item(&mq, 0)->control_type == MQTT_CONTROL_CONNECT);
+    assert_true(mqtt_message_queue_item(&mq, 0)->start == (uint8_t*) mq.mem_start);
+    assert_true(mqtt_message_queue_item(&mq, 0)->state == MQTT_QUEUED_UNSENT);
+
+    memset(mq.curr, 'b', 8);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_CONNECT, 234, 8);
+    assert_true(mqtt_message_queue_item(&mq, 0)->packet_id == 123);
+    assert_true(mqtt_message_queue_item(&mq, 0)->size == 16);
+    assert_true(mqtt_message_queue_item(&mq, 0)->control_type == MQTT_CONTROL_CONNECT);
+    assert_true(mqtt_message_queue_item(&mq, 0)->start == (uint8_t*) mq.mem_start);
+    assert_true(mqtt_message_queue_item(&mq, 0)->state == MQTT_QUEUED_UNSENT);
+
+
+    assert_true(mqtt_message_queue_item(&mq, 1)->packet_id == 234);
+    assert_true(mqtt_message_queue_item(&mq, 1)->size == 8);
+    assert_true(mqtt_message_queue_item(&mq, 1)->control_type == MQTT_CONTROL_CONNECT);
+    assert_true(mqtt_message_queue_item(&mq, 1)->start == (uint8_t*) mq.mem_start + 16);
+    assert_true(mqtt_message_queue_item(&mq, 1)->state == MQTT_QUEUED_UNSENT);
+
+    /* try to clean the first */
+    mqtt_message_queue_item(&mq, 0)->state = MQTT_QUEUED_COMPLETE;
+    assert_true(mqtt_message_queue_length(&mq) == 2);
+    for(int i = 0; i < 16; ++i) {
+        assert_true(mem[i] == 'a');
+    }
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 1);
+    for(int i = 0; i < 8; ++i) {
+        assert_true(mem[i] == 'b');
+    }
+    assert_true(mq.curr == (uint8_t*) mem + 8);
+    assert_true(mq.curr_sz == sizeof(mem) - 8 - 3*sizeof(struct mqtt_queued_message));
+    assert_true(mq.queue_next == (struct mqtt_queued_message*) mq.mem_end - 2);
+
+    /* check that queued_message is correct */
+    assert_true(mqtt_message_queue_item(&mq, 0)->packet_id == 234);
+    assert_true(mqtt_message_queue_item(&mq, 0)->size == 8);
+    assert_true(mqtt_message_queue_item(&mq, 0)->control_type == MQTT_CONTROL_CONNECT);
+    assert_true(mqtt_message_queue_item(&mq, 0)->start == (uint8_t*) mq.mem_start + 16);
+    assert_true(mqtt_message_queue_item(&mq, 0)->state == MQTT_QUEUED_UNSENT);
+
+    /* entirely clear, repeatedly */
+    mqtt_message_queue_item(&mq, 0)->state = MQTT_QUEUED_COMPLETE;
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 0);
+    assert_true(mq.mem_start == (void*) mem);
+    assert_true(mq.curr == (uint8_t*)mem);
+    assert_true(mq.mem_end == (void*) mem + sizeof(mem));
+    assert_true((void*)mq.queue_next == mq.mem_end - sizeof(struct mqtt_queued_message));
+    assert_true(mq.curr_sz == (void*) mq.queue_next - mq.mem_start - (ssize_t) sizeof(struct mqtt_queued_message));
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 0);
+    assert_true(mq.mem_start == (void*) mem);
+    assert_true(mq.curr == (uint8_t*)mem);
+    assert_true(mq.mem_end == (void*) mem + sizeof(mem));
+    assert_true((void*)mq.queue_next == mq.mem_end - sizeof(struct mqtt_queued_message));
+    assert_true(mq.curr_sz == (void*) mq.queue_next - mq.mem_start - (ssize_t) sizeof(struct mqtt_queued_message));
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 0);
+    assert_true(mq.mem_start == (void*) mem);
+    assert_true(mq.curr == (uint8_t*)mem);
+    assert_true(mq.mem_end == (void*) mem + sizeof(mem));
+    assert_true((void*)mq.queue_next == mq.mem_end - sizeof(struct mqtt_queued_message));
+    assert_true(mq.curr_sz == (void*) mq.queue_next - mq.mem_start - (ssize_t) sizeof(struct mqtt_queued_message));
+
+    /* fill up perfectly */
+    assert_true(mq.curr_sz == 32 + 2*sizeof(struct mqtt_queued_message));
+    memset(mq.curr, 'a', 16);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_PINGREQ, 100, 16);
+    assert_true(mq.curr_sz == 16 + 1*sizeof(struct mqtt_queued_message));
+    memset(mq.curr, 'b', 8);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_PUBACK, 200, 8);
+    assert_true(mq.curr_sz == 8);
+    memset(mq.curr, 'c', 8);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_CONNECT, 300, 8);
+    assert_true(mq.curr_sz == 0);
+    assert_true(mqtt_message_queue_length(&mq) == 3);
+
+    mqtt_message_queue_item(&mq, 1)->state = MQTT_QUEUED_COMPLETE;
+    mqtt_message_queue_item(&mq, 2)->state = MQTT_QUEUED_COMPLETE;
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 3);
+    mqtt_message_queue_item(&mq, 2)->state = MQTT_QUEUED_AWAITING_ACK;
+    mqtt_message_queue_item(&mq, 0)->state = MQTT_QUEUED_COMPLETE;
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 1);
+    for(int i = 0; i < 8; ++i) {
+        assert_true(mem[i] == 'c');
+    }
+    mqtt_message_queue_item(&mq, 0)->state = MQTT_QUEUED_COMPLETE;
+    mqtt_message_queue_clean(&mq);
+    assert_true(mqtt_message_queue_length(&mq) == 0);
+    assert_true(mq.mem_start == (void*) mem);
+    assert_true(mq.curr == (uint8_t*)mem);
+    assert_true(mq.mem_end == (void*) mem + sizeof(mem));
+    assert_true((void*)mq.queue_next == mq.mem_end - sizeof(struct mqtt_queued_message));
+    assert_true(mq.curr_sz == (void*) mq.queue_next - mq.mem_start - (ssize_t) sizeof(struct mqtt_queued_message));
+
+    /**/
+    memset(mq.curr, 'x', 16);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_PINGREQ, 123, 16);
+    memset(mq.curr, 'y', 8);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_PUBACK, 234, 8);
+    printf("%d\n", mq.curr_sz);
+    memset(mq.curr, 'z', 8);
+    mqtt_message_queue_register(&mq, MQTT_CONTROL_CONNECT, 345, 8);
+
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_mqtt_fixed_header),
+        /*cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -492,7 +627,8 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_unsubscribe),
         cmocka_unit_test(test_mqtt_unpack_unsuback),
         cmocka_unit_test(test_mqtt_pack_ping),
-        cmocka_unit_test(test_mqtt_connect_and_ping),
+        cmocka_unit_test(test_mqtt_connect_and_ping),*/
+        cmocka_unit_test(test_message_queue),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

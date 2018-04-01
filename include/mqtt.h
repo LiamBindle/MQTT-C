@@ -110,6 +110,7 @@ struct mqtt_client {
     MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
     MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
+    MQTT_ERROR(MQTT_ERROR_BUFFER_OVERFLOW)               \
 
 /** 
  * @brief A macro used to generate the enum MqttErrors from 
