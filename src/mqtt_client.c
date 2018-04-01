@@ -241,3 +241,39 @@ ssize_t mqtt_unsubscribe(struct mqtt_client *client,
 
     return MQTT_OK;
 }
+
+ssize_t mqtt_ping(struct mqtt_client *client) 
+{
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_ping_request(
+            client->mq.curr, client->mq.curr_sz
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PINGREQ;
+
+    return MQTT_OK;
+}
+
+ssize_t mqtt_disconnect(struct mqtt_client *client) 
+{
+    ssize_t rv;
+    struct mqtt_queued_message *msg;
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_disconnect(
+            client->mq.curr, client->mq.curr_sz
+        )
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_DISCONNECT;
+
+    return MQTT_OK;
+}

@@ -59,4 +59,8 @@ ssize_t mqtt_subscribe(struct mqtt_client *client,
 ssize_t mqtt_unsubscribe(struct mqtt_client *client,
                          const char* topic_name);
 
+ssize_t mqtt_ping(struct mqtt_client *client);
+
+ssize_t mqtt_disconnect(struct mqtt_client *client);
+
 #endif
