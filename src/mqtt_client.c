@@ -126,7 +126,7 @@ ssize_t __mqtt_puback(struct mqtt_client *client, uint16_t packet_id) {
         )
     );
     /* save the control type and packet id of the message */
-    msg->control_type = MQTT_CONTROL_PUBLISH;
+    msg->control_type = MQTT_CONTROL_PUBACK;
     msg->packet_id = packet_id;
 
     return MQTT_OK;
