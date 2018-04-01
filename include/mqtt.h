@@ -104,6 +104,8 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
     MQTT_ERROR(MQTT_ERROR_CLIENT_NOT_CONNECTED)          \
     MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
+    MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \
+    MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
 
 /** 
  * @brief A macro used to generate the enum MqttErrors from 
@@ -802,18 +804,15 @@ struct mqtt_queued_message {
     enum MQTTQueuedMessageState state;
 
     /** 
-     * @brief The time at which a timeout will occur. 
+     * @brief The time at which the message was sent.. 
      * 
      * @note A timeout will only occur if the message is in
      *       the MQTT_QUEUED_AWAITING_ACK \c state.
      */
-    time_t timeout;
+    time_t time_sent;
 
     /**
      * @brief The control type of the message.
-     * 
-     * @note This field is used to determine if \c timeout and \c packet_id
-     *       need to be used. 
      */
     enum MQTTControlPacketType control_type;
 

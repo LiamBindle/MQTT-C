@@ -19,12 +19,20 @@ struct mqtt_client {
 
     enum MqttErrors error;
 
+    int response_timeout;
+    int number_of_timeouts;
+    int number_of_keep_alives;
+    double typical_response_time;
+
+    time_t time_of_last_send;
+
     uint8_t *recvbuf;
     size_t recvbufsz;
     struct mqtt_message_queue mq;
 };
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client);
+ssize_t __mqtt_send(struct mqtt_client *client);
 
 
 ssize_t mqtt_init(struct mqtt_client *client,
