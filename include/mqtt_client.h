@@ -24,7 +24,7 @@ struct mqtt_client {
     struct mqtt_message_queue mq;
 };
 
-uint16_t mqtt_next_pid(struct mqtt_client *client);
+uint16_t __mqtt_next_pid(struct mqtt_client *client);
 
 
 ssize_t mqtt_init(struct mqtt_client *client,

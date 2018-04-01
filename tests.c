@@ -570,7 +570,7 @@ static void test_packet_id_lfsr(void **unused) {
     client.pid_lfsr = 163u;
     uint32_t period = 0;
     do {
-        mqtt_next_pid(&client);
+        __mqtt_next_pid(&client);
         period++;
     } while(client.pid_lfsr != 163u && client.pid_lfsr !=0);
     assert_true(period == 65535u);

@@ -1,6 +1,6 @@
 #include <mqtt_client.h>
 
-uint16_t mqtt_next_pid(struct mqtt_client *client) {
+uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
     }
@@ -89,7 +89,7 @@ ssize_t mqtt_publish(struct mqtt_client *client,
                      size_t application_message_size,
                      uint8_t publish_flags)
 {
-    uint16_t packet_id = mqtt_next_pid(client);
+    uint16_t packet_id = __mqtt_next_pid(client);
     ssize_t rv;
     struct mqtt_queued_message *msg;
 
