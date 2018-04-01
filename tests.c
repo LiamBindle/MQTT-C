@@ -554,25 +554,17 @@ static void test_message_queue(void **unused) {
     assert_true(mqtt_mq_length(&mq) == 0);
     assert_true(mq.curr_sz == 32 + 3*QM_SZ);
     assert_true((void*) mq.queue_tail == mq.mem_end);
+}
 
+static void test_packet_id_lfsr(void **unused) {
     struct mqtt_client client;
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    printf("%u\n", mqtt_next_packet_id(&client));
-    
+    client.prev_packet_id = 163u;
+    uint32_t period = 0;
+    do {
+        mqtt_next_packet_id(&client);
+        period++;
+    } while(client.prev_packet_id != 163u && client.prev_packet_id !=0);
+    assert_true(period == 65535u);
 }
 
 int main(void)
@@ -592,6 +584,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_ping),
         cmocka_unit_test(test_mqtt_connect_and_ping),*/
         cmocka_unit_test(test_message_queue),
+        cmocka_unit_test(test_packet_id_lfsr),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
