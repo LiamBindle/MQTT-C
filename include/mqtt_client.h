@@ -56,4 +56,7 @@ ssize_t mqtt_subscribe(struct mqtt_client *client,
                        const char* topic_name,
                        int max_qos_level);
 
+ssize_t mqtt_unsubscribe(struct mqtt_client *client,
+                         const char* topic_name);
+
 #endif
