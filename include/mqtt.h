@@ -23,6 +23,9 @@
  * 
  * @defgroup unpackers Control Packet Deserialization
  * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
+ * 
+ * @defgroup details Details of what makes the client work.
+ * @brief Documentation of function and structures that make the client work.
  *
  * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
  *       function you need).
@@ -790,6 +793,7 @@ ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
 
 /**
  * @brief An enumeration of queued message states. 
+ * @ingroup details
  */
 enum MQTTQueuedMessageState {
     MQTT_QUEUED_UNSENT,
@@ -799,6 +803,7 @@ enum MQTTQueuedMessageState {
 
 /**
  * @brief A message in a mqtt_message_queue.
+ * @ingroup details
  */
 struct mqtt_queued_message {
     /** @brief A pointer to the start of the message. */
@@ -811,7 +816,7 @@ struct mqtt_queued_message {
     enum MQTTQueuedMessageState state;
 
     /** 
-     * @brief The time at which the message was sent.. 
+     * @brief The time at which the message was sent..
      * 
      * @note A timeout will only occur if the message is in
      *       the MQTT_QUEUED_AWAITING_ACK \c state.
@@ -834,6 +839,7 @@ struct mqtt_queued_message {
 
 /**
  * @brief A message queue.
+ * @ingroup details
  * 
  * @note This struct is used internally to manage sending messages.
  * @note The only members the user should use are \c curr and \c curr_sz. 
@@ -845,6 +851,7 @@ struct mqtt_message_queue {
      * @warning This member should \em not be manually changed.
      */
     void *mem_start;
+
     /** @brief The end of the message queue's memory block. */
     void *mem_end;
 
@@ -876,22 +883,31 @@ struct mqtt_message_queue {
 
 /**
  * @brief Initialize a message queue.
+ * @ingroup details
  * 
  * @param[out] mq The message queue to initialize.
  * @param[in] buf The buffer for this message queue.
  * @param[in] bufsz The number of bytes in the buffer. 
+ * 
+ * @relates mqtt_message_queue
  */
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
 
 /**
  * @brief Clear as many messages from the front of the queue as possible.
+ * @ingroup details
+ * 
+ * @note Calls to this function are the \em only way to remove messages from the queue.
  * 
  * @param mq The message queue.
+ * 
+ * @relates mqtt_message_queue
  */
 void mqtt_mq_clean(struct mqtt_message_queue *mq);
 
 /**
  * @brief Register a message that was just added to the buffer.
+ * @ingroup details
  * 
  * @note This function should be called immediately following a call to a packer function
  *       that returned a positive value. The positive value (number of bytes packed) should
@@ -901,15 +917,29 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq);
  * @param[in] nbytes The number of bytes that were just packed.
  * 
  * @note This function will step mqtt_message_queue::curr and update mqtt_message_queue::curr_sz.
+ * @relates mqtt_message_queue
  * 
  * @returns The newly added struct mqtt_queued_message.
  */
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes);
 
+/**
+ * @brief Find a message in the message queue.
+ * @ingroup details
+ * 
+ * @param mq The message queue.
+ * @param[in] control_type The control type of the message you want to find.
+ * @param[in] packet_id The packet ID of the message you want to find. Set to \c NULL if you 
+ *            don't want to specify a packet ID.
+ * 
+ * @relates mqtt_message_queue
+ * @returns The found message. \c NULL if the message was not found.
+ */
 struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id);
 
 /**
  * @brief Returns the mqtt_queued_message at \p index.
+ * @ingroup details
  * 
  * @param mq_ptr A pointer to the message queue.
  * @param index The index of the message. 
@@ -920,11 +950,13 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
 
 /**
  * @brief Returns the number of messages in the message queue, \p mq_ptr.
+ * @ingroup details
  */
 #define mqtt_mq_length(mq_ptr) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - (mq_ptr)->queue_tail)
 
 /**
  * @brief Used internally to recalculate the \c curr_sz.
+ * @ingroup details
  */
 #define mqtt_mq_currsz(mq_ptr) (mq_ptr->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr
 
