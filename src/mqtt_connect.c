@@ -21,7 +21,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     fixed_header.control_flags = 0x00;
 
     /* calculate remaining length and build connect_flags at the same time */
-    connect_flags = connect_flags & MQTT_CONNECT_RESERVED;
+    connect_flags = connect_flags & ~MQTT_CONNECT_RESERVED;
     remaining_length = 10; /* size of variable header */
 
     if (client_id == NULL) {
