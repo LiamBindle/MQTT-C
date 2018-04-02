@@ -715,7 +715,6 @@ static void test_client_subpub(void **unused) {
     uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
             sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
-    uint8_t data[TEST_DATA_SIZE];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
     struct addrinfo hints;
@@ -898,7 +897,7 @@ static void test_client_subpub(void **unused) {
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        /*cmocka_unit_test(test_mqtt_fixed_header),
+        cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -914,7 +913,7 @@ int main(void)
         cmocka_unit_test(test_message_queue),
         cmocka_unit_test(test_packet_id_lfsr),
         cmocka_unit_test(test_client_simple),
-        cmocka_unit_test(test_client_simple_subpub),*/
+        cmocka_unit_test(test_client_simple_subpub),
         cmocka_unit_test(test_client_subpub)
     };
 
