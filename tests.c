@@ -576,10 +576,46 @@ static void test_packet_id_lfsr(void **unused) {
     assert_true(period == 65535u);
 }
 
+void publish_callback(struct mqtt_response_publish *publish) {
+    printf("Received publish!\n");
+}
+
+static void test_client_simple(void **unused) {
+    uint8_t sendmem[2048];
+    uint8_t recvmem[1024];
+    const char* addr = "test.mosquitto.org";
+    const char* port = "1883";
+    struct addrinfo hints = {0};
+    struct mqtt_client client;
+    ssize_t rv;
+
+    hints.ai_family = AF_INET;          /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    int sockfd = conf_client(addr, port, &hints, NULL);
+
+    mqtt_init(&client, sockfd, sendmem, sizeof(sendmem), recvmem, sizeof(recvmem), publish_callback);
+    
+    rv = mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30);
+    assert_true(rv == MQTT_OK);
+
+    assert_true(__mqtt_send(&client) >= 0);
+    while(mqtt_mq_length(&client.mq) > 0) {
+        assert_true(__mqtt_recv(&client) >= 0);
+        mqtt_mq_clean(&client.mq);
+        sleep(1);
+    }
+
+    assert_true(client.error == MQTT_OK);
+
+    rv = mqtt_disconnect(&client);
+    assert_true(__mqtt_send(&client) >= 0);
+    assert_true(__mqtt_send(&client) >= 0);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_mqtt_fixed_header),
+        /*cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -593,7 +629,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_ping),
         cmocka_unit_test(test_mqtt_connect_and_ping),
         cmocka_unit_test(test_message_queue),
-        cmocka_unit_test(test_packet_id_lfsr),
+        cmocka_unit_test(test_packet_id_lfsr),*/
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

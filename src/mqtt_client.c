@@ -416,6 +416,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
                 client->error = MQTT_ERROR_CONNECTION_REFUSED;
                 return MQTT_ERROR_CONNECTION_REFUSED;
+            } else {
+                client->error = MQTT_OK;
             }
             break;
         case MQTT_CONTROL_PUBLISH:
