@@ -605,6 +605,79 @@ static void test_client_simple(void **unused) {
         mqtt_mq_clean(&client.mq);
         sleep(1);
     }
+    printf("response time = %f\n", client.typical_response_time);
+    assert_true(mqtt_ping(&client) > 0);
+    while(mqtt_mq_length(&client.mq) > 0) {
+        rv = __mqtt_send(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        rv = __mqtt_recv(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&client.mq);
+        usleep(10000);
+    }
+    sleep(2);
+
+    printf("response time = %f\n", client.typical_response_time);
+    assert_true(mqtt_ping(&client) > 0);
+    while(mqtt_mq_length(&client.mq) > 0) {
+        rv = __mqtt_send(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        rv = __mqtt_recv(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&client.mq);
+        usleep(10000);
+    }
+    sleep(3);
+
+    printf("response time = %f\n", client.typical_response_time);
+    assert_true(mqtt_ping(&client) > 0);
+    while(mqtt_mq_length(&client.mq) > 0) {
+        rv = __mqtt_send(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        rv = __mqtt_recv(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&client.mq);
+        usleep(10000);
+    }
+    sleep(1);
+
+    printf("response time = %f\n", client.typical_response_time);
+    assert_true(mqtt_ping(&client) > 0);
+    while(mqtt_mq_length(&client.mq) > 0) {
+        rv = __mqtt_send(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        rv = __mqtt_recv(&client);
+        if (rv <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&client.mq);
+        usleep(10000);
+    }
+    sleep(2);
+    printf("response time = %f\n", client.typical_response_time);
+
 
     assert_true(client.error == MQTT_OK);
     assert_true(mqtt_disconnect(&client) > 0);
