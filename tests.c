@@ -579,8 +579,15 @@ static void test_packet_id_lfsr(void **unused) {
 }
 
 void publish_callback(void** state, struct mqtt_response_publish *publish) {
-    printf("it was called! and was passed '%s'\n", (const char*) (publish->application_message));
-    **(int**)state = 1;
+    /*char *name = (char*) malloc(publish->topic_name_size + 1);
+    memcpy(name, publish->topic_name, publish->topic_name_size);
+    name[publish->topic_name_size] = '\0';
+    printf("Received a PUBLISH(topic=%s, DUP=%d, QOS=%d, RETAIN=%d, pid=%d) from the broker. Data='%s'\n", 
+           name, publish->dup_flag, publish->qos_level, publish->retain_flag, publish->packet_id,
+           (const char*) (publish->application_message)
+    );
+    free(name);*/
+    **(int**)state += 1;
 }
 
 static void test_client_simple(void **unused) {
@@ -701,10 +708,197 @@ static void test_client_simple_subpub(void **unused) {
     assert_true(__mqtt_send(&receiver) > 0);
 }
 
+
+#define TEST_PACKET_SIZE (149)
+#define TEST_DATA_SIZE (128)
+static void test_client_subpub(void **unused) {
+    uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
+            sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
+    uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
+    uint8_t data[TEST_DATA_SIZE];
+    const char* addr = "test.mosquitto.org";
+    const char* port = "1883";
+    struct addrinfo hints;
+    struct mqtt_client sender, receiver;
+    ssize_t rv;
+
+    int state = 0;
+
+    /* initialize sender */
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;          /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    int sockfd = conf_client(addr, port, &hints, NULL);
+    fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
+    mqtt_init(&sender, sockfd, sendmem1, sizeof(sendmem1), recvmem1, sizeof(recvmem1), publish_callback);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;          /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    sockfd = conf_client(addr, port, &hints, NULL);
+    fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
+    mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
+    receiver.publish_response_callback_state = &state;
+
+    /* connect both */
+    if ((rv = mqtt_connect(&sender, "liam-123", NULL, NULL, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_connect(&receiver, "liam-234", NULL, NULL, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&sender)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&receiver)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    while(mqtt_mq_length(&sender.mq) > 0 || mqtt_mq_length(&receiver.mq) > 0) {
+        if ((rv = __mqtt_recv(&sender)) <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(rv  > 0);
+        }
+        mqtt_mq_clean(&sender.mq);
+        if ((rv = __mqtt_recv(&receiver)) <= 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(rv  > 0);
+        }
+        mqtt_mq_clean(&receiver.mq);
+        usleep(10000);
+    }
+
+    state = 0;
+
+    /* publish with retain */
+    if ((rv = mqtt_publish(&sender, "liam-test-ret1", "this was initial retain with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1 | MQTT_PUBLISH_RETAIN)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&sender)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+
+    /* subscribe receiver*/
+    if ((rv = mqtt_subscribe(&receiver, "liam-test-qos0", 0)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_subscribe(&receiver, "liam-test-qos1", 1)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_subscribe(&receiver, "liam-test-qos2", 2)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_subscribe(&receiver, "liam-test-ret1", 2)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&receiver)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+
+    /* wait for retained publish and receiver and sender have 0 length mq's */
+    time_t start = time(NULL);
+    while(start + 10 > time(NULL)  && (state < 1 || mqtt_mq_length(&receiver.mq) > 0 || mqtt_mq_length(&sender.mq) > 0)) {
+        if ((rv = __mqtt_recv(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&receiver.mq);
+        if ((rv = __mqtt_recv(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        mqtt_mq_clean(&sender.mq);
+        usleep(10000);
+    }
+
+    /* make sure that we publish was called */
+    assert_true(mqtt_mq_length(&receiver.mq) == 0);
+    assert_true(mqtt_mq_length(&sender.mq) == 0);
+    assert_true(state == 1);
+
+    /* now publish 4 perfect sized messages */
+    if ((rv = mqtt_publish(&sender, "liam-test-ret1", "retain with qos1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_publish(&sender, "liam-test-qos0", "test with qos 0", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_0)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_publish(&sender, "liam-test-qos1", "test with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_publish(&sender, "liam-test-qos2", "test with qos 2", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_2)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&sender)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    assert_true(sender.error == MQTT_OK);
+    assert_true(sender.mq.curr_sz == 0);
+
+    /* give 2 seconds for sending and receiving (also don't manually clean) */
+    start = time(NULL);
+    while(time(NULL) < start + 2) {
+        if ((rv = __mqtt_recv(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_recv(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        usleep(10000);
+    }
+
+    assert_true(state == 5);
+
+    /* disconnect */
+    assert_true(sender.error == MQTT_OK);
+    assert_true(receiver.error == MQTT_OK);
+    if ((rv = mqtt_disconnect(&sender)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = mqtt_disconnect(&receiver)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&sender)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    if ((rv = __mqtt_send(&receiver)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_mqtt_fixed_header),
+        /*cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -720,7 +914,8 @@ int main(void)
         cmocka_unit_test(test_message_queue),
         cmocka_unit_test(test_packet_id_lfsr),
         cmocka_unit_test(test_client_simple),
-        cmocka_unit_test(test_client_simple_subpub),
+        cmocka_unit_test(test_client_simple_subpub),*/
+        cmocka_unit_test(test_client_subpub)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
