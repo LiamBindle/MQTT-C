@@ -624,6 +624,7 @@ enum MQTTPublishFlags {
     MQTT_PUBLISH_QOS_0 = ((0u << 1) & 0x06),
     MQTT_PUBLISH_QOS_1 = ((1u << 1) & 0x06),
     MQTT_PUBLISH_QOS_2 = ((2u << 1) & 0x06),
+    MQTT_PUBLISH_QOS_MASK = ((3u << 1) & 0x06),
     MQTT_PUBLISH_RETAIN = 0x01
 };
 

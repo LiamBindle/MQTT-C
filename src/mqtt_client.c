@@ -20,7 +20,7 @@ ssize_t mqtt_init(struct mqtt_client *client,
                int sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
-               void (*publish_response_callback)(struct mqtt_response_publish *publish))
+               void (*publish_response_callback)(void** state,struct mqtt_response_publish *publish))
 {
     if (client == NULL || sendbuf == NULL || recvbuf == NULL) {
         return MQTT_ERROR_NULLPTR;
@@ -43,6 +43,14 @@ ssize_t mqtt_init(struct mqtt_client *client,
     return MQTT_OK;
 }
 
+/** 
+ * A macro function that:
+ *      1) Checks that the client isn't in an error state.
+ *      2) Attempts to pack to client's message queue.
+ *          a) handles errors
+ *          b) if mq buffer is too small, cleans it and tries again
+ *      3) Upon successful pack, registers the new message.
+ */
 #define MQTT_CLIENT_TRY_PACK(tmp, msg, client, pack_call)           \
     if (client->error < 0) {                                        \
         return client->error;                                       \
@@ -295,6 +303,8 @@ ssize_t mqtt_disconnect(struct mqtt_client *client)
 
 ssize_t __mqtt_send(struct mqtt_client *client) 
 {
+    uint8_t inspected;
+
     if (client->error < 0 && client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL) {
         return client->error;
     }
@@ -335,15 +345,43 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         client->time_of_last_send = time(NULL);
         msg->time_sent = client->time_of_last_send;
 
-        /* determine the state to put the message in */
+        /* 
+        Determine the state to put the message in.
+        Control Types:
+        MQTT_CONTROL_CONNECT     -> awaiting
+        MQTT_CONTROL_CONNACK     -> n/a
+        MQTT_CONTROL_PUBLISH     -> qos == 0 ? complete : awaiting
+        MQTT_CONTROL_PUBACK      -> complete
+        MQTT_CONTROL_PUBREC      -> awaiting
+        MQTT_CONTROL_PUBREL      -> awaiting
+        MQTT_CONTROL_PUBCOMP     -> complete
+        MQTT_CONTROL_SUBSCRIBE   -> awaiting
+        MQTT_CONTROL_SUBACK      -> n/a
+        MQTT_CONTROL_UNSUBSCRIBE -> awaiting
+        MQTT_CONTROL_UNSUBACK    -> n/a
+        MQTT_CONTROL_PINGREQ     -> awaiting
+        MQTT_CONTROL_PINGRESP    -> n/a
+        MQTT_CONTROL_DISCONNECT  -> complete
+        */
         switch (msg->control_type) {
         case MQTT_CONTROL_PUBACK:
         case MQTT_CONTROL_PUBCOMP:
         case MQTT_CONTROL_DISCONNECT:
             msg->state = MQTT_QUEUED_COMPLETE;
             break;
-        case MQTT_CONTROL_CONNECT:
         case MQTT_CONTROL_PUBLISH:
+            inspected = ((msg->start[1]) >> 1); /* qos */
+            if (inspected == 0) {
+                msg->state = MQTT_QUEUED_COMPLETE;
+            } else if (inspected == 1) {
+                msg->state = MQTT_QUEUED_AWAITING_ACK;
+                /*set DUP flag for subsequent sends */ 
+                msg->start[1] |= MQTT_PUBLISH_DUP;
+            } else {
+                msg->state = MQTT_QUEUED_AWAITING_ACK;
+            }
+            break;
+        case MQTT_CONTROL_CONNECT:
         case MQTT_CONTROL_PUBREC:
         case MQTT_CONTROL_PUBREL:
         case MQTT_CONTROL_SUBSCRIBE:
@@ -372,16 +410,20 @@ ssize_t __mqtt_send(struct mqtt_client *client)
 
 ssize_t __mqtt_recv(struct mqtt_client *client) 
 {
+    struct mqtt_response response;
+
+    /* read until there is nothing left to read */
     while(1) {
-        struct mqtt_response response;
         /* read in as many bytes as possible */
         ssize_t rv, consumed;
         do {
             rv = recv(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
             if (rv > 0) {
+                /* successfully read bytes from the socket */
                 client->recv_buffer.curr += rv;
                 client->recv_buffer.curr_sz -= rv;
             } else if (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+                /* an error occurred that wasn't "nothing to read". */
                 client->error = MQTT_ERROR_SOCKET_ERROR;
                 return MQTT_ERROR_SOCKET_ERROR;
             }
@@ -406,16 +448,45 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
 
         /* response was unpacked successfully */
         struct mqtt_queued_message *msg = NULL;
+
+        /*
+        The switch statement below manages how the client responds to messages from the broker.
+
+        Control Types (that we expect to receive from the broker):
+        MQTT_CONTROL_CONNACK:
+            -> release associated CONNECT
+            -> handle response
+        MQTT_CONTROL_PUBLISH:
+            -> stage response, none if qos==0, PUBACK if qos==1, PUBREC if qos==2
+            -> call publish callback        TODO: prevent redelivery of QOS==2
+        MQTT_CONTROL_PUBACK:
+            -> release associated PUBLISH
+        MQTT_CONTROL_PUBREC:
+            -> release PUBLISH
+            -> stage PUBREL
+        MQTT_CONTROL_PUBREL:
+            -> release associated PUBREC
+            -> stage PUBCOMP
+        MQTT_CONTROL_PUBCOMP:
+            -> release PUBREL
+        MQTT_CONTROL_SUBACK:
+            -> release SUBSCRIBE
+            -> handle response
+        MQTT_CONTROL_UNSUBACK:
+            -> release UNSUBSCRIBE
+        MQTT_CONTROL_PINGRESP:
+            -> release PINGREQ
+        */
         switch (response.fixed_header.control_type) {
             case MQTT_CONTROL_CONNACK:
+                /* release associated CONNECT */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_CONNECT, NULL);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                     return MQTT_ERROR_ACK_OF_UNKNOWN;
                 }
-                /* update state to complete */
                 msg->state = MQTT_QUEUED_COMPLETE;
-                /* update response time */
+                /* initialize typical response time */
                 client->typical_response_time = (double) (time(NULL) - msg->time_sent);
                 /* check that connection was successful */
                 if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
@@ -424,7 +495,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 break;
             case MQTT_CONTROL_PUBLISH:
-                /* stage the acknowledgement response */
+                /* stage response, none if qos==0, PUBACK if qos==1, PUBREC if qos==2 */
                 if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_1) {
                     rv = __mqtt_puback(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
@@ -432,64 +503,105 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         return rv;
                     }
                 } else if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_2) {
-                    client->error = MQTT_ERROR_NOT_IMPLEMENTED;
-                    return MQTT_ERROR_NOT_IMPLEMENTED;
+                    rv = __mqtt_pubrec(client, response.decoded.publish.packet_id);
+                    if (rv != MQTT_OK) {
+                        client->error = rv;
+                        return rv;
+                    }
                 }
-                /* call callback */
-                client->publish_response_callback(&response.decoded.publish);
+                /* call publish callback  TODO: prevent redelivery of QOS==2*/
+                client->publish_response_callback(&client->publish_response_callback_state, &response.decoded.publish);
                 break;
             case MQTT_CONTROL_PUBACK:
-                /* find the publish being acknowledged */
+                /* release associated PUBLISH */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.puback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                     return MQTT_ERROR_ACK_OF_UNKNOWN;
                 }
-                /* update state to complete */
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
                 break;
             case MQTT_CONTROL_PUBREC:
+                /* release associated PUBLISH */
+                msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.pubrec.packet_id);
+                if (msg == NULL) {
+                    client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                }
+                msg->state = MQTT_QUEUED_COMPLETE;
+                /* update response time */
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                /* stage PUBREL */
+                rv = __mqtt_pubrel(client, response.decoded.pubrec.packet_id);
+                if (rv != MQTT_OK) {
+                    client->error = rv;
+                    return rv;
+                }
+                break;
             case MQTT_CONTROL_PUBREL:
+                /* release associated PUBREC */
+                msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREC, &response.decoded.pubrel.packet_id);
+                if (msg == NULL) {
+                    client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                }
+                msg->state = MQTT_QUEUED_COMPLETE;
+                /* update response time */
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                /* stage PUBCOMP */
+                rv = __mqtt_pubcomp(client, response.decoded.pubrec.packet_id);
+                if (rv != MQTT_OK) {
+                    client->error = rv;
+                    return rv;
+                }
+                break;
             case MQTT_CONTROL_PUBCOMP:
-                return MQTT_ERROR_NOT_IMPLEMENTED;
+                /* release associated PUBREL */
+                msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREL, &response.decoded.pubcomp.packet_id);
+                if (msg == NULL) {
+                    client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                }
+                msg->state = MQTT_QUEUED_COMPLETE;
+                /* update response time */
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                break;
             case MQTT_CONTROL_SUBACK:
+                /* release associated SUBSCRIBE */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_SUBSCRIBE, &response.decoded.suback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                     return MQTT_ERROR_ACK_OF_UNKNOWN;
                 }
-                /* update state to complete */
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
-                /* check that subscription was successful */
+                /* check that subscription was successful (not currently only one subscribe at a time) */
                 if (response.decoded.suback.return_codes[0] == MQTT_SUBACK_FAILURE) {
                     client->error = MQTT_ERROR_SUBSCRIBE_FAILED;
                     return MQTT_ERROR_SUBSCRIBE_FAILED;
                 }
                 break;
             case MQTT_CONTROL_UNSUBACK:
-                /* find the publish being acknowledged */
+                /* release associated UNSUBSCRIBE */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_UNSUBSCRIBE, &response.decoded.unsuback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                     return MQTT_ERROR_ACK_OF_UNKNOWN;
                 }
-                /* update state to complete */
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
                 break;
             case MQTT_CONTROL_PINGRESP:
-                /* find the publish being acknowledged */
+                /* release associated PINGREQ */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PINGREQ, NULL);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                     return MQTT_ERROR_ACK_OF_UNKNOWN;
                 }
-                /* update state to complete */
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);

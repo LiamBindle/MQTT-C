@@ -1,0 +1,175 @@
+\hypertarget{group__details}{}\section{Details of what makes the client work.}
+\label{group__details}\index{Details of what makes the client work.@{Details of what makes the client work.}}
+
+
+Documentation of function and structures that make the client work.  
+
+
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message}
+\begin{DoxyCompactList}\small\item\em A message in a \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue}. \end{DoxyCompactList}\item 
+struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue}
+\begin{DoxyCompactList}\small\item\em A message queue. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__details_gadfa141880e5b30429bd89018da0c8d94}{mqtt\+\_\+mq\+\_\+get}(mq\+\_\+ptr,  index)~(((struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message}$\ast$) ((mq\+\_\+ptr)-\/$>$mem\+\_\+end)) -\/ 1 -\/ index)
+\begin{DoxyCompactList}\small\item\em Returns the \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} at {\ttfamily index}. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__details_ga4be078d9d0bd6183b9082f3217622223}{mqtt\+\_\+mq\+\_\+length}(mq\+\_\+ptr)~(((struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message}$\ast$) ((mq\+\_\+ptr)-\/$>$mem\+\_\+end)) -\/ (mq\+\_\+ptr)-\/$>$queue\+\_\+tail)\hypertarget{group__details_ga4be078d9d0bd6183b9082f3217622223}{}\label{group__details_ga4be078d9d0bd6183b9082f3217622223}
+
+\begin{DoxyCompactList}\small\item\em Returns the number of messages in the message queue, {\ttfamily mq\+\_\+ptr}. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__details_ga8cd873da2116975ce39b313f93068d83}{mqtt\+\_\+mq\+\_\+currsz}(mq\+\_\+ptr)~(mq\+\_\+ptr-\/$>$curr $>$= (uint8\+\_\+t$\ast$) ((mq\+\_\+ptr)-\/$>$queue\+\_\+tail -\/ 1)) ? 0 \+: ((uint8\+\_\+t$\ast$) ((mq\+\_\+ptr)-\/$>$queue\+\_\+tail -\/ 1)) -\/ (mq\+\_\+ptr)-\/$>$curr\hypertarget{group__details_ga8cd873da2116975ce39b313f93068d83}{}\label{group__details_ga8cd873da2116975ce39b313f93068d83}
+
+\begin{DoxyCompactList}\small\item\em Used internally to recalculate the {\ttfamily curr\+\_\+sz}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__details_ga28b018ca5d1c81101d36f9c0d532a0d0}{M\+Q\+T\+T\+Queued\+Message\+State} \{ {\bfseries M\+Q\+T\+T\+\_\+\+Q\+U\+E\+U\+E\+D\+\_\+\+U\+N\+S\+E\+NT}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+Q\+U\+E\+U\+E\+D\+\_\+\+A\+W\+A\+I\+T\+I\+N\+G\+\_\+\+A\+CK}, 
+{\bfseries M\+Q\+T\+T\+\_\+\+Q\+U\+E\+U\+E\+D\+\_\+\+C\+O\+M\+P\+L\+E\+TE}
+ \}\hypertarget{group__details_ga28b018ca5d1c81101d36f9c0d532a0d0}{}\label{group__details_ga28b018ca5d1c81101d36f9c0d532a0d0}
+\begin{DoxyCompactList}\small\item\em An enumeration of queued message states. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{group__details_ga0da861c969387bf8d0229924543d9bb7}{mqtt\+\_\+mq\+\_\+init} (struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue} $\ast$mq, void $\ast$buf, size\+\_\+t bufsz)
+\begin{DoxyCompactList}\small\item\em Initialize a message queue. \end{DoxyCompactList}\item 
+void \hyperlink{group__details_gadb54c413b4d884619c50cc20ee6eb084}{mqtt\+\_\+mq\+\_\+clean} (struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue} $\ast$mq)
+\begin{DoxyCompactList}\small\item\em Clear as many messages from the front of the queue as possible. \end{DoxyCompactList}\item 
+struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} $\ast$ \hyperlink{group__details_gaa34e6af3ab1af60ebf8fe7b86be868fc}{mqtt\+\_\+mq\+\_\+register} (struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue} $\ast$mq, size\+\_\+t nbytes)
+\begin{DoxyCompactList}\small\item\em Register a message that was just added to the buffer. \end{DoxyCompactList}\item 
+struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} $\ast$ \hyperlink{group__details_ga1ffcd45af057865a0d85b4e9e24789a2}{mqtt\+\_\+mq\+\_\+find} (struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue} $\ast$mq, enum \hyperlink{group__unpackers_gacbd36b88ec7f62bc161b07e1a0aed679}{M\+Q\+T\+T\+Control\+Packet\+Type} control\+\_\+type, uint16\+\_\+t $\ast$packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Find a message in the message queue. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Documentation of function and structures that make the client work. 
+
+\begin{DoxyNote}{Note}
+To deserialize a packet from a buffer use \hyperlink{group__unpackers_gaae124a93579dcd31e6f52411f4582fbd}{mqtt\+\_\+unpack\+\_\+response} (it\textquotesingle{}s the only function you need). 
+\end{DoxyNote}
+
+
+\subsection{Macro Definition Documentation}
+\index{Details of what makes the client work.@{Details of what makes the client work.}!mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}}
+\index{mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}!Details of what makes the client work.@{Details of what makes the client work.}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+get}{mqtt_mq_get}}]{\setlength{\rightskip}{0pt plus 5cm}\#define mqtt\+\_\+mq\+\_\+get(
+\begin{DoxyParamCaption}
+\item[{}]{mq\+\_\+ptr, }
+\item[{}]{index}
+\end{DoxyParamCaption}
+)~(((struct {\bf mqtt\+\_\+queued\+\_\+message}$\ast$) ((mq\+\_\+ptr)-\/$>$mem\+\_\+end)) -\/ 1 -\/ index)}\hypertarget{group__details_gadfa141880e5b30429bd89018da0c8d94}{}\label{group__details_gadfa141880e5b30429bd89018da0c8d94}
+
+
+Returns the \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} at {\ttfamily index}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mq\+\_\+ptr} & A pointer to the message queue. \\
+\hline
+{\em index} & The index of the message.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} at {\ttfamily index}. 
+\end{DoxyReturn}
+
+
+\subsection{Function Documentation}
+\index{Details of what makes the client work.@{Details of what makes the client work.}!mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}}
+\index{mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}!Details of what makes the client work.@{Details of what makes the client work.}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+clean(struct mqtt\+\_\+message\+\_\+queue $\ast$mq)}{mqtt_mq_clean(struct mqtt_message_queue *mq)}}]{\setlength{\rightskip}{0pt plus 5cm}void mqtt\+\_\+mq\+\_\+clean (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [related]}}\hypertarget{group__details_gadb54c413b4d884619c50cc20ee6eb084}{}\label{group__details_gadb54c413b4d884619c50cc20ee6eb084}
+
+
+Clear as many messages from the front of the queue as possible. 
+
+\begin{DoxyNote}{Note}
+Calls to this function are the {\itshape only} way to remove messages from the queue.
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em mq} & The message queue. \\
+\hline
+\end{DoxyParams}
+\index{Details of what makes the client work.@{Details of what makes the client work.}!mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}}
+\index{mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}!Details of what makes the client work.@{Details of what makes the client work.}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+find(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, enum M\+Q\+T\+T\+Control\+Packet\+Type control\+\_\+type, uint16\+\_\+t $\ast$packet\+\_\+id)}{mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf mqtt\+\_\+queued\+\_\+message} $\ast$ mqtt\+\_\+mq\+\_\+find (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }
+\item[{enum {\bf M\+Q\+T\+T\+Control\+Packet\+Type}}]{control\+\_\+type, }
+\item[{uint16\+\_\+t $\ast$}]{packet\+\_\+id}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [related]}}\hypertarget{group__details_ga1ffcd45af057865a0d85b4e9e24789a2}{}\label{group__details_ga1ffcd45af057865a0d85b4e9e24789a2}
+
+
+Find a message in the message queue. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+ & {\em mq} & The message queue. \\
+\hline
+\mbox{\tt in}  & {\em control\+\_\+type} & The control type of the message you want to find. \\
+\hline
+\mbox{\tt in}  & {\em packet\+\_\+id} & The packet ID of the message you want to find. Set to {\ttfamily N\+U\+LL} if you don\textquotesingle{}t want to specify a packet ID.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The found message. {\ttfamily N\+U\+LL} if the message was not found. 
+\end{DoxyReturn}
+\index{Details of what makes the client work.@{Details of what makes the client work.}!mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}}
+\index{mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}!Details of what makes the client work.@{Details of what makes the client work.}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+init(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, void $\ast$buf, size\+\_\+t bufsz)}{mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)}}]{\setlength{\rightskip}{0pt plus 5cm}void mqtt\+\_\+mq\+\_\+init (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }
+\item[{void $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [related]}}\hypertarget{group__details_ga0da861c969387bf8d0229924543d9bb7}{}\label{group__details_ga0da861c969387bf8d0229924543d9bb7}
+
+
+Initialize a message queue. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em mq} & The message queue to initialize. \\
+\hline
+\mbox{\tt in}  & {\em buf} & The buffer for this message queue. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & The number of bytes in the buffer. \\
+\hline
+\end{DoxyParams}
+\index{Details of what makes the client work.@{Details of what makes the client work.}!mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}}
+\index{mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}!Details of what makes the client work.@{Details of what makes the client work.}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+register(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, size\+\_\+t nbytes)}{mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf mqtt\+\_\+queued\+\_\+message} $\ast$ mqtt\+\_\+mq\+\_\+register (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }
+\item[{size\+\_\+t}]{nbytes}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [related]}}\hypertarget{group__details_gaa34e6af3ab1af60ebf8fe7b86be868fc}{}\label{group__details_gaa34e6af3ab1af60ebf8fe7b86be868fc}
+
+
+Register a message that was just added to the buffer. 
+
+\begin{DoxyNote}{Note}
+This function should be called immediately following a call to a packer function that returned a positive value. The positive value (number of bytes packed) should be passed to this function.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+ & {\em mq} & The message queue. \\
+\hline
+\mbox{\tt in}  & {\em nbytes} & The number of bytes that were just packed.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+This function will step \hyperlink{structmqtt__message__queue_a6fdfd281cd9d9ac4bfa69840e5cbd359}{mqtt\+\_\+message\+\_\+queue\+::curr} and update \hyperlink{structmqtt__message__queue_a0fe32958dfdb1872f040d7f86ca9a4b9}{mqtt\+\_\+message\+\_\+queue\+::curr\+\_\+sz}.
+\end{DoxyNote}
+\begin{DoxyReturn}{Returns}
+The newly added struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message}. 
+\end{DoxyReturn}

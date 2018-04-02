@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include <mqtt.h>
 #include <mqtt_client.h>
@@ -577,8 +578,9 @@ static void test_packet_id_lfsr(void **unused) {
     assert_true(period == 65535u);
 }
 
-void publish_callback(struct mqtt_response_publish *publish) {
-    printf("Received publish!\n");
+void publish_callback(void** state, struct mqtt_response_publish *publish) {
+    printf("it was called! and was passed '%s'\n", (const char*) (publish->application_message));
+    **(int**)state = 1;
 }
 
 static void test_client_simple(void **unused) {
@@ -595,17 +597,19 @@ static void test_client_simple(void **unused) {
     int sockfd = conf_client(addr, port, &hints, NULL);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
 
+    /* initialize */
     mqtt_init(&client, sockfd, sendmem, sizeof(sendmem), recvmem, sizeof(recvmem), publish_callback);
-    
-    assert_true(mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
 
+    /* connect */
+    assert_true(mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
     assert_true(__mqtt_send(&client) > 0);
     while(mqtt_mq_length(&client.mq) > 0) {
         assert_true(__mqtt_recv(&client) > 0);
         mqtt_mq_clean(&client.mq);
-        sleep(1);
+        usleep(10000);
     }
-    printf("response time = %f\n", client.typical_response_time);
+
+    /* ping */
     assert_true(mqtt_ping(&client) > 0);
     while(mqtt_mq_length(&client.mq) > 0) {
         rv = __mqtt_send(&client);
@@ -621,73 +625,86 @@ static void test_client_simple(void **unused) {
         mqtt_mq_clean(&client.mq);
         usleep(10000);
     }
-    sleep(2);
 
-    printf("response time = %f\n", client.typical_response_time);
-    assert_true(mqtt_ping(&client) > 0);
-    while(mqtt_mq_length(&client.mq) > 0) {
-        rv = __mqtt_send(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        rv = __mqtt_recv(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        mqtt_mq_clean(&client.mq);
-        usleep(10000);
-    }
-    sleep(3);
-
-    printf("response time = %f\n", client.typical_response_time);
-    assert_true(mqtt_ping(&client) > 0);
-    while(mqtt_mq_length(&client.mq) > 0) {
-        rv = __mqtt_send(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        rv = __mqtt_recv(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        mqtt_mq_clean(&client.mq);
-        usleep(10000);
-    }
-    sleep(1);
-
-    printf("response time = %f\n", client.typical_response_time);
-    assert_true(mqtt_ping(&client) > 0);
-    while(mqtt_mq_length(&client.mq) > 0) {
-        rv = __mqtt_send(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        rv = __mqtt_recv(&client);
-        if (rv <= 0) {
-            printf("error: %s\n", mqtt_error_str(rv));
-            assert_true(0);
-        }
-        mqtt_mq_clean(&client.mq);
-        usleep(10000);
-    }
-    sleep(2);
-    printf("response time = %f\n", client.typical_response_time);
-
-
+    /* disconnect */
     assert_true(client.error == MQTT_OK);
     assert_true(mqtt_disconnect(&client) > 0);
     assert_true(__mqtt_send(&client) > 0);
 }
 
+static void test_client_simple_subpub(void **unused) {
+    uint8_t sendmem1[2048], sendmem2[2048];
+    uint8_t recvmem1[1024], recvmem2[1024];
+    const char* addr = "test.mosquitto.org";
+    const char* port = "1883";
+    struct addrinfo hints;
+    struct mqtt_client sender, receiver;
+
+    int state = 0;
+
+    /* initialize sender */
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;          /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    int sockfd = conf_client(addr, port, &hints, NULL);
+    fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
+    mqtt_init(&sender, sockfd, sendmem1, sizeof(sendmem1), recvmem1, sizeof(recvmem1), publish_callback);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;          /* use IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* TCP */
+    sockfd = conf_client(addr, port, &hints, NULL);
+    fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
+    mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
+    receiver.publish_response_callback_state = &state;
+
+    /* connect both */
+    assert_true(mqtt_connect(&sender, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
+    assert_true(mqtt_connect(&receiver, "liam-234", NULL, NULL, NULL, NULL, 0, 30) > 0);
+    assert_true(__mqtt_send(&sender) > 0);
+    assert_true(__mqtt_send(&receiver) > 0);
+    while(mqtt_mq_length(&sender.mq) > 0 || mqtt_mq_length(&receiver.mq) > 0) {
+        assert_true(__mqtt_recv(&sender) > 0);
+        mqtt_mq_clean(&sender.mq);
+        assert_true(__mqtt_recv(&receiver) > 0);
+        mqtt_mq_clean(&receiver.mq);
+        usleep(10000);
+    }
+
+    /* subscribe receiver*/
+    assert_true(mqtt_subscribe(&receiver, "liam-test-topic", 2) > 0);
+    assert_true(__mqtt_send(&receiver) > 0);
+    while(mqtt_mq_length(&receiver.mq) > 0) {
+        assert_true(__mqtt_recv(&receiver) > 0);
+        mqtt_mq_clean(&receiver.mq);
+        usleep(10000);
+    }
+
+    /* publish from sender */
+    assert_true(mqtt_publish(&sender, "liam-test-topic", "data", 5, MQTT_PUBLISH_QOS_0) > 0);
+    assert_true(__mqtt_send(&sender) > 0);
+
+    time_t start = time(NULL);
+    while(state == 0 && time(NULL) < start + 10) {
+        assert_true(__mqtt_recv(&receiver) > 0);        
+        usleep(10000);
+    }
+
+    assert_true(state == 1);
+
+    /* disconnect */
+    assert_true(sender.error == MQTT_OK);
+    assert_true(receiver.error == MQTT_OK);
+    assert_true(mqtt_disconnect(&sender) > 0);
+    assert_true(mqtt_disconnect(&receiver) > 0);
+    assert_true(__mqtt_send(&sender) > 0);
+    assert_true(__mqtt_send(&receiver) > 0);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        /*cmocka_unit_test(test_mqtt_fixed_header),
+        cmocka_unit_test(test_mqtt_fixed_header),
         cmocka_unit_test(test_mqtt_pack_connection_request),
         cmocka_unit_test(test_mqtt_unpack_connection_response),
         cmocka_unit_test(test_mqtt_pack_disconnect),
@@ -701,8 +718,9 @@ int main(void)
         cmocka_unit_test(test_mqtt_pack_ping),
         cmocka_unit_test(test_mqtt_connect_and_ping),
         cmocka_unit_test(test_message_queue),
-        cmocka_unit_test(test_packet_id_lfsr),*/
+        cmocka_unit_test(test_packet_id_lfsr),
         cmocka_unit_test(test_client_simple),
+        cmocka_unit_test(test_client_simple_subpub),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -1,0 +1,81 @@
+\hypertarget{structmqtt__response__publish}{}\section{mqtt\+\_\+response\+\_\+publish Struct Reference}
+\label{structmqtt__response__publish}\index{mqtt\+\_\+response\+\_\+publish@{mqtt\+\_\+response\+\_\+publish}}
+
+
+A publish packet received from the broker.
+
+A publish packet is received from the broker when a client publishes to a topic that the {\itshape \{local} client\} is subscribed to.  
+
+
+
+
+{\ttfamily \#include $<$mqtt.\+h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{structmqtt__response__publish_aff09bd16179b085e8452f4bd7fe3c88c}{dup\+\_\+flag}\hypertarget{structmqtt__response__publish_aff09bd16179b085e8452f4bd7fe3c88c}{}\label{structmqtt__response__publish_aff09bd16179b085e8452f4bd7fe3c88c}
+
+\begin{DoxyCompactList}\small\item\em The D\+UP flag. D\+UP flag is 0 if its the first attempt to send this publish packet. A D\+UP flag of 1 means that this might be a re-\/delivery of the packet. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{structmqtt__response__publish_ab6bc13774afcff002ce4f9afbee05493}{qos\+\_\+level}
+\begin{DoxyCompactList}\small\item\em The quality of service level. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{structmqtt__response__publish_aba854fcc4effcc95ba3e7ec597a4d7ca}{retain\+\_\+flag}\hypertarget{structmqtt__response__publish_aba854fcc4effcc95ba3e7ec597a4d7ca}{}\label{structmqtt__response__publish_aba854fcc4effcc95ba3e7ec597a4d7ca}
+
+\begin{DoxyCompactList}\small\item\em The retain flag of this publish message. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}{topic\+\_\+name\+\_\+size}\hypertarget{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}{}\label{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}
+
+\begin{DoxyCompactList}\small\item\em Size of the topic name (number of characters). \end{DoxyCompactList}\item 
+const void $\ast$ \hyperlink{structmqtt__response__publish_a5f35698c457c51f8099ff1d8f4198403}{topic\+\_\+name}
+\begin{DoxyCompactList}\small\item\em The topic name. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{structmqtt__response__publish_a7852df5d850a832ccc441b87cf9d8d03}{packet\+\_\+id}\hypertarget{structmqtt__response__publish_a7852df5d850a832ccc441b87cf9d8d03}{}\label{structmqtt__response__publish_a7852df5d850a832ccc441b87cf9d8d03}
+
+\begin{DoxyCompactList}\small\item\em The publish message\textquotesingle{}s packet ID. \end{DoxyCompactList}\item 
+const void $\ast$ \hyperlink{structmqtt__response__publish_ab62bd140a0f0ec6886a1397252faea52}{application\+\_\+message}\hypertarget{structmqtt__response__publish_ab62bd140a0f0ec6886a1397252faea52}{}\label{structmqtt__response__publish_ab62bd140a0f0ec6886a1397252faea52}
+
+\begin{DoxyCompactList}\small\item\em The publish message\textquotesingle{}s application message. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{structmqtt__response__publish_a01c5537d6478bff752f45d422ba47292}{application\+\_\+message\+\_\+size}\hypertarget{structmqtt__response__publish_a01c5537d6478bff752f45d422ba47292}{}\label{structmqtt__response__publish_a01c5537d6478bff752f45d422ba47292}
+
+\begin{DoxyCompactList}\small\item\em The size of the application message in bytes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Related Functions}
+(Note that these are not member functions.) \begin{DoxyCompactItemize}
+\item 
+ssize\+\_\+t \hyperlink{group__unpackers_gae8ee6c1da210c4782f4f9939fe6ec828}{mqtt\+\_\+unpack\+\_\+publish\+\_\+response} (struct \hyperlink{structmqtt__response}{mqtt\+\_\+response} $\ast$\hyperlink{structmqtt__response}{mqtt\+\_\+response}, const uint8\+\_\+t $\ast$buf)
+\begin{DoxyCompactList}\small\item\em Deserialize a publish response from {\ttfamily buf}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A publish packet received from the broker.
+
+A publish packet is received from the broker when a client publishes to a topic that the {\itshape \{local} client\} is subscribed to. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+L\+I\+SH -\/ Publish Message. } 
+\end{DoxySeeAlso}
+
+
+\subsection{Field Documentation}
+\index{mqtt\+\_\+response\+\_\+publish@{mqtt\+\_\+response\+\_\+publish}!qos\+\_\+level@{qos\+\_\+level}}
+\index{qos\+\_\+level@{qos\+\_\+level}!mqtt\+\_\+response\+\_\+publish@{mqtt\+\_\+response\+\_\+publish}}
+\subsubsection[{\texorpdfstring{qos\+\_\+level}{qos_level}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t mqtt\+\_\+response\+\_\+publish\+::qos\+\_\+level}\hypertarget{structmqtt__response__publish_ab6bc13774afcff002ce4f9afbee05493}{}\label{structmqtt__response__publish_ab6bc13774afcff002ce4f9afbee05493}
+
+
+The quality of service level. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_3.11_-}{\tt M\+Q\+TT v3.\+1.\+1\+: QoS Definitions } 
+\end{DoxySeeAlso}
+\index{mqtt\+\_\+response\+\_\+publish@{mqtt\+\_\+response\+\_\+publish}!topic\+\_\+name@{topic\+\_\+name}}
+\index{topic\+\_\+name@{topic\+\_\+name}!mqtt\+\_\+response\+\_\+publish@{mqtt\+\_\+response\+\_\+publish}}
+\subsubsection[{\texorpdfstring{topic\+\_\+name}{topic_name}}]{\setlength{\rightskip}{0pt plus 5cm}const void$\ast$ mqtt\+\_\+response\+\_\+publish\+::topic\+\_\+name}\hypertarget{structmqtt__response__publish_a5f35698c457c51f8099ff1d8f4198403}{}\label{structmqtt__response__publish_a5f35698c457c51f8099ff1d8f4198403}
+
+
+The topic name. 
+
+\begin{DoxyNote}{Note}
+topic\+\_\+name is not null terminated. Therefore topic\+\_\+name\+\_\+size must be used to get the string length. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\hyperlink{mqtt_8h}{mqtt.\+h}\end{DoxyCompactItemize}

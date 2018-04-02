@@ -1,0 +1,58 @@
+\hypertarget{structmqtt__response}{}\section{mqtt\+\_\+response Struct Reference}
+\label{structmqtt__response}\index{mqtt\+\_\+response@{mqtt\+\_\+response}}
+
+
+A struct used to deserialize/interpret an incoming packet from the broker.  
+
+
+
+
+{\ttfamily \#include $<$mqtt.\+h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structmqtt__fixed__header}{mqtt\+\_\+fixed\+\_\+header} \hyperlink{structmqtt__response_aa8f110125c17b765fab496bf1c2c7394}{fixed\+\_\+header}\hypertarget{structmqtt__response_aa8f110125c17b765fab496bf1c2c7394}{}\label{structmqtt__response_aa8f110125c17b765fab496bf1c2c7394}
+
+\begin{DoxyCompactList}\small\item\em The \hyperlink{structmqtt__fixed__header}{mqtt\+\_\+fixed\+\_\+header} of the deserialized packet. \end{DoxyCompactList}\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>struct \hyperlink{structmqtt__response__connack}{mqtt\_response\_connack} {\bfseries connack}\\
+\>struct \hyperlink{structmqtt__response__publish}{mqtt\_response\_publish} {\bfseries publish}\\
+\>struct \hyperlink{structmqtt__response__puback}{mqtt\_response\_puback} {\bfseries puback}\\
+\>struct \hyperlink{structmqtt__response__pubrec}{mqtt\_response\_pubrec} {\bfseries pubrec}\\
+\>struct \hyperlink{structmqtt__response__pubrel}{mqtt\_response\_pubrel} {\bfseries pubrel}\\
+\>struct \hyperlink{structmqtt__response__pubcomp}{mqtt\_response\_pubcomp} {\bfseries pubcomp}\\
+\>struct \hyperlink{structmqtt__response__suback}{mqtt\_response\_suback} {\bfseries suback}\\
+\>struct \hyperlink{structmqtt__response__unsuback}{mqtt\_response\_unsuback} {\bfseries unsuback}\\
+\>struct \hyperlink{structmqtt__response__pingresp}{mqtt\_response\_pingresp} {\bfseries pingresp}\\
+\} \hyperlink{structmqtt__response_a06d09e11b0023e31e281313df13184ff}{decoded}\\
+
+\end{tabbing}\begin{DoxyCompactList}\small\item\em A union of the possible responses from the broker. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Related Functions}
+(Note that these are not member functions.) \begin{DoxyCompactItemize}
+\item 
+ssize\+\_\+t \hyperlink{group__unpackers_gaae124a93579dcd31e6f52411f4582fbd}{mqtt\+\_\+unpack\+\_\+response} (struct \hyperlink{structmqtt__response}{mqtt\+\_\+response} $\ast$response, const uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)
+\begin{DoxyCompactList}\small\item\em Deserialize a packet from the broker. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A struct used to deserialize/interpret an incoming packet from the broker. 
+
+\subsection{Field Documentation}
+\index{mqtt\+\_\+response@{mqtt\+\_\+response}!decoded@{decoded}}
+\index{decoded@{decoded}!mqtt\+\_\+response@{mqtt\+\_\+response}}
+\subsubsection[{\texorpdfstring{decoded}{decoded}}]{\setlength{\rightskip}{0pt plus 5cm}union \{ ... \}   mqtt\+\_\+response\+::decoded}\hypertarget{structmqtt__response_a06d09e11b0023e31e281313df13184ff}{}\label{structmqtt__response_a06d09e11b0023e31e281313df13184ff}
+
+
+A union of the possible responses from the broker. 
+
+\begin{DoxyNote}{Note}
+The fixed\+\_\+header contains the control type. This control type corresponds to the member of this union that should be accessed. For example if fixed\+\_\+header\+::control\+\_\+type == {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+L\+I\+SH} then decoded\+::publish should be accessed. 
+\end{DoxyNote}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\hyperlink{mqtt_8h}{mqtt.\+h}\end{DoxyCompactItemize}

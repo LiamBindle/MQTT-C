@@ -1,0 +1,408 @@
+\hypertarget{group__packers}{}\section{Control Packet Serialization}
+\label{group__packers}\index{Control Packet Serialization@{Control Packet Serialization}}
+
+
+Documentation of functions and datastructures for M\+Q\+TT control packet serialization.  
+
+
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__packers_ga50781ed232e8fd19a071d07566579974}{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL}~0x04
+\begin{DoxyCompactList}\small\item\em The protocol identifier for M\+Q\+TT v3.\+1.\+1. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__packers_ga6501874871fce6b65d972430afa64fb8}{M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}~8
+\begin{DoxyCompactList}\small\item\em The maximum number topics that can be subscribed to in a single call to mqtt\+\_\+pack\+\_\+subscribe\+\_\+request. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__packers_gaff4017b7a1668b6ad6e0d006d0fdf10e}{M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}~8
+\begin{DoxyCompactList}\small\item\em The maximum number topics that can be subscribed to in a single call to mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__packers_gad6fa84a96a940fe4eae6ffca1a6d945f}{M\+Q\+T\+T\+Connect\+Flags} \{ \\*
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+R\+E\+S\+E\+R\+V\+ED} = 1u, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+C\+L\+E\+A\+N\+\_\+\+S\+E\+S\+S\+I\+ON} = 2u, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+F\+L\+AG} = 4u, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+Q\+O\+S\+\_\+0} = (0u \& 0x03) $<$$<$ 3, 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+Q\+O\+S\+\_\+1} = (1u \& 0x03) $<$$<$ 3, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+Q\+O\+S\+\_\+2} = (2u \& 0x03) $<$$<$ 3, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+R\+E\+T\+A\+IN} = 32u, 
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+P\+A\+S\+S\+W\+O\+RD} = 64u, 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+U\+S\+E\+R\+\_\+\+N\+A\+ME} = 128u
+ \}\begin{DoxyCompactList}\small\item\em An enumeration of C\+O\+N\+N\+E\+CT packet flags. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__packers_gad38a41e1c497f9bcd2477c005f280b23}{M\+Q\+T\+T\+Publish\+Flags} \{ \\*
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+D\+UP} = 8u, 
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+0} = ((0u $<$$<$ 1) \& 0x06), 
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+1} = ((1u $<$$<$ 1) \& 0x06), 
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+2} = ((2u $<$$<$ 1) \& 0x06), 
+\\*
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+R\+E\+T\+A\+IN} = 0x01
+ \}\begin{DoxyCompactList}\small\item\em An enumeration of the P\+U\+B\+L\+I\+SH flags. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+ssize\+\_\+t \hyperlink{group__packers_ga52d369e6e7d44539aab6732375288623}{mqtt\+\_\+pack\+\_\+fixed\+\_\+header} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const struct \hyperlink{structmqtt__fixed__header}{mqtt\+\_\+fixed\+\_\+header} $\ast$fixed\+\_\+header)
+\begin{DoxyCompactList}\small\item\em Serialize an \hyperlink{structmqtt__fixed__header}{mqtt\+\_\+fixed\+\_\+header} and write it to {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_ga0ed22cd47cf955e07e9662f1d9a4989c}{mqtt\+\_\+pack\+\_\+connection\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const char $\ast$will\+\_\+message, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)
+\begin{DoxyCompactList}\small\item\em Serialize a connection request into a buffer. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_gae7cb4c4d90ed04fe268f5f9a167e32b1}{mqtt\+\_\+pack\+\_\+publish\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const char $\ast$topic\+\_\+name, uint16\+\_\+t packet\+\_\+id, void $\ast$application\+\_\+message, size\+\_\+t application\+\_\+message\+\_\+size, uint8\+\_\+t publish\+\_\+flags)
+\begin{DoxyCompactList}\small\item\em Serialize a P\+U\+B\+L\+I\+SH request and put it in {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_ga9cbd954d6bffd8fb0a06a6e4d34e4949}{mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, enum \hyperlink{group__unpackers_gacbd36b88ec7f62bc161b07e1a0aed679}{M\+Q\+T\+T\+Control\+Packet\+Type} control\+\_\+type, uint16\+\_\+t packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Serialize a P\+U\+B\+A\+CK, P\+U\+B\+R\+EC, P\+U\+B\+R\+EL, or P\+U\+B\+C\+O\+MP packet and put it in {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_ga65a198063d780e654af0336e5088f609}{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, uint16\+\_\+t packet\+\_\+id,...)
+\begin{DoxyCompactList}\small\item\em Serialize a S\+U\+B\+S\+C\+R\+I\+BE packet and put it in {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_ga3a0e5c05084d708f16cb1a244cbcaad5}{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, uint16\+\_\+t packet\+\_\+id,...)
+\begin{DoxyCompactList}\small\item\em Serialize a U\+N\+S\+U\+B\+S\+C\+R\+I\+BE packet and put it in {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_gac11b5cc5c6bbbf386c2515c823965a82}{mqtt\+\_\+pack\+\_\+ping\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)
+\begin{DoxyCompactList}\small\item\em Serialize a P\+I\+N\+G\+R\+EQ and put it into {\ttfamily buf}. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__packers_ga7842c85a0711df31f2e9ce31a9253999}{mqtt\+\_\+pack\+\_\+disconnect} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)
+\begin{DoxyCompactList}\small\item\em Serialize a D\+I\+S\+C\+O\+N\+N\+E\+CT and put it into {\ttfamily buf}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Documentation of functions and datastructures for M\+Q\+TT control packet serialization. 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{Control Packet Serialization@{Control Packet Serialization}!M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL@{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL}}
+\index{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL@{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL}{MQTT_PROTOCOL_LEVEL}}]{\setlength{\rightskip}{0pt plus 5cm}\#define M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL~0x04}\hypertarget{group__packers_ga50781ed232e8fd19a071d07566579974}{}\label{group__packers_ga50781ed232e8fd19a071d07566579974}
+
+
+The protocol identifier for M\+Q\+TT v3.\+1.\+1. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030}{\tt M\+Q\+TT v3.\+1.\+1\+: C\+O\+N\+N\+E\+CT Variable Header. } 
+\end{DoxySeeAlso}
+\index{Control Packet Serialization@{Control Packet Serialization}!M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS@{M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}}
+\index{M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS@{M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}{MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define M\+Q\+T\+T\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS~8}\hypertarget{group__packers_ga6501874871fce6b65d972430afa64fb8}{}\label{group__packers_ga6501874871fce6b65d972430afa64fb8}
+
+
+The maximum number topics that can be subscribed to in a single call to mqtt\+\_\+pack\+\_\+subscribe\+\_\+request. 
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__packers_ga65a198063d780e654af0336e5088f609}{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request} 
+\end{DoxySeeAlso}
+\index{Control Packet Serialization@{Control Packet Serialization}!M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS@{M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}}
+\index{M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS@{M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS}{MQTT_UNSUBSCRIBE_REQUEST_MAX_NUM_TOPICS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define M\+Q\+T\+T\+\_\+\+U\+N\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+M\+A\+X\+\_\+\+N\+U\+M\+\_\+\+T\+O\+P\+I\+CS~8}\hypertarget{group__packers_gaff4017b7a1668b6ad6e0d006d0fdf10e}{}\label{group__packers_gaff4017b7a1668b6ad6e0d006d0fdf10e}
+
+
+The maximum number topics that can be subscribed to in a single call to mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request. 
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__packers_ga3a0e5c05084d708f16cb1a244cbcaad5}{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request} 
+\end{DoxySeeAlso}
+
+
+\subsection{Enumeration Type Documentation}
+\index{Control Packet Serialization@{Control Packet Serialization}!M\+Q\+T\+T\+Connect\+Flags@{M\+Q\+T\+T\+Connect\+Flags}}
+\index{M\+Q\+T\+T\+Connect\+Flags@{M\+Q\+T\+T\+Connect\+Flags}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{M\+Q\+T\+T\+Connect\+Flags}{MQTTConnectFlags}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Connect\+Flags}}\hypertarget{group__packers_gad6fa84a96a940fe4eae6ffca1a6d945f}{}\label{group__packers_gad6fa84a96a940fe4eae6ffca1a6d945f}
+
+
+An enumeration of C\+O\+N\+N\+E\+CT packet flags. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030}{\tt M\+Q\+TT v3.\+1.\+1\+: C\+O\+N\+N\+E\+CT Variable Header. } 
+\end{DoxySeeAlso}
+\index{Control Packet Serialization@{Control Packet Serialization}!M\+Q\+T\+T\+Publish\+Flags@{M\+Q\+T\+T\+Publish\+Flags}}
+\index{M\+Q\+T\+T\+Publish\+Flags@{M\+Q\+T\+T\+Publish\+Flags}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{M\+Q\+T\+T\+Publish\+Flags}{MQTTPublishFlags}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Publish\+Flags}}\hypertarget{group__packers_gad38a41e1c497f9bcd2477c005f280b23}{}\label{group__packers_gad38a41e1c497f9bcd2477c005f280b23}
+
+
+An enumeration of the P\+U\+B\+L\+I\+SH flags. 
+
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+L\+I\+SH -\/ Publish Message. } 
+\end{DoxySeeAlso}
+
+
+\subsection{Function Documentation}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+connection\+\_\+request@{mqtt\+\_\+pack\+\_\+connection\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+connection\+\_\+request@{mqtt\+\_\+pack\+\_\+connection\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+connection\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const char $\ast$will\+\_\+message, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)}{mqtt_pack_connection_request(uint8_t *buf, size_t bufsz, const char *client_id, const char *will_topic, const char *will_message, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+connection\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{const char $\ast$}]{client\+\_\+id, }
+\item[{const char $\ast$}]{will\+\_\+topic, }
+\item[{const char $\ast$}]{will\+\_\+message, }
+\item[{const char $\ast$}]{user\+\_\+name, }
+\item[{const char $\ast$}]{password, }
+\item[{uint8\+\_\+t}]{connect\+\_\+flags, }
+\item[{uint16\+\_\+t}]{keep\+\_\+alive}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga0ed22cd47cf955e07e9662f1d9a4989c}{}\label{group__packers_ga0ed22cd47cf955e07e9662f1d9a4989c}
+
+
+Serialize a connection request into a buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to pack the connection request packet into. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the number of bytes left in {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em client\+\_\+id} & the ID that identifies the local client. {\ttfamily client\+\_\+id} is a required parameter. \\
+\hline
+\mbox{\tt in}  & {\em will\+\_\+topic} & the topic under which the local client\textquotesingle{}s will message will be published. Set to {\ttfamily N\+U\+LL} for no will message. If {\ttfamily will\+\_\+topic} is not {\ttfamily N\+U\+LL} a {\ttfamily will\+\_\+message} must also be provided. \\
+\hline
+\mbox{\tt in}  & {\em will\+\_\+message} & the will message to be published upon a unsuccessful disconnection of the local client. Set to {\ttfamily N\+U\+LL} if {\ttfamily will\+\_\+topic} is {\ttfamily N\+U\+LL}. {\ttfamily will\+\_\+message} must {\itshape not} be {\ttfamily N\+U\+LL} if {\ttfamily will\+\_\+topic} is not {\ttfamily N\+U\+LL}. \\
+\hline
+\mbox{\tt in}  & {\em user\+\_\+name} & the username to be used to connect to the broker with. Set to {\ttfamily N\+U\+LL} if no username is required. \\
+\hline
+\mbox{\tt in}  & {\em password} & the password to be used to connect to the broker with. Set to {\ttfamily N\+U\+LL} if no password is required. \\
+\hline
+\mbox{\tt in}  & {\em connect\+\_\+flags} & additional M\+Q\+T\+T\+Connect\+Flags to be set. The only flags that need to be set manually are {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+C\+L\+E\+A\+N\+\_\+\+S\+E\+S\+S\+I\+ON}, {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+Q\+O\+S\+\_\+X} (for {\ttfamily X} {$\in$} \{0, 1, 2\}), and {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+\_\+\+W\+I\+L\+L\+\_\+\+R\+E\+T\+A\+IN}. Set to 0 if no additional flags are required. \\
+\hline
+\mbox{\tt in}  & {\em keep\+\_\+alive} & the keep alive time in seconds. It is the responsibility of the clinet to ensure packets are sent to the server {\itshape \{at} least\} this frequently.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+If there is a {\ttfamily will\+\_\+topic} and no additional {\ttfamily connect\+\_\+flags} are given, then by default {\ttfamily will\+\_\+message} will be published at QoS level 0.
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028}{\tt M\+Q\+TT v3.\+1.\+1\+: C\+O\+N\+N\+E\+CT -\/ Client Requests a Connection to a Server. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the C\+O\+N\+N\+E\+CT packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+disconnect@{mqtt\+\_\+pack\+\_\+disconnect}}
+\index{mqtt\+\_\+pack\+\_\+disconnect@{mqtt\+\_\+pack\+\_\+disconnect}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+disconnect(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)}{mqtt_pack_disconnect(uint8_t *buf, size_t bufsz)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+disconnect (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga7842c85a0711df31f2e9ce31a9253999}{}\label{group__packers_ga7842c85a0711df31f2e9ce31a9253999}
+
+
+Serialize a D\+I\+S\+C\+O\+N\+N\+E\+CT and put it into {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the D\+I\+S\+C\+O\+N\+N\+E\+CT packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718090}{\tt M\+Q\+TT v3.\+1.\+1\+: D\+I\+S\+C\+O\+N\+N\+E\+CT -\/ Disconnect Notification. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the D\+I\+S\+C\+O\+N\+N\+E\+CT packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+fixed\+\_\+header@{mqtt\+\_\+pack\+\_\+fixed\+\_\+header}}
+\index{mqtt\+\_\+pack\+\_\+fixed\+\_\+header@{mqtt\+\_\+pack\+\_\+fixed\+\_\+header}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+fixed\+\_\+header(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const struct mqtt\+\_\+fixed\+\_\+header $\ast$fixed\+\_\+header)}{mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fixed_header *fixed_header)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+fixed\+\_\+header (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{const struct {\bf mqtt\+\_\+fixed\+\_\+header} $\ast$}]{fixed\+\_\+header}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga52d369e6e7d44539aab6732375288623}{}\label{group__packers_ga52d369e6e7d44539aab6732375288623}
+
+
+Serialize an \hyperlink{structmqtt__fixed__header}{mqtt\+\_\+fixed\+\_\+header} and write it to {\ttfamily buf}. 
+
+\begin{DoxyNote}{Note}
+This function performs complete error checking and a positive return value guarantees the entire packet will fit into the given buffer.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to write to. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put in to {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em fixed\+\_\+header} & the fixed header that will be serialized.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of bytes written to {\ttfamily buf}, or 0 if {\ttfamily buf} is too small, or a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+ping\+\_\+request@{mqtt\+\_\+pack\+\_\+ping\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+ping\+\_\+request@{mqtt\+\_\+pack\+\_\+ping\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+ping\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)}{mqtt_pack_ping_request(uint8_t *buf, size_t bufsz)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+ping\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_gac11b5cc5c6bbbf386c2515c823965a82}{}\label{group__packers_gac11b5cc5c6bbbf386c2515c823965a82}
+
+
+Serialize a P\+I\+N\+G\+R\+EQ and put it into {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the P\+I\+N\+G\+R\+EQ packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718081}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+I\+N\+G\+R\+EQ -\/ Ping Request. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the P\+I\+N\+G\+R\+EQ packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+publish\+\_\+request@{mqtt\+\_\+pack\+\_\+publish\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+publish\+\_\+request@{mqtt\+\_\+pack\+\_\+publish\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+publish\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, const char $\ast$topic\+\_\+name, uint16\+\_\+t packet\+\_\+id, void $\ast$application\+\_\+message, size\+\_\+t application\+\_\+message\+\_\+size, uint8\+\_\+t publish\+\_\+flags)}{mqtt_pack_publish_request(uint8_t *buf, size_t bufsz, const char *topic_name, uint16_t packet_id, void *application_message, size_t application_message_size, uint8_t publish_flags)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+publish\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{const char $\ast$}]{topic\+\_\+name, }
+\item[{uint16\+\_\+t}]{packet\+\_\+id, }
+\item[{void $\ast$}]{application\+\_\+message, }
+\item[{size\+\_\+t}]{application\+\_\+message\+\_\+size, }
+\item[{uint8\+\_\+t}]{publish\+\_\+flags}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_gae7cb4c4d90ed04fe268f5f9a167e32b1}{}\label{group__packers_gae7cb4c4d90ed04fe268f5f9a167e32b1}
+
+
+Serialize a P\+U\+B\+L\+I\+SH request and put it in {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the P\+U\+B\+L\+I\+SH packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em topic\+\_\+name} & the topic to publish {\ttfamily application\+\_\+message} under. \\
+\hline
+\mbox{\tt in}  & {\em packet\+\_\+id} & this packets packet ID. \\
+\hline
+\mbox{\tt in}  & {\em application\+\_\+message} & the application message to be published. \\
+\hline
+\mbox{\tt in}  & {\em application\+\_\+message\+\_\+size} & the size of {\ttfamily application\+\_\+message} in bytes. \\
+\hline
+\mbox{\tt in}  & {\em publish\+\_\+flags} & The flags to publish {\ttfamily application\+\_\+message} with. These include the {\ttfamily M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+D\+UP} flag, {\ttfamily M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+X} ({\ttfamily X} {$\in$} \{0, 1, 2\}), and {\ttfamily M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+R\+E\+T\+A\+IN} flag.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The default QoS is level 0.
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+L\+I\+SH -\/ Publish Message. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the P\+U\+B\+L\+I\+SH packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request@{mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request@{mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, enum M\+Q\+T\+T\+Control\+Packet\+Type control\+\_\+type, uint16\+\_\+t packet\+\_\+id)}{mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, enum MQTTControlPacketType control_type, uint16_t packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+pubxxx\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{enum {\bf M\+Q\+T\+T\+Control\+Packet\+Type}}]{control\+\_\+type, }
+\item[{uint16\+\_\+t}]{packet\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga9cbd954d6bffd8fb0a06a6e4d34e4949}{}\label{group__packers_ga9cbd954d6bffd8fb0a06a6e4d34e4949}
+
+
+Serialize a P\+U\+B\+A\+CK, P\+U\+B\+R\+EC, P\+U\+B\+R\+EL, or P\+U\+B\+C\+O\+MP packet and put it in {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the P\+U\+B\+X\+XX packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em control\+\_\+type} & the type of packet. Must be one of\+: {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+A\+CK}, {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+R\+EC}, {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+R\+EL}, or {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+C\+O\+MP}. \\
+\hline
+\mbox{\tt in}  & {\em packet\+\_\+id} & the packet ID of the packet being acknowledged.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718043}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+A\+CK -\/ Publish Acknowledgement. } 
+
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718048}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+R\+EC -\/ Publish Received. } 
+
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718053}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+R\+EL -\/ Publish Released. } 
+
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718058}{\tt M\+Q\+TT v3.\+1.\+1\+: P\+U\+B\+C\+O\+MP -\/ Publish Complete. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the P\+U\+B\+X\+XX packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+subscribe\+\_\+request@{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request@{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+subscribe\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, uint16\+\_\+t packet\+\_\+id,...)}{mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id,...)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+subscribe\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{uint16\+\_\+t}]{packet\+\_\+id, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga65a198063d780e654af0336e5088f609}{}\label{group__packers_ga65a198063d780e654af0336e5088f609}
+
+
+Serialize a S\+U\+B\+S\+C\+R\+I\+BE packet and put it in {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the S\+U\+B\+S\+C\+R\+I\+BE packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em packet\+\_\+id} & the packet ID to be used. \\
+\hline
+\mbox{\tt in}  & {\em ...} & {\ttfamily N\+U\+LL} terminated list of ({\ttfamily \{const} char $\ast$topic\+\_\+name\}, {\ttfamily \{int} max\+\_\+qos\+\_\+level\}) pairs.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The variadic arguments, {\ttfamily }..., {\itshape must} be followed by a {\ttfamily N\+U\+LL}. For example\+: 
+\begin{DoxyCode}
+1 ssize\_t n = mqtt\_pack\_subscribe\_request(buf, bufsz, 1234, "topic\_1", 0, "topic\_2", 2, NULL);
+\end{DoxyCode}
+
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718063}{\tt M\+Q\+TT v3.\+1.\+1\+: S\+U\+B\+S\+C\+R\+I\+BE -\/ Subscribe to Topics. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the S\+U\+B\+S\+C\+R\+I\+BE packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
+\index{Control Packet Serialization@{Control Packet Serialization}!mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request@{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request}}
+\index{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request@{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request}!Control Packet Serialization@{Control Packet Serialization}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request(uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz, uint16\+\_\+t packet\+\_\+id,...)}{mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id,...)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t mqtt\+\_\+pack\+\_\+unsubscribe\+\_\+request (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buf, }
+\item[{size\+\_\+t}]{bufsz, }
+\item[{uint16\+\_\+t}]{packet\+\_\+id, }
+\item[{}]{...}
+\end{DoxyParamCaption}
+)}\hypertarget{group__packers_ga3a0e5c05084d708f16cb1a244cbcaad5}{}\label{group__packers_ga3a0e5c05084d708f16cb1a244cbcaad5}
+
+
+Serialize a U\+N\+S\+U\+B\+S\+C\+R\+I\+BE packet and put it in {\ttfamily buf}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em buf} & the buffer to put the U\+N\+S\+U\+B\+S\+C\+R\+I\+BE packet in. \\
+\hline
+\mbox{\tt in}  & {\em bufsz} & the maximum number of bytes that can be put into {\ttfamily buf}. \\
+\hline
+\mbox{\tt in}  & {\em packet\+\_\+id} & the packet ID to be used. \\
+\hline
+\mbox{\tt in}  & {\em ...} & {\ttfamily N\+U\+LL} terminated list of {\ttfamily \{const} char $\ast$topic\+\_\+name\}\textquotesingle{}s to unsubscribe from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The variadic arguments, {\ttfamily }..., {\itshape must} be followed by a {\ttfamily N\+U\+LL}. For example\+: 
+\begin{DoxyCode}
+1 ssize\_t n = mqtt\_pack\_unsubscribe\_request(buf, bufsz, 4321, "topic\_1", "topic\_2", NULL);
+\end{DoxyCode}
+
+\end{DoxyNote}
+\begin{DoxySeeAlso}{See also}
+\href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718072}{\tt M\+Q\+TT v3.\+1.\+1\+: U\+N\+S\+U\+B\+S\+C\+R\+I\+BE -\/ Unsubscribe from Topics. }
+\end{DoxySeeAlso}
+\begin{DoxyReturn}{Returns}
+The number of bytes put into {\ttfamily buf}, 0 if {\ttfamily buf} is too small to fit the U\+N\+S\+U\+B\+S\+C\+R\+I\+BE packet, a negative value if there was a protocol violation. 
+\end{DoxyReturn}
