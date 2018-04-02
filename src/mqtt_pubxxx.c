@@ -56,6 +56,8 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
         mqtt_response->decoded.pubrec.packet_id = packet_id;
     } else if (mqtt_response->fixed_header.control_type == MQTT_CONTROL_PUBREL) {
         mqtt_response->decoded.pubrel.packet_id = packet_id;
+    } else {
+        mqtt_response->decoded.pubcomp.packet_id = packet_id;
     }
 
     return buf - start;
