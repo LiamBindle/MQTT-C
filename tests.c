@@ -14,6 +14,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include <mqtt.h>
 #include <mqtt_client.h>
@@ -592,24 +593,22 @@ static void test_client_simple(void **unused) {
     hints.ai_family = AF_INET;          /* use IPv4 */
     hints.ai_socktype = SOCK_STREAM;    /* TCP */
     int sockfd = conf_client(addr, port, &hints, NULL);
+    fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
 
     mqtt_init(&client, sockfd, sendmem, sizeof(sendmem), recvmem, sizeof(recvmem), publish_callback);
     
-    rv = mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30);
-    assert_true(rv == MQTT_OK);
+    assert_true(mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
 
-    assert_true(__mqtt_send(&client) >= 0);
+    assert_true(__mqtt_send(&client) > 0);
     while(mqtt_mq_length(&client.mq) > 0) {
-        assert_true(__mqtt_recv(&client) >= 0);
+        assert_true(__mqtt_recv(&client) > 0);
         mqtt_mq_clean(&client.mq);
         sleep(1);
     }
 
     assert_true(client.error == MQTT_OK);
-
-    rv = mqtt_disconnect(&client);
-    assert_true(__mqtt_send(&client) >= 0);
-    assert_true(__mqtt_send(&client) >= 0);
+    assert_true(mqtt_disconnect(&client) > 0);
+    assert_true(__mqtt_send(&client) > 0);
 }
 
 int main(void)
@@ -630,6 +629,7 @@ int main(void)
         cmocka_unit_test(test_mqtt_connect_and_ping),
         cmocka_unit_test(test_message_queue),
         cmocka_unit_test(test_packet_id_lfsr),*/
+        cmocka_unit_test(test_client_simple),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -1,4 +1,6 @@
 #include <time.h>
+#include <errno.h>
+
 #include <mqtt_client.h>
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
@@ -74,6 +76,12 @@ ssize_t mqtt_connect(struct mqtt_client *client,
 {
     ssize_t rv;
     struct mqtt_queued_message *msg;
+
+    /* update the client's state */
+    client->keep_alive = keep_alive;
+    if (client->error == MQTT_ERROR_CLIENT_NOT_CONNECTED) {
+        client->error = MQTT_OK;
+    }
     
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(rv, msg, client, 
@@ -87,11 +95,6 @@ ssize_t mqtt_connect(struct mqtt_client *client,
     /* save the control type of the message */
     msg->control_type = MQTT_CONTROL_CONNECT;
 
-    /* update the client's state */
-    client->keep_alive = keep_alive;
-    if (client->error == MQTT_ERROR_CLIENT_NOT_CONNECTED) {
-        client->error = MQTT_OK;
-    }
     return MQTT_OK;
 }
 
@@ -374,12 +377,13 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
     ssize_t rv;
     do {
         rv = recv(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
-        if (rv < 0) {
+        if (rv > 0) {
+            client->recv_buffer.curr += rv;
+            client->recv_buffer.curr_sz -= rv;
+        } else if (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
             client->error = MQTT_ERROR_SOCKET_ERROR;
             return MQTT_ERROR_SOCKET_ERROR;
         }
-        client->recv_buffer.curr += rv;
-        client->recv_buffer.curr_sz -= rv;
     } while (rv > 0);
 
     /* attempt to parse */
