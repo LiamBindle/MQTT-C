@@ -108,6 +108,11 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
     MQTT_ERROR(MQTT_ERROR_RECV_BUFFER_TOO_SMALL)         \
     MQTT_ERROR(MQTT_ERROR_ACK_OF_UNKNOWN)                \
+    MQTT_ERROR(MQTT_ERROR_NOT_IMPLEMENTED)               \
+    MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \
+    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
+
+/* todo: add more connection refused errors */
 
 /** 
  * @brief A macro used to generate the enum MqttErrors from 

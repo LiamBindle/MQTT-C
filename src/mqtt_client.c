@@ -373,7 +373,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
     /* read in as many bytes as possible */
     ssize_t rv;
     do {
-        rv = recv(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz);
+        rv = recv(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
         if (rv < 0) {
             client->error = MQTT_ERROR_SOCKET_ERROR;
             return MQTT_ERROR_SOCKET_ERROR;
@@ -400,16 +400,10 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
     }
 
     /* response was unpacked successfully */
-    switch (response.fixed_header.control_type) {
-    case MQTT_CONTROL_CONNACK:
-
-        break;
-    }
-
-    /* step 1: check for need to update a message state that's awaiting */
+    struct mqtt_queued_message *msg = NULL;
     switch (response.fixed_header.control_type) {
         case MQTT_CONTROL_CONNACK:
-            struct mqtt_queued_message *msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_CONNECT, NULL);
+            msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_CONNECT, NULL);
             if (msg == NULL) {
                 client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                 return MQTT_ERROR_ACK_OF_UNKNOWN;
@@ -420,39 +414,28 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             client->typical_response_time = (double) (time(NULL) - msg->time_sent);
             /* check that connection was successful */
             if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
-                client->error = response.decoded.connack.return_code;
-                return client->error;
+                client->error = MQTT_ERROR_CONNECTION_REFUSED;
+                return MQTT_ERROR_CONNECTION_REFUSED;
             }
             break;
         case MQTT_CONTROL_PUBLISH:
             /* stage the acknowledgement response */
-            switch (response.decoded.publish.qos_level) {
-            case MQTT_PUBLISH_QOS_0:
-                break;
-            case MQTT_PUBLISH_QOS_1:
+            if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_1) {
                 rv = __mqtt_puback(client, response.decoded.publish.packet_id);
                 if (rv != MQTT_OK) {
                     client->error = rv;
                     return rv;
                 }
-                break;
-            case MQTT_PUBLISH_QOS_2:
-                rv = __mqtt_pubrec(client, response.decoded.publish.packet_id);
-                if (rv != MQTT_OK) {
-                    client->error = rv;
-                    return rv;
-                }
-                break;
-            default:
-                client->error = MQTT_ERROR_MALFORMED_RESPONSE;
-                return MQTT_ERROR_MALFORMED_RESPONSE;
+            } else if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_2) {
+                client->error = MQTT_ERROR_NOT_IMPLEMENTED;
+                return MQTT_ERROR_NOT_IMPLEMENTED;
             }
             /* call callback */
-            *(client->publish_response_callback)(&response.decoded.publish);
+            client->publish_response_callback(&response.decoded.publish);
             break;
         case MQTT_CONTROL_PUBACK:
             /* find the publish being acknowledged */
-            struct mqtt_queued_message *msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.puback.packet_id);
+            msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.puback.packet_id);
             if (msg == NULL) {
                 client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
                 return MQTT_ERROR_ACK_OF_UNKNOWN;
@@ -462,9 +445,54 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             /* update response time */
             client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
             break;
+        case MQTT_CONTROL_PUBREC:
+        case MQTT_CONTROL_PUBREL:
+        case MQTT_CONTROL_PUBCOMP:
+            return MQTT_ERROR_NOT_IMPLEMENTED;
+        case MQTT_CONTROL_SUBACK:
+            msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_SUBSCRIBE, &response.decoded.suback.packet_id);
+            if (msg == NULL) {
+                client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                return MQTT_ERROR_ACK_OF_UNKNOWN;
+            }
+            /* update state to complete */
+            msg->state = MQTT_QUEUED_COMPLETE;
+            /* update response time */
+            client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+            /* check that subscription was successful */
+            if (response.decoded.suback.return_codes[0] == MQTT_SUBACK_FAILURE) {
+                client->error = MQTT_ERROR_SUBSCRIBE_FAILED;
+                return MQTT_ERROR_SUBSCRIBE_FAILED;
+            }
+            break;
+        case MQTT_CONTROL_UNSUBACK:
+            /* find the publish being acknowledged */
+            msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_UNSUBSCRIBE, &response.decoded.unsuback.packet_id);
+            if (msg == NULL) {
+                client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                return MQTT_ERROR_ACK_OF_UNKNOWN;
+            }
+            /* update state to complete */
+            msg->state = MQTT_QUEUED_COMPLETE;
+            /* update response time */
+            client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+            break;
+        case MQTT_CONTROL_PINGRESP:
+            /* find the publish being acknowledged */
+            msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PINGREQ, NULL);
+            if (msg == NULL) {
+                client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
+                return MQTT_ERROR_ACK_OF_UNKNOWN;
+            }
+            /* update state to complete */
+            msg->state = MQTT_QUEUED_COMPLETE;
+            /* update response time */
+            client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+            break;
+        default:
+            client->error = MQTT_ERROR_MALFORMED_RESPONSE;
+            return MQTT_ERROR_MALFORMED_RESPONSE;
     }
 
-    /* step 2: check if response or callback is necessary */
-
-
+    return MQTT_OK;
 }
