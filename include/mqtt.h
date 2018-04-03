@@ -1,12 +1,6 @@
 #ifndef __MQTT_H__
 #define __MQTT_H__
 
-#include <stdint.h>     //< uintXX_t ...
-#include <stddef.h>     //< size_t
-#include <string.h>     //< strlen ...
-#include <limits.h>     //< INT_MIN
-#include <stdarg.h>
-
 #include <mqtt_pal.h>
 
 /**
@@ -825,7 +819,7 @@ struct mqtt_queued_message {
      * @note A timeout will only occur if the message is in
      *       the MQTT_QUEUED_AWAITING_ACK \c state.
      */
-    time_t time_sent;
+    mqtt_pal_time_t time_sent;
 
     /**
      * @brief The control type of the message.

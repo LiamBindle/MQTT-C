@@ -30,7 +30,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
         return 0;
     }
     
-    *(uint16_t*) buf = (uint16_t) htons(packet_id);
+    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
     buf += 2;
 
     return buf - start;
@@ -47,7 +47,7 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
     }
 
     /* parse packet_id */
-    packet_id = (uint16_t) ntohs(*(uint16_t*) buf);
+    packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
     buf += 2;
 
     if (mqtt_response->fixed_header.control_type == MQTT_CONTROL_PUBACK) {

@@ -3,9 +3,6 @@
 
 /** @file */
 
-#include <stddef.h>
-#include <time.h>   /* time(void*) */
-
 #include <mqtt.h>
 
 
@@ -39,7 +36,7 @@ struct mqtt_client {
      * 
      * @see keep_alive
     */
-    time_t time_of_last_send;
+    mqtt_pal_time_t time_of_last_send;
 
     /** 
      * @brief The error state of the client. 

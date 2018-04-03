@@ -4,7 +4,7 @@
     uint16_t length = strlen(str);
 
     /* pack string length */
-    *(uint16_t*) buf = (uint16_t) htons(length);
+    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(length);
     buf += 2;
 
     /* pack string */

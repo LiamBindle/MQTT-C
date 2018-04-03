@@ -317,7 +317,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             resend = 1;
         } else if (msg->state == MQTT_QUEUED_AWAITING_ACK) {
             /* check for timeout */
-            if (time(NULL) > msg->time_sent + client->response_timeout) {
+            if (MQTT_PAL_TIME() > msg->time_sent + client->response_timeout) {
                 resend = 1;
                 client->number_of_timeouts += 1;
             }
@@ -336,7 +336,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         }
 
         /* update timeout watcher */
-        client->time_of_last_send = time(NULL);
+        client->time_of_last_send = MQTT_PAL_TIME();
         msg->time_sent = client->time_of_last_send;
 
         /* 
@@ -390,8 +390,8 @@ ssize_t __mqtt_send(struct mqtt_client *client)
     }
 
     /* check for keep-alive */
-    time_t keep_alive_timeout = client->time_of_last_send + (time_t) ((float) (client->keep_alive) * 0.75);
-    if (time(NULL) > keep_alive_timeout) {
+    mqtt_pal_time_t keep_alive_timeout = client->time_of_last_send + (mqtt_pal_time_t) ((float) (client->keep_alive) * 0.75);
+    if (MQTT_PAL_TIME() > keep_alive_timeout) {
         ssize_t rv = mqtt_ping(client);
         if (rv != MQTT_OK) {
             client->error = rv;
@@ -479,7 +479,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* initialize typical response time */
-                client->typical_response_time = (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* check that connection was successful */
                 if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
                     client->error = MQTT_ERROR_CONNECTION_REFUSED;
@@ -518,7 +518,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 break;
             case MQTT_CONTROL_PUBREC:
                 /* check if this is a duplicate */
@@ -533,7 +533,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* stage PUBREL */
                 rv = __mqtt_pubrel(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
@@ -550,7 +550,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* stage PUBCOMP */
                 rv = __mqtt_pubcomp(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
@@ -567,7 +567,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 break;
             case MQTT_CONTROL_SUBACK:
                 /* release associated SUBSCRIBE */
@@ -578,7 +578,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* check that subscription was successful (not currently only one subscribe at a time) */
                 if (response.decoded.suback.return_codes[0] == MQTT_SUBACK_FAILURE) {
                     client->error = MQTT_ERROR_SUBSCRIBE_FAILED;
@@ -594,7 +594,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 break;
             case MQTT_CONTROL_PINGRESP:
                 /* release associated PINGREQ */
@@ -605,7 +605,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
-                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
+                client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
                 break;
             default:
                 client->error = MQTT_ERROR_MALFORMED_RESPONSE;

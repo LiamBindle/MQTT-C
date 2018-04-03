@@ -94,17 +94,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">mqtt.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
-<code>#include &lt;stddef.h&gt;</code><br />
-<code>#include &lt;string.h&gt;</code><br />
-<code>#include &lt;limits.h&gt;</code><br />
-<code>#include &lt;sys/types.h&gt;</code><br />
-<code>#include &lt;arpa/inet.h&gt;</code><br />
-<code>#include &lt;stdarg.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="mqtt__pal_8h_source.html">mqtt_pal.h</a>&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for mqtt.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="mqtt_8h__incl.png" border="0" usemap="#include_2mqtt_8h" alt=""/></div>
+<map name="include_2mqtt_8h" id="include_2mqtt_8h">
+<area shape="rect" id="node2" href="mqtt__pal_8h.html" title="mqtt_pal.h" alt="" coords="16,80,99,107"/>
+</map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -250,7 +247,8 @@ Enumerations</h2></td></tr>
 <b>MQTT_ERROR_CONNECTION_REFUSED</b>, 
 <b>MQTT_ERROR_SUBSCRIBE_FAILED</b>, 
 <br />
-&#160;&#160;<b>MQTT_OK</b> = 1
+&#160;&#160;<b>MQTT_ERROR_CONNECTION_CLOSED</b>, 
+<b>MQTT_OK</b> = 1
 <br />
  }<tr class="memdesc:gad0c901a8d30691ed0ca17915b691b7e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt_error_str</a>.  <a href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">More...</a><br /></td></tr>
 </td></tr>
@@ -359,7 +357,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">MQTT_ERROR(MQTT_ERROR_NULLPTR)                       \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)     \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)    \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)       \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)     \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CLIENT_NOT_CONNECTED)          \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_RECV_BUFFER_TOO_SMALL)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_ACK_OF_UNKNOWN)                \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_NOT_IMPLEMENTED)               \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \</div></div><!-- fragment -->
+<b>Value:</b><div class="fragment"><div class="line">MQTT_ERROR(MQTT_ERROR_NULLPTR)                       \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)     \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)    \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)       \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)        \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)     \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CLIENT_NOT_CONNECTED)          \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_RECV_BUFFER_TOO_SMALL)         \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_ACK_OF_UNKNOWN)                \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_NOT_IMPLEMENTED)               \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \</div><div class="line">    MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \</div></div><!-- fragment -->
 <p>A macro used to declare the enum MQTTErrors and associated error messages (the members of the num) at the same time. </p>
 
 </div>

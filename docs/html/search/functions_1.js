@@ -16,6 +16,8 @@ var searchData=
   ['mqtt_5fpack_5fpubxxx_5frequest',['mqtt_pack_pubxxx_request',['../group__packers.html#ga9cbd954d6bffd8fb0a06a6e4d34e4949',1,'mqtt.h']]],
   ['mqtt_5fpack_5fsubscribe_5frequest',['mqtt_pack_subscribe_request',['../group__packers.html#ga65a198063d780e654af0336e5088f609',1,'mqtt.h']]],
   ['mqtt_5fpack_5funsubscribe_5frequest',['mqtt_pack_unsubscribe_request',['../group__packers.html#ga3a0e5c05084d708f16cb1a244cbcaad5',1,'mqtt.h']]],
+  ['mqtt_5fpal_5frecvall',['mqtt_pal_recvall',['../group__pal.html#ga620d6ab20694c9b4d99293a47491004e',1,'mqtt_pal.h']]],
+  ['mqtt_5fpal_5fsendall',['mqtt_pal_sendall',['../group__pal.html#gac8dd7d5af889f5933dda733007adb9a3',1,'mqtt_pal.h']]],
   ['mqtt_5fping',['mqtt_ping',['../group__api.html#gae472795684a1d973bfb89d075d17a29e',1,'mqtt_client.h']]],
   ['mqtt_5fpublish',['mqtt_publish',['../group__api.html#ga0d8fed24a799ab9b55eeb28f3cd2d0a8',1,'mqtt_client.h']]],
   ['mqtt_5fsubscribe',['mqtt_subscribe',['../group__api.html#gaea5da9b546f6e91eb77c9eff9c478de5',1,'mqtt_client.h']]],

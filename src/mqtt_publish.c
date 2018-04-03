@@ -55,7 +55,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 
     /* pack variable header */
     buf += __mqtt_pack_str(buf, topic_name);
-    *(uint16_t*) buf = (uint16_t) htons(packet_id);
+    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
     buf += 2;
 
     /* pack payload */
@@ -85,12 +85,12 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     }
 
     /* parse variable header */
-    response->topic_name_size = (uint16_t) ntohs(*(uint16_t*) buf);
+    response->topic_name_size = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
     buf += 2;
     response->topic_name = buf;
     buf += response->topic_name_size;
 
-    response->packet_id = (uint16_t) ntohs(*(uint16_t*) buf);
+    response->packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
     buf += 2;
 
     /* get payload */

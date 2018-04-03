@@ -99,7 +99,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     *buf++ = (uint8_t) 'T';
     *buf++ = MQTT_PROTOCOL_LEVEL;
     *buf++ = connect_flags;
-    *(uint16_t*) buf = (uint16_t) htons(keep_alive);
+    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(keep_alive);
     buf += 2;
 
     /* pack the payload */

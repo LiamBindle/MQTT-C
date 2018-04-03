@@ -9,7 +9,7 @@ ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const
     }
 
     /* parse packet_id */
-    mqtt_response->decoded.unsuback.packet_id = (uint16_t) ntohs(*(uint16_t*) buf);
+    mqtt_response->decoded.unsuback.packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
     buf += 2;
 
     return buf - start;

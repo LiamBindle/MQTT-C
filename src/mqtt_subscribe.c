@@ -51,7 +51,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_
     }
 
     /* pack variable header */
-    *(uint16_t*) buf = (uint16_t) htons(packet_id);
+    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
     buf += 2;
 
 
