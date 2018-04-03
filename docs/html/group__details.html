@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Tiny MQTT: Details of what makes the client work.</title>
+<title>Tiny MQTT: Implementation details</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -81,11 +81,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">Details of what makes the client work.</div>  </div>
+<div class="title">Implementation details</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Documentation of function and structures that make the client work.  
+<p>Documentation for developers.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -95,6 +95,9 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmqtt__message__queue.html">mqtt_message_queue</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A message queue.  <a href="structmqtt__message__queue.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmqtt__client.html">mqtt_client</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An MQTT client.  <a href="structmqtt__client.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
@@ -122,6 +125,27 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga7ca75c661980d4af50493f59a386f378"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga7ca75c661980d4af50493f59a386f378">__mqtt_next_pid</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
+<tr class="memdesc:ga7ca75c661980d4af50493f59a386f378"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a new next packet ID.Packet ID's are generated using a max-length LFSR.  <a href="#ga7ca75c661980d4af50493f59a386f378">More...</a><br /></td></tr>
+<tr class="separator:ga7ca75c661980d4af50493f59a386f378"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf553ca88f48350dbde0dc3b96e550f7"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#gacf553ca88f48350dbde0dc3b96e550f7">__mqtt_send</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
+<tr class="memdesc:gacf553ca88f48350dbde0dc3b96e550f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles egress client traffic.  <a href="#gacf553ca88f48350dbde0dc3b96e550f7">More...</a><br /></td></tr>
+<tr class="separator:gacf553ca88f48350dbde0dc3b96e550f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d50a465c684a5ecd1c000f811fa601e"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga4d50a465c684a5ecd1c000f811fa601e">__mqtt_recv</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
+<tr class="memdesc:ga4d50a465c684a5ecd1c000f811fa601e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles ingress client traffic.  <a href="#ga4d50a465c684a5ecd1c000f811fa601e">More...</a><br /></td></tr>
+<tr class="separator:ga4d50a465c684a5ecd1c000f811fa601e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae09d4412a871ecec31377db55cc54228"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#gae09d4412a871ecec31377db55cc54228">__mqtt_puback</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, uint16_t packet_id)</td></tr>
+<tr class="memdesc:gae09d4412a871ecec31377db55cc54228"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledge an ingree publish with QOS==1.  <a href="#gae09d4412a871ecec31377db55cc54228">More...</a><br /></td></tr>
+<tr class="separator:gae09d4412a871ecec31377db55cc54228"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga874c62f7a20b6adf13dbed2b4e2dd985"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga874c62f7a20b6adf13dbed2b4e2dd985">__mqtt_pubrec</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, uint16_t packet_id)</td></tr>
+<tr class="memdesc:ga874c62f7a20b6adf13dbed2b4e2dd985"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledge an ingree publish with QOS==2.  <a href="#ga874c62f7a20b6adf13dbed2b4e2dd985">More...</a><br /></td></tr>
+<tr class="separator:ga874c62f7a20b6adf13dbed2b4e2dd985"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga427f9191ab9967b75e0a7a2f7fa0dca0"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga427f9191ab9967b75e0a7a2f7fa0dca0">__mqtt_pubrel</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, uint16_t packet_id)</td></tr>
+<tr class="memdesc:ga427f9191ab9967b75e0a7a2f7fa0dca0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledge an ingree PUBREC packet.  <a href="#ga427f9191ab9967b75e0a7a2f7fa0dca0">More...</a><br /></td></tr>
+<tr class="separator:ga427f9191ab9967b75e0a7a2f7fa0dca0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga86ddd2a08fbe4bd351dfd161db93303d"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga86ddd2a08fbe4bd351dfd161db93303d">__mqtt_pubcomp</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, uint16_t packet_id)</td></tr>
+<tr class="memdesc:ga86ddd2a08fbe4bd351dfd161db93303d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Acknowledge an ingree PUBREL packet.  <a href="#ga86ddd2a08fbe4bd351dfd161db93303d">More...</a><br /></td></tr>
+<tr class="separator:ga86ddd2a08fbe4bd351dfd161db93303d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0da861c969387bf8d0229924543d9bb7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__details.html#ga0da861c969387bf8d0229924543d9bb7">mqtt_mq_init</a> (struct <a class="el" href="structmqtt__message__queue.html">mqtt_message_queue</a> *mq, void *buf, size_t bufsz)</td></tr>
 <tr class="memdesc:ga0da861c969387bf8d0229924543d9bb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a message queue.  <a href="#ga0da861c969387bf8d0229924543d9bb7">More...</a><br /></td></tr>
 <tr class="separator:ga0da861c969387bf8d0229924543d9bb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,7 +160,7 @@ Functions</h2></td></tr>
 <tr class="separator:ga1ffcd45af057865a0d85b4e9e24789a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Documentation of function and structures that make the client work. </p>
+<p>Documentation for developers. </p>
 <dl class="section note"><dt>Note</dt><dd>To deserialize a packet from a buffer use <a class="el" href="group__unpackers.html#gaae124a93579dcd31e6f52411f4582fbd">mqtt_unpack_response</a> (it's the only function you need). </dd></dl>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="gadfa141880e5b30429bd89018da0c8d94"></a>
@@ -176,6 +200,225 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="ga7ca75c661980d4af50493f59a386f378"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t __mqtt_next_pid </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate a new next packet ID.Packet ID's are generated using a max-length LFSR. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The MQTT client.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The new packet ID that should be used. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gae09d4412a871ecec31377db55cc54228"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_puback </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>packet_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acknowledge an ingree publish with QOS==1. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">packet_id</td><td>The packet ID of the ingress publish being acknowledged.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga86ddd2a08fbe4bd351dfd161db93303d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_pubcomp </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>packet_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acknowledge an ingree PUBREL packet. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">packet_id</td><td>The packet ID of the ingress PUBREL being acknowledged.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga874c62f7a20b6adf13dbed2b4e2dd985"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_pubrec </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>packet_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acknowledge an ingree publish with QOS==2. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">packet_id</td><td>The packet ID of the ingress publish being acknowledged.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga427f9191ab9967b75e0a7a2f7fa0dca0"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_pubrel </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>packet_id</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Acknowledge an ingree PUBREC packet. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">packet_id</td><td>The packet ID of the ingress PUBREC being acknowledged.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga4d50a465c684a5ecd1c000f811fa601e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_recv </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handles ingress client traffic. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The MQTT client.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>MQTT_OK upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gacf553ca88f48350dbde0dc3b96e550f7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ssize_t __mqtt_send </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handles egress client traffic. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">client</td><td>The MQTT client.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>MQTT_OK upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="gadb54c413b4d884619c50cc20ee6eb084"></a>
 <div class="memitem">
 <div class="memproto">

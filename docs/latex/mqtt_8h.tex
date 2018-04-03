@@ -7,16 +7,14 @@
 {\ttfamily \#include $<$sys/types.\+h$>$}\\*
 {\ttfamily \#include $<$arpa/inet.\+h$>$}\\*
 {\ttfamily \#include $<$stdarg.\+h$>$}\\*
-Include dependency graph for mqtt.\+h\+:
-\nopagebreak
+Include dependency graph for mqtt.\+h\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
 \includegraphics[width=350pt]{mqtt_8h__incl}
 \end{center}
 \end{figure}
-This graph shows which files directly or indirectly include this file\+:
-\nopagebreak
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -60,11 +58,11 @@ struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue}
 \#define \hyperlink{group__packers_ga50781ed232e8fd19a071d07566579974}{M\+Q\+T\+T\+\_\+\+P\+R\+O\+T\+O\+C\+O\+L\+\_\+\+L\+E\+V\+EL}~0x04
 \begin{DoxyCompactList}\small\item\em The protocol identifier for M\+Q\+TT v3.\+1.\+1. \end{DoxyCompactList}\item 
 \#define \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}(M\+Q\+T\+T\+\_\+\+E\+R\+R\+OR)
-\begin{DoxyCompactList}\small\item\em A macro used to declare the enum Mqtt\+Errors and associated error messages (the members of the num) at the same time. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em A macro used to declare the enum M\+Q\+T\+T\+Errors and associated error messages (the members of the num) at the same time. \end{DoxyCompactList}\item 
 \#define \hyperlink{mqtt_8h_aed8760364c7992625d06c93d12b2496d}{G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+E\+N\+UM}(E\+N\+UM)~E\+N\+UM,
-\begin{DoxyCompactList}\small\item\em A macro used to generate the enum Mqtt\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em A macro used to generate the enum M\+Q\+T\+T\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. \end{DoxyCompactList}\item 
 \#define \hyperlink{mqtt_8h_adf58d994c35f18ec84b628d8321f52e5}{G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+S\+T\+R\+I\+NG}(S\+T\+R\+I\+NG)~\#S\+T\+R\+I\+NG,
-\begin{DoxyCompactList}\small\item\em A macro used to generate the error messages associated with Mqtt\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em A macro used to generate the error messages associated with M\+Q\+T\+T\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. \end{DoxyCompactList}\item 
 \#define \hyperlink{mqtt_8h_a9f3be391755b744ee33832caf82b9749}{\+\_\+\+\_\+mqtt\+\_\+packed\+\_\+cstrlen}(x)~(2 + strlen(x))\hypertarget{mqtt_8h_a9f3be391755b744ee33832caf82b9749}{}\label{mqtt_8h_a9f3be391755b744ee33832caf82b9749}
 
 \begin{DoxyCompactList}\small\item\em A macro to get the M\+Q\+TT string length from a c-\/string. \end{DoxyCompactList}\item 
@@ -101,7 +99,7 @@ enum \hyperlink{group__unpackers_gacbd36b88ec7f62bc161b07e1a0aed679}{M\+Q\+T\+T\
 {\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+CT} =14u
  \}\begin{DoxyCompactList}\small\item\em An enumeration of the M\+Q\+TT control packet types. \end{DoxyCompactList}
 \item 
-enum \hyperlink{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{Mqtt\+Errors} \{ \\*
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \{ \\*
 {\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+U\+N\+K\+N\+O\+WN} =I\+N\+T\+\_\+\+M\+IN, 
 {\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+N\+U\+L\+L\+P\+TR}, 
 {\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+F\+O\+R\+B\+I\+D\+D\+E\+N\+\_\+\+T\+Y\+PE}, 
@@ -133,7 +131,7 @@ enum \hyperlink{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{Mqtt\+Errors} \{ 
 {\bfseries M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+S\+U\+B\+S\+C\+R\+I\+B\+E\+\_\+\+F\+A\+I\+L\+ED}, 
 \\*
 {\bfseries M\+Q\+T\+T\+\_\+\+OK} = 1
- \}\begin{DoxyCompactList}\small\item\em An enumeration of error codes. Error messages can be retrieved by calling \hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str}. \end{DoxyCompactList}
+ \}\begin{DoxyCompactList}\small\item\em An enumeration of error codes. Error messages can be retrieved by calling \hyperlink{group__api_ga47b62bdd24e8b05957825d2419d7c848}{mqtt\+\_\+error\+\_\+str}. \end{DoxyCompactList}
 \item 
 enum \hyperlink{group__unpackers_ga07e480dfa5738e60c54ad0447ddb1a25}{M\+Q\+T\+T\+Connack\+Return\+Code} \{ \\*
 {\bfseries M\+Q\+T\+T\+\_\+\+C\+O\+N\+N\+A\+C\+K\+\_\+\+A\+C\+C\+E\+P\+T\+ED} = 0u, 
@@ -171,6 +169,7 @@ enum \hyperlink{group__packers_gad38a41e1c497f9bcd2477c005f280b23}{M\+Q\+T\+T\+P
 {\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+1} = ((1u $<$$<$ 1) \& 0x06), 
 {\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+2} = ((2u $<$$<$ 1) \& 0x06), 
 \\*
+{\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+Q\+O\+S\+\_\+\+M\+A\+SK} = ((3u $<$$<$ 1) \& 0x06), 
 {\bfseries M\+Q\+T\+T\+\_\+\+P\+U\+B\+L\+I\+S\+H\+\_\+\+R\+E\+T\+A\+IN} = 0x01
  \}\begin{DoxyCompactList}\small\item\em An enumeration of the P\+U\+B\+L\+I\+SH flags. \end{DoxyCompactList}
 \item 
@@ -183,7 +182,7 @@ enum \hyperlink{group__details_ga28b018ca5d1c81101d36f9c0d532a0d0}{M\+Q\+T\+T\+Q
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-const char $\ast$ \hyperlink{group__api_ga6f0b3e9a177b03d5909e4f653fcd4038}{mqtt\+\_\+error\+\_\+str} (enum \hyperlink{group__api_gabfef25ed21446904fd8b3a71cfa1f203}{Mqtt\+Errors} error)
+const char $\ast$ \hyperlink{group__api_ga47b62bdd24e8b05957825d2419d7c848}{mqtt\+\_\+error\+\_\+str} (enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} error)
 \begin{DoxyCompactList}\small\item\em Returns an error message for error code, {\ttfamily error}. \end{DoxyCompactList}\item 
 ssize\+\_\+t \hyperlink{mqtt_8h_a223d30d2e6b84824ed995eda885d1e5d}{\+\_\+\+\_\+mqtt\+\_\+pack\+\_\+str} (uint8\+\_\+t $\ast$buf, const char $\ast$str)
 \begin{DoxyCompactList}\small\item\em Pack a M\+Q\+TT string, given a c-\/string {\ttfamily str}. \end{DoxyCompactList}\item 
@@ -243,7 +242,7 @@ MQTT\_ERROR(MQTT\_ERROR\_NULLPTR)                       \(\backslash\)
 \end{DoxyCode}
 
 
-A macro used to declare the enum Mqtt\+Errors and associated error messages (the members of the num) at the same time. 
+A macro used to declare the enum M\+Q\+T\+T\+Errors and associated error messages (the members of the num) at the same time. 
 
 \index{mqtt.\+h@{mqtt.\+h}!G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+E\+N\+UM@{G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+E\+N\+UM}}
 \index{G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+E\+N\+UM@{G\+E\+N\+E\+R\+A\+T\+E\+\_\+\+E\+N\+UM}!mqtt.\+h@{mqtt.\+h}}
@@ -254,7 +253,7 @@ A macro used to declare the enum Mqtt\+Errors and associated error messages (the
 )~E\+N\+UM,}\hypertarget{mqtt_8h_aed8760364c7992625d06c93d12b2496d}{}\label{mqtt_8h_aed8760364c7992625d06c93d12b2496d}
 
 
-A macro used to generate the enum Mqtt\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. 
+A macro used to generate the enum M\+Q\+T\+T\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. 
 
 \begin{DoxySeeAlso}{See also}
 \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS} 
@@ -268,7 +267,7 @@ A macro used to generate the enum Mqtt\+Errors from \hyperlink{mqtt_8h_a86c09e26
 )~\#S\+T\+R\+I\+NG,}\hypertarget{mqtt_8h_adf58d994c35f18ec84b628d8321f52e5}{}\label{mqtt_8h_adf58d994c35f18ec84b628d8321f52e5}
 
 
-A macro used to generate the error messages associated with Mqtt\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. 
+A macro used to generate the error messages associated with M\+Q\+T\+T\+Errors from \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS}. 
 
 \begin{DoxySeeAlso}{See also}
 \hyperlink{mqtt_8h_a86c09e2666bd14722fa165ed904f78cb}{\+\_\+\+\_\+\+A\+L\+L\+\_\+\+M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+RS} 

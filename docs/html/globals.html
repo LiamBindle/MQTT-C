@@ -73,6 +73,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="globals_defs.html"><span>Macros</span></a></li>
     </ul>
   </div>
+  <div id="navrow4" class="tabs3">
+    <ul class="tablist">
+      <li><a href="#index__"><span>_</span></a></li>
+      <li><a href="#index_g"><span>g</span></a></li>
+      <li class="current"><a href="#index_m"><span>m</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -89,9 +96,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 
 <div class="contents">
-<div class="textblock">Here is a list of all documented functions, variables, defines, enums, and typedefs with links to the documentation:</div><ul>
+<div class="textblock">Here is a list of all documented functions, variables, defines, enums, and typedefs with links to the documentation:</div>
+
+<h3><a class="anchor" id="index__"></a>- _ -</h3><ul>
 <li>__ALL_MQTT_ERRORS
 : <a class="el" href="mqtt_8h.html#a86c09e2666bd14722fa165ed904f78cb">mqtt.h</a>
+</li>
+<li>__mqtt_next_pid()
+: <a class="el" href="group__details.html#ga7ca75c661980d4af50493f59a386f378">mqtt_client.h</a>
 </li>
 <li>__mqtt_pack_str()
 : <a class="el" href="mqtt_8h.html#a223d30d2e6b84824ed995eda885d1e5d">mqtt.h</a>
@@ -99,14 +111,49 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>__mqtt_packed_cstrlen
 : <a class="el" href="mqtt_8h.html#a9f3be391755b744ee33832caf82b9749">mqtt.h</a>
 </li>
+<li>__mqtt_puback()
+: <a class="el" href="group__details.html#gae09d4412a871ecec31377db55cc54228">mqtt_client.h</a>
+</li>
+<li>__mqtt_pubcomp()
+: <a class="el" href="group__details.html#ga86ddd2a08fbe4bd351dfd161db93303d">mqtt_client.h</a>
+</li>
+<li>__mqtt_pubrec()
+: <a class="el" href="group__details.html#ga874c62f7a20b6adf13dbed2b4e2dd985">mqtt_client.h</a>
+</li>
+<li>__mqtt_pubrel()
+: <a class="el" href="group__details.html#ga427f9191ab9967b75e0a7a2f7fa0dca0">mqtt_client.h</a>
+</li>
+<li>__mqtt_recv()
+: <a class="el" href="group__details.html#ga4d50a465c684a5ecd1c000f811fa601e">mqtt_client.h</a>
+</li>
+<li>__mqtt_send()
+: <a class="el" href="group__details.html#gacf553ca88f48350dbde0dc3b96e550f7">mqtt_client.h</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
 <li>GENERATE_ENUM
 : <a class="el" href="mqtt_8h.html#aed8760364c7992625d06c93d12b2496d">mqtt.h</a>
 </li>
 <li>GENERATE_STRING
 : <a class="el" href="mqtt_8h.html#adf58d994c35f18ec84b628d8321f52e5">mqtt.h</a>
 </li>
+</ul>
+
+
+<h3><a class="anchor" id="index_m"></a>- m -</h3><ul>
+<li>mqtt_connect()
+: <a class="el" href="group__api.html#gac8e25ff4f74aa7964b2b2ccbcfa23788">mqtt_client.h</a>
+</li>
+<li>mqtt_disconnect()
+: <a class="el" href="group__api.html#ga95d9981735ab4495d3d65e8056611126">mqtt_client.h</a>
+</li>
 <li>mqtt_error_str()
-: <a class="el" href="group__api.html#ga6f0b3e9a177b03d5909e4f653fcd4038">mqtt.h</a>
+: <a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt.h</a>
+</li>
+<li>mqtt_init()
+: <a class="el" href="group__api.html#gab07105b049dd86a8ec39c518cf9fa4c7">mqtt_client.h</a>
 </li>
 <li>mqtt_mq_currsz
 : <a class="el" href="group__details.html#ga8cd873da2116975ce39b313f93068d83">mqtt.h</a>
@@ -141,14 +188,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>mqtt_pack_unsubscribe_request()
 : <a class="el" href="group__packers.html#ga3a0e5c05084d708f16cb1a244cbcaad5">mqtt.h</a>
 </li>
+<li>mqtt_ping()
+: <a class="el" href="group__api.html#gae472795684a1d973bfb89d075d17a29e">mqtt_client.h</a>
+</li>
 <li>MQTT_PROTOCOL_LEVEL
 : <a class="el" href="group__packers.html#ga50781ed232e8fd19a071d07566579974">mqtt.h</a>
+</li>
+<li>mqtt_publish()
+: <a class="el" href="group__api.html#ga0d8fed24a799ab9b55eeb28f3cd2d0a8">mqtt_client.h</a>
+</li>
+<li>mqtt_subscribe()
+: <a class="el" href="group__api.html#gaea5da9b546f6e91eb77c9eff9c478de5">mqtt_client.h</a>
 </li>
 <li>MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS
 : <a class="el" href="group__packers.html#ga6501874871fce6b65d972430afa64fb8">mqtt.h</a>
 </li>
 <li>mqtt_unpack_fixed_header()
 : <a class="el" href="group__unpackers.html#gad596aa5faf7f79e05fb15da33321db10">mqtt.h</a>
+</li>
+<li>mqtt_unsubscribe()
+: <a class="el" href="group__api.html#ga08d16571dfefa690698c0cca5cca7a1d">mqtt_client.h</a>
 </li>
 <li>MQTT_UNSUBSCRIBE_REQUEST_MAX_NUM_TOPICS
 : <a class="el" href="group__packers.html#gaff4017b7a1668b6ad6e0d006d0fdf10e">mqtt.h</a>
@@ -162,8 +221,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>MQTTControlPacketType
 : <a class="el" href="group__unpackers.html#gacbd36b88ec7f62bc161b07e1a0aed679">mqtt.h</a>
 </li>
-<li>MqttErrors
-: <a class="el" href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">mqtt.h</a>
+<li>MQTTErrors
+: <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">mqtt.h</a>
 </li>
 <li>MQTTPublishFlags
 : <a class="el" href="group__packers.html#gad38a41e1c497f9bcd2477c005f280b23">mqtt.h</a>

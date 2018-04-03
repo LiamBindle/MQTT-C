@@ -88,7 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:gabfef25ed21446904fd8b3a71cfa1f203"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">MqttErrors</a> { <br />
+<tr class="memitem:gad0c901a8d30691ed0ca17915b691b7e7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> { <br />
 &#160;&#160;<b>MQTT_ERROR_UNKNOWN</b> =INT_MIN, 
 <b>MQTT_ERROR_NULLPTR</b>, 
 <b>MQTT_ERROR_CONTROL_FORBIDDEN_TYPE</b>, 
@@ -121,43 +121,170 @@ Enumerations</h2></td></tr>
 <br />
 &#160;&#160;<b>MQTT_OK</b> = 1
 <br />
- }<tr class="memdesc:gabfef25ed21446904fd8b3a71cfa1f203"><td class="mdescLeft">&#160;</td><td class="mdescRight">An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga6f0b3e9a177b03d5909e4f653fcd4038">mqtt_error_str</a>.  <a href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">More...</a><br /></td></tr>
+ }<tr class="memdesc:gad0c901a8d30691ed0ca17915b691b7e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt_error_str</a>.  <a href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">More...</a><br /></td></tr>
 </td></tr>
-<tr class="separator:gabfef25ed21446904fd8b3a71cfa1f203"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:gad0c901a8d30691ed0ca17915b691b7e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga6f0b3e9a177b03d5909e4f653fcd4038"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga6f0b3e9a177b03d5909e4f653fcd4038">mqtt_error_str</a> (enum <a class="el" href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">MqttErrors</a> error)</td></tr>
-<tr class="memdesc:ga6f0b3e9a177b03d5909e4f653fcd4038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an error message for error code, <code>error</code>.  <a href="#ga6f0b3e9a177b03d5909e4f653fcd4038">More...</a><br /></td></tr>
-<tr class="separator:ga6f0b3e9a177b03d5909e4f653fcd4038"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga47b62bdd24e8b05957825d2419d7c848"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt_error_str</a> (enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> error)</td></tr>
+<tr class="memdesc:ga47b62bdd24e8b05957825d2419d7c848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an error message for error code, <code>error</code>.  <a href="#ga47b62bdd24e8b05957825d2419d7c848">More...</a><br /></td></tr>
+<tr class="separator:ga47b62bdd24e8b05957825d2419d7c848"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gab07105b049dd86a8ec39c518cf9fa4c7">mqtt_init</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, int sockfd, uint8_t *sendbuf, size_t sendbufsz, uint8_t *recvbuf, size_t recvbufsz, void(*publish_response_callback)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish))</td></tr>
+<tr class="memdesc:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize an MQTT client.This function <em>must</em> be called before any other API function calls.  <a href="#gab07105b049dd86a8ec39c518cf9fa4c7">More...</a><br /></td></tr>
+<tr class="separator:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac8e25ff4f74aa7964b2b2ccbcfa23788"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gac8e25ff4f74aa7964b2b2ccbcfa23788">mqtt_connect</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, const char *client_id, const char *will_topic, const char *will_message, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)</td></tr>
+<tr class="memdesc:gac8e25ff4f74aa7964b2b2ccbcfa23788"><td class="mdescLeft">&#160;</td><td class="mdescRight">Establishes a session with the MQTT broker.  <a href="#gac8e25ff4f74aa7964b2b2ccbcfa23788">More...</a><br /></td></tr>
+<tr class="separator:gac8e25ff4f74aa7964b2b2ccbcfa23788"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0d8fed24a799ab9b55eeb28f3cd2d0a8"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga0d8fed24a799ab9b55eeb28f3cd2d0a8">mqtt_publish</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, const char *topic_name, void *application_message, size_t application_message_size, uint8_t publish_flags)</td></tr>
+<tr class="memdesc:ga0d8fed24a799ab9b55eeb28f3cd2d0a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish an application message.Publishes an application message to the MQTT broker.  <a href="#ga0d8fed24a799ab9b55eeb28f3cd2d0a8">More...</a><br /></td></tr>
+<tr class="separator:ga0d8fed24a799ab9b55eeb28f3cd2d0a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaea5da9b546f6e91eb77c9eff9c478de5"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gaea5da9b546f6e91eb77c9eff9c478de5">mqtt_subscribe</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, const char *topic_name, int max_qos_level)</td></tr>
+<tr class="memdesc:gaea5da9b546f6e91eb77c9eff9c478de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subscribe to a topic.  <a href="#gaea5da9b546f6e91eb77c9eff9c478de5">More...</a><br /></td></tr>
+<tr class="separator:gaea5da9b546f6e91eb77c9eff9c478de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga08d16571dfefa690698c0cca5cca7a1d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga08d16571dfefa690698c0cca5cca7a1d">mqtt_unsubscribe</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, const char *topic_name)</td></tr>
+<tr class="memdesc:ga08d16571dfefa690698c0cca5cca7a1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsubscribe from a topic.  <a href="#ga08d16571dfefa690698c0cca5cca7a1d">More...</a><br /></td></tr>
+<tr class="separator:ga08d16571dfefa690698c0cca5cca7a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae472795684a1d973bfb89d075d17a29e"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gae472795684a1d973bfb89d075d17a29e">mqtt_ping</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
+<tr class="memdesc:gae472795684a1d973bfb89d075d17a29e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ping the broker.  <a href="#gae472795684a1d973bfb89d075d17a29e">More...</a><br /></td></tr>
+<tr class="separator:gae472795684a1d973bfb89d075d17a29e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga95d9981735ab4495d3d65e8056611126"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga95d9981735ab4495d3d65e8056611126">mqtt_disconnect</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
+<tr class="memdesc:ga95d9981735ab4495d3d65e8056611126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminate the session with the MQTT broker.  <a href="#ga95d9981735ab4495d3d65e8056611126">More...</a><br /></td></tr>
+<tr class="separator:ga95d9981735ab4495d3d65e8056611126"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Application programmer interface documentation. </p>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a class="anchor" id="gabfef25ed21446904fd8b3a71cfa1f203"></a>
+<a class="anchor" id="gad0c901a8d30691ed0ca17915b691b7e7"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">MqttErrors</a></td>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga6f0b3e9a177b03d5909e4f653fcd4038">mqtt_error_str</a>. </p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__api.html#ga6f0b3e9a177b03d5909e4f653fcd4038" title="Returns an error message for error code, error. ">mqtt_error_str</a> </dd></dl>
+<p>An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt_error_str</a>. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848" title="Returns an error message for error code, error. ">mqtt_error_str</a> </dd></dl>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ga6f0b3e9a177b03d5909e4f653fcd4038"></a>
+<a class="anchor" id="gac8e25ff4f74aa7964b2b2ccbcfa23788"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_connect </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>client_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>will_topic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>will_message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>user_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>connect_flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>keep_alive</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Establishes a session with the MQTT broker. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_init must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">client_id</td><td>The unique name identifying the client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">will_topic</td><td>The topic name of client's <code>will_message</code>. If no will message is desired set to <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">will_message</td><td>The application message (data) to be published in the event the client ungracefully disconnects. Set to <code>NULL</code> if <code>will_topic</code> is <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">user_name</td><td>The username to use when establishing the session with the MQTT broker. Set to <code>NULL</code> if a username is not required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">password</td><td>The password to use when establishing the session with the MQTT broker. Set to <code>NULL</code> if a password is not required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">connect_flags</td><td>Additional <a class="el" href="group__packers.html#gad6fa84a96a940fe4eae6ffca1a6d945f">MQTTConnectFlags</a> to use when establishing the connection. These flags are for forcing the session to start clean, <code>MQTT_CONNECT_CLEAN_SESSION</code>, the QOS level to publish the <code>will_message</code> with (provided <code>will_message</code> != <code>NULL</code>), MQTT_CONNECT_WILL_QOS_[0,1,2], and whether or not the broker should retain the <code>will_message</code>, MQTT_CONNECT_WILL_RETAIN. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">keep_alive</td><td>The keep-alive time in seconds. A reasonable value for this is 400 [seconds].</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga95d9981735ab4495d3d65e8056611126"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_disconnect </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Terminate the session with the MQTT broker. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_connect must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>To re-establish the session, mqtt_connect must be called.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga47b62bdd24e8b05957825d2419d7c848"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">const char* mqtt_error_str </td>
           <td>(</td>
-          <td class="paramtype">enum <a class="el" href="group__api.html#gabfef25ed21446904fd8b3a71cfa1f203">MqttErrors</a>&#160;</td>
+          <td class="paramtype">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td>
           <td class="paramname"><em>error</em></td><td>)</td>
           <td></td>
         </tr>
@@ -172,6 +299,249 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The associated error message. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gab07105b049dd86a8ec39c518cf9fa4c7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_init </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>sockfd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>sendbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>sendbufsz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>recvbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>recvbufsz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish)&#160;</td>
+          <td class="paramname"><em>publish_response_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize an MQTT client.This function <em>must</em> be called before any other API function calls. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>None.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sockfd</td><td>The socket file descriptor connected to the MQTT broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sendbuf</td><td>A buffer that will be used for sending messages to the broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sendbufsz</td><td>The size of <code>sendbuf</code> in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">recvbuf</td><td>A buffer that will be used for receiving messages from the broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">recvbufsz</td><td>The size of <code>recvbuf</code> in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">publish_response_callback</td><td>The callback to call whenever application messages are received from the broker.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section post"><dt>Postcondition</dt><dd>mqtt_connect must be called.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><code>sockfd</code> is a non-blocking TCP connection. </dd>
+<dd>
+If <code>sendbuf</code> fills up completely during runtime a <code>MQTT_ERROR_SEND_BUFFER_IS_FULL</code> error will be set. Similarly if <code>recvbuf</code> is ever to small to receive a message from the broker an MQTT_ERROR_RECV_BUFFER_TOO_SMALL error will be set. </dd>
+<dd>
+A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c230644407f21">mqtt_client::publish_response_callback_state</a> is always passed as the <code>state</code> argument to <code>publish_response_callback</code>. Note that the second argument is the <a class="el" href="structmqtt__response__publish.html" title="A publish packet received from the broker.A publish packet is received from the broker when a client ...">mqtt_response_publish</a> that was received from the broker.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gae472795684a1d973bfb89d075d17a29e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_ping </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ping the broker. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_connect must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga0d8fed24a799ab9b55eeb28f3cd2d0a8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_publish </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>topic_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>application_message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>application_message_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>publish_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Publish an application message.Publishes an application message to the MQTT broker. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_connect must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">topic_name</td><td>The name of the topic. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">application_message</td><td>The data to be published. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">application_message_size</td><td>The size of <code>application_message</code> in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">publish_flags</td><td><a class="el" href="group__packers.html#gad38a41e1c497f9bcd2477c005f280b23">MQTTPublishFlags</a> to be used, namely the QOS level to publish at (MQTT_PUBLISH_QOS_[0,1,2]) or whether or not the broker should retain the publish (MQTT_PUBLISH_RETAIN).</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gaea5da9b546f6e91eb77c9eff9c478de5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_subscribe </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>topic_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>max_qos_level</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Subscribe to a topic. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_connect must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">topic_name</td><td>The name of the topic to subscribe to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_qos_level</td><td>The maximum QOS level with which the broker can send application messages for this topic.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ga08d16571dfefa690698c0cca5cca7a1d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> mqtt_unsubscribe </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>topic_name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Unsubscribe from a topic. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>mqtt_connect must have been called.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">topic_name</td><td>The name of the topic to unsubscribe from.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
 
 </div>
 </div>
