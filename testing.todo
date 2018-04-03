@@ -1,0 +1,16 @@
+Test Points:
+  - will message
+  - username and password
+  - connect flags
+  - keep alive timeout
+  - stress testing (receiving/sending hundreds/thousands of messages of all sizes)
+  - publishing:
+    - all QoS levels
+    - empty, small and large application messages
+    - retain and no-retain
+  - subscribing:
+    - multiple topics (being published from multiple sources)
+    - max QoS level flags
+  - check that unsubscribing from topics works
+  - disconnect and reconnect (in the same program)
+  

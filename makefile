@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -fPIC -Lbin
+CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -I$(HOME)/cmocka/include -fPIC -Lbin -L$(HOME)/lib
 LDFLAGS = -shared
 VPATH = include:src
 
