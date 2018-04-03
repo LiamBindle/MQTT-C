@@ -4,6 +4,7 @@
 /** @file */
 
 #include <stddef.h>
+#include <time.h>   /* time(void*) */
 
 #include <mqtt.h>
 

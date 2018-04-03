@@ -5,9 +5,9 @@
 #include <stddef.h>     //< size_t
 #include <string.h>     //< strlen ...
 #include <limits.h>     //< INT_MIN
-#include <sys/types.h>  //< ssize_t
-#include <arpa/inet.h>  //< htons ntohs
 #include <stdarg.h>
+
+#include <mqtt_pal.h>
 
 /**
  * @file
@@ -114,6 +114,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_NOT_IMPLEMENTED)               \
     MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \
     MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
+    MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
 
 /* todo: add more connection refused errors */
 

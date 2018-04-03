@@ -1,7 +1,3 @@
-#include <time.h>
-#include <errno.h>
-#include <stdio.h>
-
 #include <mqtt_client.h>
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
@@ -418,18 +414,16 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
     while(1) {
         /* read in as many bytes as possible */
         ssize_t rv, consumed;
-        do {
-            rv = recv(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
-            if (rv > 0) {
-                /* successfully read bytes from the socket */
-                client->recv_buffer.curr += rv;
-                client->recv_buffer.curr_sz -= rv;
-            } else if (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
-                /* an error occurred that wasn't "nothing to read". */
-                client->error = MQTT_ERROR_SOCKET_ERROR;
-                return MQTT_ERROR_SOCKET_ERROR;
-            }
-        } while (rv > 0);
+
+        rv = mqtt_pal_recvall(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
+        if (rv < 0) {
+            /* an error occurred */
+            client->error = rv;
+            return rv;
+        } else {
+            client->recv_buffer.curr += rv;
+            client->recv_buffer.curr_sz -= rv;
+        }
 
         /* attempt to parse */
         consumed = mqtt_unpack_response(&response, client->recv_buffer.mem_start, client->recv_buffer.curr - client->recv_buffer.mem_start);
