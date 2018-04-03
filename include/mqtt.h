@@ -24,8 +24,8 @@
  * @defgroup unpackers Control Packet Deserialization
  * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
  * 
- * @defgroup details Details of what makes the client work.
- * @brief Documentation of function and structures that make the client work.
+ * @defgroup details Implementation details
+ * @brief Documentation for developers.
  *
  * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
  *       function you need).
@@ -87,7 +87,7 @@ struct mqtt_fixed_header {
 #define MQTT_PROTOCOL_LEVEL 0x04
 
 /** 
- * @brief A macro used to declare the enum MqttErrors and associated 
+ * @brief A macro used to declare the enum MQTTErrors and associated 
  *        error messages (the members of the num) at the same time.
  */
 #define __ALL_MQTT_ERRORS(MQTT_ERROR)                    \
@@ -118,7 +118,7 @@ struct mqtt_fixed_header {
 /* todo: add more connection refused errors */
 
 /** 
- * @brief A macro used to generate the enum MqttErrors from 
+ * @brief A macro used to generate the enum MQTTErrors from 
  *        \ref __ALL_MQTT_ERRORS
  * @see __ALL_MQTT_ERRORS
 */
@@ -126,7 +126,7 @@ struct mqtt_fixed_header {
 
 /** 
  * @brief A macro used to generate the error messages associated with 
- *        MqttErrors from \ref __ALL_MQTT_ERRORS
+ *        MQTTErrors from \ref __ALL_MQTT_ERRORS
  * @see __ALL_MQTT_ERRORS
 */
 #define GENERATE_STRING(STRING) #STRING,
@@ -138,7 +138,7 @@ struct mqtt_fixed_header {
  * 
  * @see mqtt_error_str
  */
-enum MqttErrors {
+enum MQTTErrors {
     MQTT_ERROR_UNKNOWN=INT_MIN,
     __ALL_MQTT_ERRORS(GENERATE_ENUM)
     MQTT_OK = 1
@@ -152,7 +152,7 @@ enum MqttErrors {
  * 
  * @returns The associated error message.
  */
-const char* mqtt_error_str(enum MqttErrors error);
+const char* mqtt_error_str(enum MQTTErrors error);
 
 /**
  * @brief Pack a MQTT string, given a c-string \p str.
