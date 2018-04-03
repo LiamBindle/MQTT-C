@@ -17,7 +17,7 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     return client->pid_lfsr;
 }
 
-ssize_t mqtt_init(struct mqtt_client *client,
+enum MQTTErrors mqtt_init(struct mqtt_client *client,
                int sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
@@ -74,7 +74,7 @@ ssize_t mqtt_init(struct mqtt_client *client,
     msg = mqtt_mq_register(&client->mq, tmp);                       \
 
 
-ssize_t mqtt_connect(struct mqtt_client *client,
+enum MQTTErrors mqtt_connect(struct mqtt_client *client,
                      const char* client_id,
                      const char* will_topic,
                      const char* will_message,
@@ -107,7 +107,7 @@ ssize_t mqtt_connect(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-ssize_t mqtt_publish(struct mqtt_client *client,
+enum MQTTErrors mqtt_publish(struct mqtt_client *client,
                      const char* topic_name,
                      void* application_message,
                      size_t application_message_size,
@@ -216,7 +216,7 @@ ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id) {
     return MQTT_OK;
 }
 
-ssize_t mqtt_subscribe(struct mqtt_client *client,
+enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
                        const char* topic_name,
                        int max_qos_level)
 {
@@ -242,7 +242,7 @@ ssize_t mqtt_subscribe(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-ssize_t mqtt_unsubscribe(struct mqtt_client *client,
+enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
                          const char* topic_name)
 {
     uint16_t packet_id = __mqtt_next_pid(client);
@@ -266,7 +266,7 @@ ssize_t mqtt_unsubscribe(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-ssize_t mqtt_ping(struct mqtt_client *client) 
+enum MQTTErrors mqtt_ping(struct mqtt_client *client) 
 {
     ssize_t rv;
     struct mqtt_queued_message *msg;
@@ -284,7 +284,7 @@ ssize_t mqtt_ping(struct mqtt_client *client)
     return MQTT_OK;
 }
 
-ssize_t mqtt_disconnect(struct mqtt_client *client) 
+enum MQTTErrors mqtt_disconnect(struct mqtt_client *client) 
 {
     ssize_t rv;
     struct mqtt_queued_message *msg;
@@ -504,6 +504,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         return rv;
                     }
                 } else if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_2) {
+                    /* check if this is a duplicate */
+                    if (mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREC, &response.decoded.publish.packet_id) != NULL) {
+                        break;
+                    }
+
                     rv = __mqtt_pubrec(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
                         client->error = rv;
@@ -525,6 +530,10 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (time(NULL) - msg->time_sent);
                 break;
             case MQTT_CONTROL_PUBREC:
+                /* check if this is a duplicate */
+                if (mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREL, &response.decoded.pubrec.packet_id) != NULL) {
+                    break;
+                }
                 /* release associated PUBLISH */
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.pubrec.packet_id);
                 if (msg == NULL) {
