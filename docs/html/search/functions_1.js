@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['mqtt_5fconnect',['mqtt_connect',['../group__api.html#gac8e25ff4f74aa7964b2b2ccbcfa23788',1,'mqtt_client.h']]],
+  ['mqtt_5fconnect',['mqtt_connect',['../group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3',1,'mqtt_client.h']]],
   ['mqtt_5fdisconnect',['mqtt_disconnect',['../group__api.html#ga95d9981735ab4495d3d65e8056611126',1,'mqtt_client.h']]],
   ['mqtt_5ferror_5fstr',['mqtt_error_str',['../group__api.html#ga47b62bdd24e8b05957825d2419d7c848',1,'mqtt.h']]],
   ['mqtt_5finit',['mqtt_init',['../group__api.html#gab07105b049dd86a8ec39c518cf9fa4c7',1,'mqtt_client.h']]],
@@ -8,7 +8,7 @@ var searchData=
   ['mqtt_5fmq_5ffind',['mqtt_mq_find',['../group__details.html#ga1ffcd45af057865a0d85b4e9e24789a2',1,'mqtt_message_queue']]],
   ['mqtt_5fmq_5finit',['mqtt_mq_init',['../group__details.html#ga0da861c969387bf8d0229924543d9bb7',1,'mqtt_message_queue']]],
   ['mqtt_5fmq_5fregister',['mqtt_mq_register',['../group__details.html#gaa34e6af3ab1af60ebf8fe7b86be868fc',1,'mqtt_message_queue']]],
-  ['mqtt_5fpack_5fconnection_5frequest',['mqtt_pack_connection_request',['../group__packers.html#ga0ed22cd47cf955e07e9662f1d9a4989c',1,'mqtt.h']]],
+  ['mqtt_5fpack_5fconnection_5frequest',['mqtt_pack_connection_request',['../group__packers.html#ga327bce82ca8cce7f45e50e0edeb60987',1,'mqtt.h']]],
   ['mqtt_5fpack_5fdisconnect',['mqtt_pack_disconnect',['../group__packers.html#ga7842c85a0711df31f2e9ce31a9253999',1,'mqtt.h']]],
   ['mqtt_5fpack_5ffixed_5fheader',['mqtt_pack_fixed_header',['../group__packers.html#ga52d369e6e7d44539aab6732375288623',1,'mqtt.h']]],
   ['mqtt_5fpack_5fping_5frequest',['mqtt_pack_ping_request',['../group__packers.html#gac11b5cc5c6bbbf386c2515c823965a82',1,'mqtt.h']]],

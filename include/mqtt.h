@@ -580,6 +580,7 @@ enum MQTTConnectFlags {
  *                         the local client. Set to \c NULL if \p will_topic is \c NULL. 
  *                         \p will_message must \em not be \c NULL if \p will_topic is not 
  *                         \c NULL.
+ * @param[in] will_message_size The size of \p will_message in bytes.
  * @param[in] user_name the username to be used to connect to the broker with. Set to \c NULL if 
  *                      no username is required.
  * @param[in] password the password to be used to connect to the broker with. Set to \c NULL if
@@ -605,7 +606,8 @@ enum MQTTConnectFlags {
 ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
                                      const char* client_id,
                                      const char* will_topic,
-                                     const char* will_message,
+                                     const void* will_message,
+                                     size_t will_message_size,
                                      const char* user_name,
                                      const char* password,
                                      uint8_t connect_flags,

@@ -135,9 +135,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga52d369e6e7d44539aab6732375288623"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__packers.html#ga52d369e6e7d44539aab6732375288623">mqtt_pack_fixed_header</a> (uint8_t *buf, size_t bufsz, const struct <a class="el" href="structmqtt__fixed__header.html">mqtt_fixed_header</a> *fixed_header)</td></tr>
 <tr class="memdesc:ga52d369e6e7d44539aab6732375288623"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize an <a class="el" href="structmqtt__fixed__header.html" title="The fixed header of an MQTT control packet. ">mqtt_fixed_header</a> and write it to <code>buf</code>.  <a href="#ga52d369e6e7d44539aab6732375288623">More...</a><br /></td></tr>
 <tr class="separator:ga52d369e6e7d44539aab6732375288623"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0ed22cd47cf955e07e9662f1d9a4989c"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__packers.html#ga0ed22cd47cf955e07e9662f1d9a4989c">mqtt_pack_connection_request</a> (uint8_t *buf, size_t bufsz, const char *client_id, const char *will_topic, const char *will_message, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)</td></tr>
-<tr class="memdesc:ga0ed22cd47cf955e07e9662f1d9a4989c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize a connection request into a buffer.  <a href="#ga0ed22cd47cf955e07e9662f1d9a4989c">More...</a><br /></td></tr>
-<tr class="separator:ga0ed22cd47cf955e07e9662f1d9a4989c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga327bce82ca8cce7f45e50e0edeb60987"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__packers.html#ga327bce82ca8cce7f45e50e0edeb60987">mqtt_pack_connection_request</a> (uint8_t *buf, size_t bufsz, const char *client_id, const char *will_topic, const void *will_message, size_t will_message_size, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)</td></tr>
+<tr class="memdesc:ga327bce82ca8cce7f45e50e0edeb60987"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize a connection request into a buffer.  <a href="#ga327bce82ca8cce7f45e50e0edeb60987">More...</a><br /></td></tr>
+<tr class="separator:ga327bce82ca8cce7f45e50e0edeb60987"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae7cb4c4d90ed04fe268f5f9a167e32b1"><td class="memItemLeft" align="right" valign="top">ssize_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__packers.html#gae7cb4c4d90ed04fe268f5f9a167e32b1">mqtt_pack_publish_request</a> (uint8_t *buf, size_t bufsz, const char *topic_name, uint16_t packet_id, void *application_message, size_t application_message_size, uint8_t publish_flags)</td></tr>
 <tr class="memdesc:gae7cb4c4d90ed04fe268f5f9a167e32b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize a PUBLISH request and put it in <code>buf</code>.  <a href="#gae7cb4c4d90ed04fe268f5f9a167e32b1">More...</a><br /></td></tr>
 <tr class="separator:gae7cb4c4d90ed04fe268f5f9a167e32b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -237,7 +237,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="ga0ed22cd47cf955e07e9662f1d9a4989c"></a>
+<a class="anchor" id="ga327bce82ca8cce7f45e50e0edeb60987"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -268,8 +268,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const char *&#160;</td>
+          <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>will_message</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>will_message_size</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -311,6 +317,7 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">client_id</td><td>the ID that identifies the local client. <code>client_id</code> is a required parameter. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">will_topic</td><td>the topic under which the local client's will message will be published. Set to <code>NULL</code> for no will message. If <code>will_topic</code> is not <code>NULL</code> a <code>will_message</code> must also be provided. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">will_message</td><td>the will message to be published upon a unsuccessful disconnection of the local client. Set to <code>NULL</code> if <code>will_topic</code> is <code>NULL</code>. <code>will_message</code> must <em>not</em> be <code>NULL</code> if <code>will_topic</code> is not <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">will_message_size</td><td>The size of <code>will_message</code> in bytes. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">user_name</td><td>the username to be used to connect to the broker with. Set to <code>NULL</code> if no username is required. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">password</td><td>the password to be used to connect to the broker with. Set to <code>NULL</code> if no password is required. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">connect_flags</td><td>additional MQTTConnectFlags to be set. The only flags that need to be set manually are <code>MQTT_CONNECT_CLEAN_SESSION</code>, <code>MQTT_CONNECT_WILL_QOS_X</code> (for <code>X</code> &isin; {0, 1, 2}), and <code>MQTT_CONNECT_WILL_RETAIN</code>. Set to 0 if no additional flags are required. </td></tr>

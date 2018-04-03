@@ -51,7 +51,7 @@ enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Error
 \begin{DoxyCompactList}\small\item\em Initialize an M\+Q\+TT client.
 
 This function {\itshape must} be called before any other A\+PI function calls. \end{DoxyCompactList}\item 
-enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gac8e25ff4f74aa7964b2b2ccbcfa23788}{mqtt\+\_\+connect} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const char $\ast$will\+\_\+message, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}{mqtt\+\_\+connect} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const void $\ast$will\+\_\+message, size\+\_\+t will\+\_\+message\+\_\+size, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)
 \begin{DoxyCompactList}\small\item\em Establishes a session with the M\+Q\+TT broker. \end{DoxyCompactList}\item 
 enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_ga0d8fed24a799ab9b55eeb28f3cd2d0a8}{mqtt\+\_\+publish} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$topic\+\_\+name, void $\ast$application\+\_\+message, size\+\_\+t application\+\_\+message\+\_\+size, uint8\+\_\+t publish\+\_\+flags)
 \begin{DoxyCompactList}\small\item\em Publish an application message.
@@ -88,18 +88,19 @@ An enumeration of error codes. Error messages can be retrieved by calling \hyper
 \subsection{Function Documentation}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+connect@{mqtt\+\_\+connect}}
 \index{mqtt\+\_\+connect@{mqtt\+\_\+connect}!A\+PI@{A\+PI}}
-\subsubsection[{\texorpdfstring{mqtt\+\_\+connect(struct mqtt\+\_\+client $\ast$client, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const char $\ast$will\+\_\+message, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)}{mqtt_connect(struct mqtt_client *client, const char *client_id, const char *will_topic, const char *will_message, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+connect (
+\subsubsection[{\texorpdfstring{mqtt\+\_\+connect(struct mqtt\+\_\+client $\ast$client, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const void $\ast$will\+\_\+message, size\+\_\+t will\+\_\+message\+\_\+size, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)}{mqtt_connect(struct mqtt_client *client, const char *client_id, const char *will_topic, const void *will_message, size_t will_message_size, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+connect (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client, }
 \item[{const char $\ast$}]{client\+\_\+id, }
 \item[{const char $\ast$}]{will\+\_\+topic, }
-\item[{const char $\ast$}]{will\+\_\+message, }
+\item[{const void $\ast$}]{will\+\_\+message, }
+\item[{size\+\_\+t}]{will\+\_\+message\+\_\+size, }
 \item[{const char $\ast$}]{user\+\_\+name, }
 \item[{const char $\ast$}]{password, }
 \item[{uint8\+\_\+t}]{connect\+\_\+flags, }
 \item[{uint16\+\_\+t}]{keep\+\_\+alive}
 \end{DoxyParamCaption}
-)}\hypertarget{group__api_gac8e25ff4f74aa7964b2b2ccbcfa23788}{}\label{group__api_gac8e25ff4f74aa7964b2b2ccbcfa23788}
+)}\hypertarget{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}{}\label{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}
 
 
 Establishes a session with the M\+Q\+TT broker. 
@@ -116,6 +117,8 @@ mqtt\+\_\+init must have been called.
 \mbox{\tt in}  & {\em will\+\_\+topic} & The topic name of client\textquotesingle{}s {\ttfamily will\+\_\+message}. If no will message is desired set to {\ttfamily N\+U\+LL}. \\
 \hline
 \mbox{\tt in}  & {\em will\+\_\+message} & The application message (data) to be published in the event the client ungracefully disconnects. Set to {\ttfamily N\+U\+LL} if {\ttfamily will\+\_\+topic} is {\ttfamily N\+U\+LL}. \\
+\hline
+\mbox{\tt in}  & {\em will\+\_\+message\+\_\+size} & The size of {\ttfamily will\+\_\+message} in bytes. \\
 \hline
 \mbox{\tt in}  & {\em user\+\_\+name} & The username to use when establishing the session with the M\+Q\+TT broker. Set to {\ttfamily N\+U\+LL} if a username is not required. \\
 \hline

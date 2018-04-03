@@ -186,7 +186,7 @@ static void test_mqtt_pack_connection_request(void** state) {
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
 
-    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", NULL, NULL, NULL, NULL, 0, 120u);
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", NULL, NULL, 0, NULL, NULL, 0, 120u);
     assert_true(rv == 18);
 
     /* check that fixed header is correct */
@@ -242,7 +242,7 @@ static void test_mosquitto_connect_disconnect(void** state) {
     client.socketfd = conf_client(addr, port, &hints, &sockaddr);
     assert_true(client.socketfd != -1);
 
-    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam-123456", NULL, NULL, NULL, NULL, 0, 30);
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam-123456", NULL, NULL, 0, NULL, NULL, 0, 30);
     assert_true(rv > 0);
     assert_true(send(client.socketfd, buf, rv, 0) != -1);
 
@@ -449,7 +449,7 @@ static void test_mqtt_connect_and_ping(void** state) {
     client.socketfd = conf_client(addr, port, &hints, &sockaddr);
     assert_true(client.socketfd != -1);
 
-    rv = mqtt_pack_connection_request(buf, sizeof(buf), "this-is-me", NULL, NULL, NULL, NULL, 0, 30);
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "this-is-me", NULL, NULL, 0, NULL, NULL, 0, 30);
     assert_true(rv > 0);
     assert_true(send(client.socketfd, buf, rv, 0) != -1);
 
@@ -608,7 +608,7 @@ static void test_client_simple(void **unused) {
     mqtt_init(&client, sockfd, sendmem, sizeof(sendmem), recvmem, sizeof(recvmem), publish_callback);
 
     /* connect */
-    assert_true(mqtt_connect(&client, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
+    assert_true(mqtt_connect(&client, "liam-123", NULL, NULL, 0, NULL, NULL, 0, 30) > 0);
     assert_true(__mqtt_send(&client) > 0);
     while(mqtt_mq_length(&client.mq) > 0) {
         assert_true(__mqtt_recv(&client) > 0);
@@ -666,8 +666,8 @@ static void test_client_simple_subpub(void **unused) {
     receiver.publish_response_callback_state = &state;
 
     /* connect both */
-    assert_true(mqtt_connect(&sender, "liam-123", NULL, NULL, NULL, NULL, 0, 30) > 0);
-    assert_true(mqtt_connect(&receiver, "liam-234", NULL, NULL, NULL, NULL, 0, 30) > 0);
+    assert_true(mqtt_connect(&sender, "liam-123", NULL, NULL, 0, NULL, NULL, 0, 30) > 0);
+    assert_true(mqtt_connect(&receiver, "liam-234", NULL, NULL, 0, NULL, NULL, 0, 30) > 0);
     assert_true(__mqtt_send(&sender) > 0);
     assert_true(__mqtt_send(&receiver) > 0);
     while(mqtt_mq_length(&sender.mq) > 0 || mqtt_mq_length(&receiver.mq) > 0) {
@@ -740,11 +740,11 @@ static void test_client_subpub(void **unused) {
     receiver.publish_response_callback_state = &state;
 
     /* connect both */
-    if ((rv = mqtt_connect(&sender, "liam-123", NULL, NULL, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
+    if ((rv = mqtt_connect(&sender, "liam-123", NULL, NULL, 0, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
-    if ((rv = mqtt_connect(&receiver, "liam-234", NULL, NULL, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
+    if ((rv = mqtt_connect(&receiver, "liam-234", NULL, NULL, 0, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }

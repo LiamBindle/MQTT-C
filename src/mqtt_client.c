@@ -77,7 +77,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 enum MQTTErrors mqtt_connect(struct mqtt_client *client,
                      const char* client_id,
                      const char* will_topic,
-                     const char* will_message,
+                     const void* will_message,
+                     size_t will_message_size,
                      const char* user_name,
                      const char* password,
                      uint8_t connect_flags,
@@ -97,8 +98,8 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
         mqtt_pack_connection_request(
             client->mq.curr, client->mq.curr_sz,
             client_id, will_topic, will_message, 
-            user_name, password, connect_flags, 
-            keep_alive
+            will_message_size,user_name, password, 
+            connect_flags, keep_alive
         )
     );
     /* save the control type of the message */

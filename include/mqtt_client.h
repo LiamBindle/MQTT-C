@@ -193,6 +193,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
  *            desired set to \c NULL.
  * @param[in] will_message The application message (data) to be published in the event the 
  *            client ungracefully disconnects. Set to \c NULL if \p will_topic is \c NULL.
+ * @param[in] will_message_size The size of \p will_message in bytes.
  * @param[in] user_name The username to use when establishing the session with the MQTT broker.
  *            Set to \c NULL if a username is not required.
  * @param[in] password The password to use when establishing the session with the MQTT broker.
@@ -209,7 +210,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 enum MQTTErrors mqtt_connect(struct mqtt_client *client,
                              const char* client_id,
                              const char* will_topic,
-                             const char* will_message,
+                             const void* will_message,
+                             size_t will_message_size,
                              const char* user_name,
                              const char* password,
                              uint8_t connect_flags,

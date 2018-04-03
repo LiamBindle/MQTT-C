@@ -4,7 +4,8 @@
 ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
                                      const char* client_id,
                                      const char* will_topic,
-                                     const char* will_message,
+                                     const void* will_message,
+                                     size_t will_message_size,
                                      const char* user_name,
                                      const char* password,
                                      uint8_t connect_flags, 
@@ -41,7 +42,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
             /* if there's a will there MUST be a will message */
             return MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE;
         }
-        remaining_length += __mqtt_packed_cstrlen(will_message);
+        remaining_length += 2 + will_message_size; /* size of will_message */
 
         /* assert that the will QOS is valid (i.e. not 3) */
         temp = connect_flags & 0x18; /* mask to QOS */
@@ -105,7 +106,8 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
         buf += __mqtt_pack_str(buf, will_topic);
-        buf += __mqtt_pack_str(buf, will_message);
+        memcpy(buf, will_message, will_message_size);
+        buf += will_message_size;
     }
     if (connect_flags & MQTT_CONNECT_USER_NAME) {
         buf += __mqtt_pack_str(buf, user_name);
