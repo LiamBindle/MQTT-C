@@ -329,14 +329,10 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         }
 
         /* we're sending the message */
-        size_t sent = 0;
-        while(sent < msg->size) {
-            ssize_t tmp = send(client->socketfd, msg->start + sent, msg->size - sent, 0);
-            if (tmp < 1) {
-                client->error = MQTT_ERROR_SOCKET_ERROR;
-                return MQTT_ERROR_SOCKET_ERROR;
-            }
-            sent += (size_t) tmp;
+        ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0);
+        if (tmp < 0) {
+            client->error = tmp;
+            return tmp;
         }
 
         /* update timeout watcher */
