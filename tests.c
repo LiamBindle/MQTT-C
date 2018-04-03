@@ -851,6 +851,65 @@ static void test_client_subpub(void **unused) {
 
     /* give 2 seconds for sending and receiving (also don't manually clean) */
     start = time(NULL);
+    while(time(NULL) < start + 8) {
+        if ((rv = __mqtt_recv(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_recv(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        usleep(10000);
+    }
+
+    if (state != 5) {
+        printf("error: state == %d\n", state);
+        assert_true(state == 5);
+    }
+
+    /* test unsubscribe */
+    if ((rv = mqtt_unsubscribe(&receiver, "liam-test-qos1")) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+
+    /*sleep for 2 seconds while unsubscribe is sending */ 
+    start = time(NULL);
+    while(time(NULL) < start + 2) {
+        if ((rv = __mqtt_recv(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_recv(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&receiver)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        if ((rv = __mqtt_send(&sender)) < 0) {
+            printf("error: %s\n", mqtt_error_str(rv));
+            assert_true(0);
+        }
+        usleep(10000);
+    }
+    /* publish qos1 (should be received by receiver) */
+    if ((rv = mqtt_publish(&sender, "liam-test-qos1", "test with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+        printf("error: %s\n", mqtt_error_str(rv));
+        assert_true(rv  > 0);
+    }
+    /*sleep for 2 seconds to give the publish a chance  */ 
+    start = time(NULL);
     while(time(NULL) < start + 2) {
         if ((rv = __mqtt_recv(&receiver)) < 0) {
             printf("error: %s\n", mqtt_error_str(rv));
@@ -871,7 +930,11 @@ static void test_client_subpub(void **unused) {
         usleep(10000);
     }
 
-    assert_true(state == 5);
+    /* check that the callback wasn't called */
+    if (state != 5) {
+        printf("error: state == %d\n", state);
+        assert_true(state == 5);
+    }
 
     /* disconnect */
     assert_true(sender.error == MQTT_OK);

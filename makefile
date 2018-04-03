@@ -31,4 +31,4 @@ tests: tests.c $(LIBMQTT_TARGET)
 	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
 
 clean:
-	rm -rf obj bin
+	rm -rf obj bin tests
