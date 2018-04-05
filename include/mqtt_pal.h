@@ -13,7 +13,7 @@
  *      - \c uint8_t, \c uint16_t, \c uint32_t
  *      - \c va_list
  *      - \c mqtt_pal_time_t : return type of \c MQTT_PAL_TIME() 
- *      - \c mqtt_pal_mutex_t : argument that is passed to \c MQTT_PAL_MUTEX_LOCK and 
+ *      - \c mqtt_pal_mutex_t : type of the argument that is passed to \c MQTT_PAL_MUTEX_LOCK and 
  *        \c MQTT_PAL_MUTEX_RELEASE
  *  - Functions:
  *      - \c memcpy, \c strlen
@@ -25,8 +25,8 @@
  *  - \c MQTT_PAL_HTONS(s) : host-to-network endian conversion for uint16_t.
  *  - \c MQTT_PAL_NTOHS(s) : network-to-host endian conversion for uint16_t.
  *  - \c MQTT_PAL_TIME()   : returns [type: \c mqtt_pal_time_t] current time in seconds. 
- *  - \c MQTT_PAL_MUTEX_LOCK(mtx_pointer) : macro that locks mutex pointer to by \c mtx_pointer.
- *  - \c MQTT_PAL_MUTEX_RELEASE(mtx_pointer) : macro that unlocks mutex pointer to by 
+ *  - \c MQTT_PAL_MUTEX_LOCK(mtx_pointer) : macro that locks the mutex pointed to by \c mtx_pointer.
+ *  - \c MQTT_PAL_MUTEX_RELEASE(mtx_pointer) : macro that unlocks the mutex pointed to by 
  *    \c mtx_pointer.
  * 
  * Lastly, the requires two functions, \ref mqtt_pal_sendall and \ref mqtt_pal_recvall,
