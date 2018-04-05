@@ -18,7 +18,6 @@
 #include <time.h>
 
 #include <mqtt.h>
-#include <mqtt_client.h>
 
 int conf_client(const char* addr, const char* port, const struct addrinfo* hints, struct sockaddr_storage* sockaddr) {
     int sockfd = -1;
