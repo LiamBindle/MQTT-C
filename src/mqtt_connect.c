@@ -45,9 +45,9 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         remaining_length += 2 + will_message_size; /* size of will_message */
 
         /* assert that the will QOS is valid (i.e. not 3) */
-        temp = connect_flags & 0x18; /* mask to QOS */
-        temp = ~(temp ^ 0x18);       /* bitwise equality with QoS 3 (invalid)*/
-        if (temp) {
+        temp = connect_flags & 0x18; /* mask to QOS */   
+        if (temp == 0x18) {
+            /* bitwise equality with QoS 3 (invalid)*/
             return MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS;
         }
     } else {
