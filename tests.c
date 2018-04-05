@@ -183,6 +183,15 @@ static void test_mqtt_pack_connection_request(void** state) {
         0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
         0, 4, 'l', 'i', 'a', 'm'
     };
+    const uint8_t correct_bytes2[] = {
+        (MQTT_CONTROL_DISCONNECT << 4) | 0, 16,
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
+        0, 4, 'l', 'i', 'a', 'm',
+        0, 8, 'w', 'i', 'l', 't', 'o', 'p', 'i', 'c',
+        0, 2, 'h', 'i',
+        0, 8, 'u', 's', 'e', 'r', 'n', 'a', 'm', 'e',
+        0, 8, 'p', 'a', 's', 's', 'w', 'o', 'r', 'd'
+    };
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
 
@@ -196,6 +205,13 @@ static void test_mqtt_pack_connection_request(void** state) {
 
     /* check that memory is correct */
     assert_true(memcmp(correct_bytes, buf, sizeof(correct_bytes)));
+
+    /* check that will flags are okay and user name and password */
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", "willtopic", "hi", 2, "username", "password", 0, 120u);
+    assert_true(rv == sizeof(correct_bytes2));
+
+    /* check that memory is correct */
+    assert_true(memcmp(correct_bytes2, buf, sizeof(correct_bytes2)));
 }
 
 static void test_mqtt_pack_publish(void** state) {
