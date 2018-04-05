@@ -11,6 +11,20 @@ Test Points:
   - subscribing:
     - multiple topics (being published from multiple sources)
     - max QoS level flags
+    - wildcards
   - check that unsubscribing from topics works
   - disconnect and reconnect (in the same program)
-  
+
+
+
+  test_client <client number> <initial seed> <num topics> <subscribe list ...>
+    - create new thread (calling __mqtt_send and __mqtt_recv every 100ms)
+    - lfsr to generate data to publish
+    - reveive data and check that it's correct (using seed from other test clients)
+
+
+
+  seed for client 1 = initial seed + client number (1) = 1235
+  client 1 publishes topics with the format: topic-client1/1..12
+
+  subscribing to

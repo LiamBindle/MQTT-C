@@ -14,7 +14,7 @@ OBJECTS := $(addprefix $(OBJDIR)/,$(SOURCES:%.c=%.o))
 LIBMQTT_TARGET := $(BINDIR)/libmqtt.so
 LIBMQTT_DEPENDENCIES := $(OBJECTS)
 
-all: dirs $(LIBMQTT_TARGET) tests
+all: dirs $(LIBMQTT_TARGET) tests testbench
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -29,6 +29,9 @@ $(LIBMQTT_TARGET): $(LIBMQTT_DEPENDENCIES)
 TESTS_CFLAGS := -Wno-unused-parameter -Wunused-variable -Wl,-rpath=$(abspath ./bin)
 tests: tests.c $(LIBMQTT_TARGET)
 	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
+testbench: testbench.c $(LIBMQTT_TARGET)
+	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
+
 
 clean:
 	rm -rf obj bin tests
