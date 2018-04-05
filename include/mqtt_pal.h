@@ -13,6 +13,8 @@
  *      - \c uint8_t, \c uint16_t, \c uint32_t
  *      - \c va_list
  *      - \c mqtt_pal_time_t : return type of \c MQTT_PAL_TIME() 
+ *      - \c mqtt_pal_mutex_t : argument that is passed to \c MQTT_PAL_MUTEX_LOCK and 
+ *        \c MQTT_PAL_MUTEX_RELEASE
  *  - Functions:
  *      - \c memcpy, \c strlen
  *      - \c va_start, \c va_arg, \c va_end
@@ -22,7 +24,10 @@
  * Additionally, three macro's are required:
  *  - \c MQTT_PAL_HTONS(s) : host-to-network endian conversion for uint16_t.
  *  - \c MQTT_PAL_NTOHS(s) : network-to-host endian conversion for uint16_t.
- *  - \c MQTT_PAL_TIME()   : returns [type: \c mqtt_pal_time_t] current time in seconds.
+ *  - \c MQTT_PAL_TIME()   : returns [type: \c mqtt_pal_time_t] current time in seconds. 
+ *  - \c MQTT_PAL_MUTEX_LOCK(mtx_pointer) : macro that locks mutex pointer to by \c mtx_pointer.
+ *  - \c MQTT_PAL_MUTEX_RELEASE(mtx_pointer) : macro that unlocks mutex pointer to by 
+ *    \c mtx_pointer.
  * 
  * Lastly, the requires two functions, \ref mqtt_pal_sendall and \ref mqtt_pal_recvall,
  * for sending and receiving all the bytes in a buffer using the platforms socket calls.
@@ -37,6 +42,7 @@
     #include <stdarg.h>
     #include <time.h>
     #include <arpa/inet.h>
+    #include <pthread.h>
 
     #define MQTT_PAL_HTONS(s) htons(s)
     #define MQTT_PAL_NTOHS(s) ntohs(s)
@@ -44,6 +50,11 @@
     #define MQTT_PAL_TIME() time(NULL)
 
     typedef time_t mqtt_pal_time_t;
+    typedef pthread_mutex_t mqtt_pal_mutex_t;
+
+    #define MQTT_PAL_MUTEX_INIT(mtx_ptr) pthread_mutex_init(mtx_ptr, NULL)
+    #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
+    #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 #endif
 
 /**

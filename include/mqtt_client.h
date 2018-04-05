@@ -107,6 +107,8 @@ struct mqtt_client {
         size_t curr_sz;
     } recv_buffer;
 
+    mqtt_pal_mutex_t mutex;
+
     /** @brief The sending message queue. */
     struct mqtt_message_queue mq;
 };
@@ -330,6 +332,12 @@ enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
 enum MQTTErrors mqtt_ping(struct mqtt_client *client);
+
+/**
+ * @brief Ping the broker without locking/unlocking the mutex. 
+ * @see mqtt_ping
+ */
+enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
 
 /**
  * @brief Terminate the session with the MQTT broker. 

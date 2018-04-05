@@ -6,9 +6,6 @@
 /**
  * @file
  * 
- * @mainpage 
- * Welcome 
- * 
  * @defgroup api API
  * @brief Application programmer interface documentation.
  * 
