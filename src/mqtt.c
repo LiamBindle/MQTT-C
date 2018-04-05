@@ -1,5 +1,10 @@
 #include <mqtt.h>
 
+/** 
+ * @file 
+ * @cond Doxygen_Suppress
+ */
+
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
@@ -1536,3 +1541,5 @@ const char* mqtt_error_str(enum MQTTErrors error) {
         return MQTT_ERRORS_STR[0];
     }
 }
+
+/** @endcond*/

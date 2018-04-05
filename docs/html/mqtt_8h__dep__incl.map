@@ -1,3 +1,4 @@
 <map id="include/mqtt.h" name="include/mqtt.h">
-<area shape="rect" id="node2" href="$mqtt__client_8h.html" title="include/mqtt_client.h" alt="" coords="5,80,148,107"/>
+<area shape="rect" id="node2" href="$mqtt_8c.html" title="src/mqtt.c" alt="" coords="5,80,87,107"/>
+<area shape="rect" id="node3" href="$mqtt__pal_8c.html" title="src/mqtt_pal.c" alt="" coords="111,80,216,107"/>
 </map>

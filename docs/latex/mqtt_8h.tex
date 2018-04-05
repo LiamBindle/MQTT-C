@@ -12,7 +12,7 @@ This graph shows which files directly or indirectly include this file\+:\nopageb
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=187pt]{mqtt_8h__dep__incl}
+\includegraphics[width=238pt]{mqtt_8h__dep__incl}
 \end{center}
 \end{figure}
 \subsection*{Data Structures}
@@ -45,7 +45,9 @@ struct \hyperlink{structmqtt__response}{mqtt\+\_\+response}
 struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message}
 \begin{DoxyCompactList}\small\item\em A message in a \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue}. \end{DoxyCompactList}\item 
 struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue}
-\begin{DoxyCompactList}\small\item\em A message queue. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em A message queue. \end{DoxyCompactList}\item 
+struct \hyperlink{structmqtt__client}{mqtt\+\_\+client}
+\begin{DoxyCompactList}\small\item\em An M\+Q\+TT client. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Macros}
 \begin{DoxyCompactItemize}
 \item 
@@ -198,7 +200,43 @@ ssize\+\_\+t \hyperlink{group__packers_ga3a0e5c05084d708f16cb1a244cbcaad5}{mqtt\
 ssize\+\_\+t \hyperlink{group__packers_gac11b5cc5c6bbbf386c2515c823965a82}{mqtt\+\_\+pack\+\_\+ping\+\_\+request} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)
 \begin{DoxyCompactList}\small\item\em Serialize a P\+I\+N\+G\+R\+EQ and put it into {\ttfamily buf}. \end{DoxyCompactList}\item 
 ssize\+\_\+t \hyperlink{group__packers_ga7842c85a0711df31f2e9ce31a9253999}{mqtt\+\_\+pack\+\_\+disconnect} (uint8\+\_\+t $\ast$buf, size\+\_\+t bufsz)
-\begin{DoxyCompactList}\small\item\em Serialize a D\+I\+S\+C\+O\+N\+N\+E\+CT and put it into {\ttfamily buf}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Serialize a D\+I\+S\+C\+O\+N\+N\+E\+CT and put it into {\ttfamily buf}. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{group__details_ga7ca75c661980d4af50493f59a386f378}{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Generate a new next packet ID.
+
+Packet ID\textquotesingle{}s are generated using a max-\/length L\+F\+SR. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_gacf553ca88f48350dbde0dc3b96e550f7}{\+\_\+\+\_\+mqtt\+\_\+send} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Handles egress client traffic. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_ga4d50a465c684a5ecd1c000f811fa601e}{\+\_\+\+\_\+mqtt\+\_\+recv} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Handles ingress client traffic. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gab07105b049dd86a8ec39c518cf9fa4c7}{mqtt\+\_\+init} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, int sockfd, uint8\+\_\+t $\ast$sendbuf, size\+\_\+t sendbufsz, uint8\+\_\+t $\ast$recvbuf, size\+\_\+t recvbufsz, void($\ast$publish\+\_\+response\+\_\+callback)(void $\ast$$\ast$state, struct \hyperlink{structmqtt__response__publish}{mqtt\+\_\+response\+\_\+publish} $\ast$publish))
+\begin{DoxyCompactList}\small\item\em Initialize an M\+Q\+TT client.
+
+This function {\itshape must} be called before any other A\+PI function calls. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}{mqtt\+\_\+connect} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$client\+\_\+id, const char $\ast$will\+\_\+topic, const void $\ast$will\+\_\+message, size\+\_\+t will\+\_\+message\+\_\+size, const char $\ast$user\+\_\+name, const char $\ast$password, uint8\+\_\+t connect\+\_\+flags, uint16\+\_\+t keep\+\_\+alive)
+\begin{DoxyCompactList}\small\item\em Establishes a session with the M\+Q\+TT broker. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_ga0d8fed24a799ab9b55eeb28f3cd2d0a8}{mqtt\+\_\+publish} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$topic\+\_\+name, void $\ast$application\+\_\+message, size\+\_\+t application\+\_\+message\+\_\+size, uint8\+\_\+t publish\+\_\+flags)
+\begin{DoxyCompactList}\small\item\em Publish an application message.
+
+Publishes an application message to the M\+Q\+TT broker. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_gae09d4412a871ecec31377db55cc54228}{\+\_\+\+\_\+mqtt\+\_\+puback} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, uint16\+\_\+t packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Acknowledge an ingree publish with Q\+OS==1. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_ga874c62f7a20b6adf13dbed2b4e2dd985}{\+\_\+\+\_\+mqtt\+\_\+pubrec} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, uint16\+\_\+t packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Acknowledge an ingree publish with Q\+OS==2. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_ga427f9191ab9967b75e0a7a2f7fa0dca0}{\+\_\+\+\_\+mqtt\+\_\+pubrel} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, uint16\+\_\+t packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Acknowledge an ingree P\+U\+B\+R\+EC packet. \end{DoxyCompactList}\item 
+ssize\+\_\+t \hyperlink{group__details_ga86ddd2a08fbe4bd351dfd161db93303d}{\+\_\+\+\_\+mqtt\+\_\+pubcomp} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, uint16\+\_\+t packet\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Acknowledge an ingree P\+U\+B\+R\+EL packet. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gaea5da9b546f6e91eb77c9eff9c478de5}{mqtt\+\_\+subscribe} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$topic\+\_\+name, int max\+\_\+qos\+\_\+level)
+\begin{DoxyCompactList}\small\item\em Subscribe to a topic. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_ga08d16571dfefa690698c0cca5cca7a1d}{mqtt\+\_\+unsubscribe} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, const char $\ast$topic\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Unsubscribe from a topic. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gae472795684a1d973bfb89d075d17a29e}{mqtt\+\_\+ping} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Ping the broker. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{mqtt_8h_a444875d32fd56990f7c5a8251159d6bf}{\+\_\+\+\_\+mqtt\+\_\+ping} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Ping the broker without locking/unlocking the mutex. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_ga95d9981735ab4495d3d65e8056611126}{mqtt\+\_\+disconnect} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Terminate the session with the M\+Q\+TT broker. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Macro Definition Documentation}
@@ -296,3 +334,17 @@ This function provides no error checking.
 \begin{DoxyReturn}{Returns}
 strlen(str) + 2 
 \end{DoxyReturn}
+\index{mqtt.\+h@{mqtt.\+h}!\+\_\+\+\_\+mqtt\+\_\+ping@{\+\_\+\+\_\+mqtt\+\_\+ping}}
+\index{\+\_\+\+\_\+mqtt\+\_\+ping@{\+\_\+\+\_\+mqtt\+\_\+ping}!mqtt.\+h@{mqtt.\+h}}
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+ping(struct mqtt\+\_\+client $\ast$client)}{__mqtt_ping(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} \+\_\+\+\_\+mqtt\+\_\+ping (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client}
+\end{DoxyParamCaption}
+)}\hypertarget{mqtt_8h_a444875d32fd56990f7c5a8251159d6bf}{}\label{mqtt_8h_a444875d32fd56990f7c5a8251159d6bf}
+
+
+Ping the broker without locking/unlocking the mutex. 
+
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__api_gae472795684a1d973bfb89d075d17a29e}{mqtt\+\_\+ping} 
+\end{DoxySeeAlso}

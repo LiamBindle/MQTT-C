@@ -1,1 +1,67 @@
-Welcome 
+M\+Q\+T\+T-\/C is an \href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html}{\tt M\+Q\+TT v3.\+1.\+1} client written in C. M\+Q\+TT is a lightweight publisher-\/subscriber-\/based messaging protocol that is commonly used in IoT and networking applications where high-\/latency and low data-\/rate links are expected. The purpose of M\+Q\+T\+T-\/C is to provide a {\bfseries portable} M\+Q\+TT client, {\bfseries written in C}, for low-\/power, low-\/performance devices such as microcontrollers which might or might not be running an operating system.
+
+\subsection*{Getting Started}
+
+To use M\+Q\+T\+T-\/C you must first instantiate a {\ttfamily struct \hyperlink{structmqtt__client}{mqtt\+\_\+client}} and initialize it by calling \hyperlink{group__api_gab07105b049dd86a8ec39c518cf9fa4c7}{mqtt\+\_\+init}. 
+\begin{DoxyCode}
+\textcolor{keyword}{struct }\hyperlink{structmqtt__client}{mqtt\_client} client; \textcolor{comment}{/* instantiate the client */}
+\hyperlink{group__api_gab07105b049dd86a8ec39c518cf9fa4c7}{mqtt\_init}(&client, ...);   \textcolor{comment}{/* initialize the client */}
+\end{DoxyCode}
+ Once your client is initialized you must connect to an M\+Q\+TT broker. 
+\begin{DoxyCode}
+\hyperlink{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}{mqtt\_connect}(&client, ...); \textcolor{comment}{/* send a connection request to the broker. */}
+\end{DoxyCode}
+ At this point the client is ready to use! For example, we can subscribe to like so\+: 
+\begin{DoxyCode}
+\textcolor{comment}{/* subscribe to "toaster/temperature" with a max QoS level of 0 */}
+\hyperlink{group__api_gaea5da9b546f6e91eb77c9eff9c478de5}{mqtt\_subscribe}(&client, \textcolor{stringliteral}{"toaster/temperature"}, 0);
+\end{DoxyCode}
+ And we can publish, say the coffee makers temperature, like so\+: 
+\begin{DoxyCode}
+\textcolor{comment}{/* publish coffee temperature with a QoS level of 1 */}
+\textcolor{keywordtype}{int} temperature = 67;
+\hyperlink{group__api_ga0d8fed24a799ab9b55eeb28f3cd2d0a8}{mqtt\_publish}(&client, \textcolor{stringliteral}{"coffee/temperature"}, &temperature, \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}), MQTT\_PUBLISH\_QOS\_1);
+\end{DoxyCode}
+
+
+\subsection*{Building}
+
+There are {\bfseries only two source files} that need to be built, {\ttfamily \hyperlink{mqtt_8c}{mqtt.\+c}} and {\ttfamily \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c}}. You should be able to build these files with any {\bfseries C99 (or more recent) compilers}.
+
+Then, simply include {\ttfamily \hyperlink{mqtt_8h}{mqtt.\+h}}.
+
+\subsection*{Documentation}
+
+Pre-\/built documentation can be found at\+: {\ttfamily \char`\"{}docs/html/index.\+html\char`\"{}}.
+
+The \hyperlink{group__api}{A\+PI} documentation contains all the M\+Q\+T\+T-\/C A\+PI documentation. Other modules contain documentation for M\+Q\+T\+T-\/C developers.
+
+\subsection*{The Fundamentals}
+
+\subsection*{Testing and Building the Tests}
+
+The M\+Q\+T\+T-\/C unit tests makes use of the \href{https://cmocka.org/}{\tt cmocka unit testing framework}. Therefore, \href{https://cmocka.org/}{\tt cmocka} {\itshape must} be installed on your machine in order to build and run the unit tests. For convenience we have included a simple makefile to build the M\+Q\+T\+T-\/C unit tests. The tests can be built as follows\+: 
+\begin{DoxyCode}
+1 $ make all
+\end{DoxyCode}
+ And then run like so\+: 
+\begin{DoxyCode}
+1 $ ./tests
+\end{DoxyCode}
+ Note that these unit tests make use of the \href{https://test.mosquitto.org/}{\tt Mosquitto M\+Q\+TT Test Server} which is a free service and is sometime down in which case some tests will fail.
+
+\subsection*{Portability}
+
+M\+Q\+T\+T-\/C provides a transparent platform abstraction layer (P\+AL) in {\ttfamily \hyperlink{mqtt__pal_8h}{mqtt\+\_\+pal.\+h}} and {\ttfamily \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c}}. These files declare and describe the types and system-\/calls that M\+Q\+T\+T-\/C requires. Refer to \hyperlink{group__pal}{Platform abstraction layer} for the complete documentation of the P\+AL.
+
+\subsection*{License}
+
+This project is licensed under the \href{https://opensource.org/licenses/MIT}{\tt M\+IT License}. See the {\ttfamily \char`\"{}\+L\+I\+C\+E\+N\+S\+E\char`\"{}} file for more details.
+
+\subsection*{Authors}
+
+M\+Q\+T\+T-\/C was initially developed as a C\+M\+PT 434 (Winter Term, 2018) final project at the University of Saskatchewan by\+:
+\begin{DoxyItemize}
+\item {\bfseries Demilade Adeoye}
+\item {\bfseries Liam Bindle} 
+\end{DoxyItemize}

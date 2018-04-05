@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Tiny MQTT: Platform abstraction layer</title>
+<title>MQTT-C: Platform abstraction layer</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Tiny MQTT
+   <div id="projectname">MQTT-C
    </div>
   </td>
  </tr>
@@ -102,6 +102,7 @@ Functions</h2></td></tr>
 <li><code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code> </li>
 <li><code>va_list</code> </li>
 <li><code>mqtt_pal_time_t</code> : return type of <code>MQTT_PAL_TIME()</code> </li>
+<li><code>mqtt_pal_mutex_t</code> : type of the argument that is passed to <code>MQTT_PAL_MUTEX_LOCK</code> and <code>MQTT_PAL_MUTEX_RELEASE</code> </li>
 </ul>
 </li>
 <li>Functions:<ul>
@@ -118,6 +119,8 @@ Functions</h2></td></tr>
 <li><code>MQTT_PAL_HTONS(s)</code> : host-to-network endian conversion for uint16_t.</li>
 <li><code>MQTT_PAL_NTOHS(s)</code> : network-to-host endian conversion for uint16_t.</li>
 <li><code>MQTT_PAL_TIME()</code> : returns [type: <code>mqtt_pal_time_t</code>] current time in seconds.</li>
+<li><code>MQTT_PAL_MUTEX_LOCK(mtx_pointer)</code> : macro that locks the mutex pointed to by <code>mtx_pointer</code>.</li>
+<li><code>MQTT_PAL_MUTEX_RELEASE(mtx_pointer)</code> : macro that unlocks the mutex pointed to by <code>mtx_pointer</code>.</li>
 </ul>
 <p>Lastly, the requires two functions, <a class="el" href="group__pal.html#gac8dd7d5af889f5933dda733007adb9a3">mqtt_pal_sendall</a> and <a class="el" href="group__pal.html#ga620d6ab20694c9b4d99293a47491004e">mqtt_pal_recvall</a>, for sending and receiving all the bytes in a buffer using the platforms socket calls. </p>
 <h2 class="groupheader">Function Documentation</h2>

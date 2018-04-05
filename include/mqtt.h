@@ -1057,6 +1057,12 @@ struct mqtt_client {
         size_t curr_sz;
     } recv_buffer;
 
+    /** 
+     * @brief A variable passed to support thread-safety.
+     * 
+     * A pointer to this variable is passed to \c MQTT_PAL_MUTEX_LOCK, and
+     * \c MQTT_PAL_MUTEX_UNLOCK.
+     */
     mqtt_pal_mutex_t mutex;
 
     /** @brief The sending message queue. */

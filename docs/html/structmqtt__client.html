@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>Tiny MQTT: mqtt_client Struct Reference</title>
+<title>MQTT-C: mqtt_client Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -23,7 +23,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Tiny MQTT
+   <div id="projectname">MQTT-C
    </div>
   </td>
  </tr>
@@ -92,7 +92,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>An MQTT client.  
  <a href="structmqtt__client.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="mqtt__client_8h_source.html">mqtt_client.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="mqtt_8h_source.html">mqtt.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
@@ -154,6 +154,9 @@ struct {</td></tr>
 <tr class="memitem:a10bd64e39006466f579028457433915b"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmqtt__client.html#a10bd64e39006466f579028457433915b">recv_buffer</a></td></tr>
 <tr class="memdesc:a10bd64e39006466f579028457433915b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The buffer where ingress data is temporarily stored. <br /></td></tr>
 <tr class="separator:a10bd64e39006466f579028457433915b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a885516373913fa6b50e960d50d4a5cba"><td class="memItemLeft" align="right" valign="top">mqtt_pal_mutex_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmqtt__client.html#a885516373913fa6b50e960d50d4a5cba">mutex</a></td></tr>
+<tr class="memdesc:a885516373913fa6b50e960d50d4a5cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">A variable passed to support thread-safety.  <a href="#a885516373913fa6b50e960d50d4a5cba">More...</a><br /></td></tr>
+<tr class="separator:a885516373913fa6b50e960d50d4a5cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fda1ddf0160b1cac09bad0c9d88027d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fda1ddf0160b1cac09bad0c9d88027d"></a>
 struct <a class="el" href="structmqtt__message__queue.html">mqtt_message_queue</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmqtt__client.html#a7fda1ddf0160b1cac09bad0c9d88027d">mq</a></td></tr>
 <tr class="memdesc:a7fda1ddf0160b1cac09bad0c9d88027d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sending message queue. <br /></td></tr>
@@ -176,6 +179,21 @@ struct <a class="el" href="structmqtt__message__queue.html">mqtt_message_queue</
 <p>The error state of the client. </p>
 <p>error should be MQTT_OK for the entirety of the connection.</p>
 <dl class="section note"><dt>Note</dt><dd>The error state will be MQTT_ERROR_CLIENT_NOT_CONNECTED until you call mqtt_connect. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a885516373913fa6b50e960d50d4a5cba"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">mqtt_pal_mutex_t mqtt_client::mutex</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A variable passed to support thread-safety. </p>
+<p>A pointer to this variable is passed to <code>MQTT_PAL_MUTEX_LOCK</code>, and <code>MQTT_PAL_MUTEX_UNLOCK</code>. </p>
 
 </div>
 </div>
@@ -273,7 +291,7 @@ struct <a class="el" href="structmqtt__message__queue.html">mqtt_message_queue</
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>include/<a class="el" href="mqtt__client_8h_source.html">mqtt_client.h</a></li>
+<li>include/<a class="el" href="mqtt_8h_source.html">mqtt.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

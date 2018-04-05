@@ -7,7 +7,7 @@ An M\+Q\+TT client.
 
 
 
-{\ttfamily \#include $<$mqtt\+\_\+client.\+h$>$}
+{\ttfamily \#include $<$mqtt.\+h$>$}
 
 \subsection*{Data Fields}
 \begin{DoxyCompactItemize}
@@ -53,6 +53,8 @@ struct \{\\
 \\
 
 \end{tabbing}\begin{DoxyCompactList}\small\item\em The buffer where ingress data is temporarily stored. \end{DoxyCompactList}\item 
+mqtt\+\_\+pal\+\_\+mutex\+\_\+t \hyperlink{structmqtt__client_a885516373913fa6b50e960d50d4a5cba}{mutex}
+\begin{DoxyCompactList}\small\item\em A variable passed to support thread-\/safety. \end{DoxyCompactList}\item 
 struct \hyperlink{structmqtt__message__queue}{mqtt\+\_\+message\+\_\+queue} \hyperlink{structmqtt__client_a7fda1ddf0160b1cac09bad0c9d88027d}{mq}\hypertarget{structmqtt__client_a7fda1ddf0160b1cac09bad0c9d88027d}{}\label{structmqtt__client_a7fda1ddf0160b1cac09bad0c9d88027d}
 
 \begin{DoxyCompactList}\small\item\em The sending message queue. \end{DoxyCompactList}\end{DoxyCompactItemize}
@@ -79,7 +81,14 @@ error should be M\+Q\+T\+T\+\_\+\+OK for the entirety of the connection.
 \begin{DoxyNote}{Note}
 The error state will be M\+Q\+T\+T\+\_\+\+E\+R\+R\+O\+R\+\_\+\+C\+L\+I\+E\+N\+T\+\_\+\+N\+O\+T\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED until you call mqtt\+\_\+connect. 
 \end{DoxyNote}
-\index{mqtt\+\_\+client@{mqtt\+\_\+client}!number\+\_\+of\+\_\+keep\+\_\+alives@{number\+\_\+of\+\_\+keep\+\_\+alives}}
+\index{mqtt\+\_\+client@{mqtt\+\_\+client}!mutex@{mutex}}
+\index{mutex@{mutex}!mqtt\+\_\+client@{mqtt\+\_\+client}}
+\subsubsection[{\texorpdfstring{mutex}{mutex}}]{\setlength{\rightskip}{0pt plus 5cm}mqtt\+\_\+pal\+\_\+mutex\+\_\+t mqtt\+\_\+client\+::mutex}\hypertarget{structmqtt__client_a885516373913fa6b50e960d50d4a5cba}{}\label{structmqtt__client_a885516373913fa6b50e960d50d4a5cba}
+
+
+A variable passed to support thread-\/safety. 
+
+A pointer to this variable is passed to {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+L\+O\+CK}, and {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+U\+N\+L\+O\+CK}. \index{mqtt\+\_\+client@{mqtt\+\_\+client}!number\+\_\+of\+\_\+keep\+\_\+alives@{number\+\_\+of\+\_\+keep\+\_\+alives}}
 \index{number\+\_\+of\+\_\+keep\+\_\+alives@{number\+\_\+of\+\_\+keep\+\_\+alives}!mqtt\+\_\+client@{mqtt\+\_\+client}}
 \subsubsection[{\texorpdfstring{number\+\_\+of\+\_\+keep\+\_\+alives}{number_of_keep_alives}}]{\setlength{\rightskip}{0pt plus 5cm}int mqtt\+\_\+client\+::number\+\_\+of\+\_\+keep\+\_\+alives}\hypertarget{structmqtt__client_ac23a02868e9b8c5cd2619b73ee4fcea6}{}\label{structmqtt__client_ac23a02868e9b8c5cd2619b73ee4fcea6}
 
@@ -149,4 +158,4 @@ This is tracked using a exponential-\/averaging.
 
 The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-include/\hyperlink{mqtt__client_8h}{mqtt\+\_\+client.\+h}\end{DoxyCompactItemize}
+include/\hyperlink{mqtt_8h}{mqtt.\+h}\end{DoxyCompactItemize}

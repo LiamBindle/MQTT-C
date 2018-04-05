@@ -1,5 +1,11 @@
 #include <mqtt.h>
 
+/** 
+ * @file 
+ * @cond Doxygen_Suppress
+ */
+
+
 #ifdef __unix__
 
 #include <errno.h>
@@ -35,3 +41,5 @@ ssize_t mqtt_pal_recvall(int fd, void* buf, size_t bufsz, int flags) {
 }
 
 #endif
+
+/** @endcond */

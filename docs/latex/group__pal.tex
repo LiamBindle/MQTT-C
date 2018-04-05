@@ -25,6 +25,7 @@ Declaration of the types and functions that are required of the platform. Below 
 \item {\ttfamily uint8\+\_\+t}, {\ttfamily uint16\+\_\+t}, {\ttfamily uint32\+\_\+t} 
 \item {\ttfamily va\+\_\+list} 
 \item {\ttfamily mqtt\+\_\+pal\+\_\+time\+\_\+t} \+: return type of {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+T\+I\+M\+E()} 
+\item {\ttfamily mqtt\+\_\+pal\+\_\+mutex\+\_\+t} \+: type of the argument that is passed to {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+L\+O\+CK} and {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+R\+E\+L\+E\+A\+SE} 
 \end{DoxyItemize}
 \item Functions\+:
 \begin{DoxyItemize}
@@ -42,6 +43,8 @@ Additionally, three macro\textquotesingle{}s are required\+:
 \item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+H\+T\+O\+N\+S(s)} \+: host-\/to-\/network endian conversion for uint16\+\_\+t.
 \item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+N\+T\+O\+H\+S(s)} \+: network-\/to-\/host endian conversion for uint16\+\_\+t.
 \item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+T\+I\+M\+E()} \+: returns \mbox{[}type\+: {\ttfamily mqtt\+\_\+pal\+\_\+time\+\_\+t}\mbox{]} current time in seconds.
+\item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+L\+O\+C\+K(mtx\+\_\+pointer)} \+: macro that locks the mutex pointed to by {\ttfamily mtx\+\_\+pointer}.
+\item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+R\+E\+L\+E\+A\+S\+E(mtx\+\_\+pointer)} \+: macro that unlocks the mutex pointed to by {\ttfamily mtx\+\_\+pointer}.
 \end{DoxyItemize}
 
 Lastly, the requires two functions, \hyperlink{group__pal_gac8dd7d5af889f5933dda733007adb9a3}{mqtt\+\_\+pal\+\_\+sendall} and \hyperlink{group__pal_ga620d6ab20694c9b4d99293a47491004e}{mqtt\+\_\+pal\+\_\+recvall}, for sending and receiving all the bytes in a buffer using the platforms socket calls. 
