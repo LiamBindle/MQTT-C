@@ -155,7 +155,7 @@ static void test_mqtt_connect(){
 			valid_packet.will_message_size = 10;/*will message size*/
 			valid_packet.username = "demilade10";/*username*/
 			valid_packet.password = "pass";/*password*/
-			valid_packet.connect_flags = 0xE4;/*11110100*/
+			valid_packet.connect_flags = 0;/*11110100*/
 			valid_packet.keep_alive = 10;/*keep_alive*/
 
 
