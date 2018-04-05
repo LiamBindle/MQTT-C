@@ -30,7 +30,7 @@ TESTS_CFLAGS := -Wno-unused-parameter -Wunused-variable -Wl,-rpath=$(abspath ./b
 tests: tests.c $(LIBMQTT_TARGET)
 	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
 testbench: testbench.c $(LIBMQTT_TARGET)
-	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
+	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -lpthread -o $@
 
 
 clean:

@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <time.h>
+#include <pthread.h>
 
 #include <mqtt.h>
 #include <mqtt_client.h>
@@ -24,6 +25,13 @@
 #define seed 0x1231
 
 struct mqtt_client client;
+
+
+void *housekeeping(){
+
+
+}
+
 
 
 
@@ -91,7 +99,6 @@ int conf_client(const char* addr, const char* port, const struct addrinfo* hints
 
 static void publish_response_callback(void **state, struct mqtt_response_publish *publish){
 
-	printf("callback function");
 }
 
 
@@ -102,7 +109,6 @@ static void test_mqtt_init(void** state) {
 			struct addrinfo hints = {0};
 			struct sockaddr_storage sockaddr;
 			ssize_t rv;
-			struct mqtt_response mqtt_response;
 			void(*publish_response_callback_ptr)(void **, struct mqtt_response_publish*);
 			uint8_t *sendbuf_ptr, *recvbuf_ptr;
 
@@ -131,7 +137,6 @@ static void test_mqtt_connect(){
 			struct addrinfo hints = {0};
 			struct sockaddr_storage sockaddr;
 			ssize_t rv;
-			struct mqtt_response mqtt_response;
 			void(*publish_response_callback_ptr)(void **, struct mqtt_response_publish*);
 			uint8_t *sendbuf_ptr, *recvbuf_ptr;
 			char lfsr_string[40][16]; /*random string numbers to be used for testing*/
@@ -174,22 +179,24 @@ static void test_mqtt_connect(){
 			sendbuf_ptr = (uint8_t *) malloc(256);
 			recvbuf_ptr = (uint8_t *) malloc(256);
 			publish_response_callback_ptr = &publish_response_callback;
+
+
 			mqtt_init(&client,sockfd, sendbuf_ptr, bufsz, recvbuf_ptr, bufsz, publish_response_callback_ptr);
 
-			/*test client field is mandatory. All fields are valid except for client ID*/
+			/*test valid packet is indeed valid*/
 			rv = mqtt_connect(&client, valid_packet.client_id,valid_packet.will_topic, valid_packet.will_message,
 												valid_packet.will_message_size, valid_packet.username, valid_packet.password,
 												valid_packet.connect_flags, valid_packet.keep_alive);
 
-			printf("rv: %s\n",mqtt_error_str(rv));
 			assert_true(rv > 0);
+
 			/*test client field is mandatory. All fields are valid except for client ID*/
-			// mqtt_init(&client,sockfd, sendbuf_ptr, bufsz, recvbuf_ptr, bufsz, publish_response_callback_ptr);
-			// rv = mqtt_connect(&client, valid_packet.client_id,valid_packet.will_topic, valid_packet.will_message,
-			// 									valid_packet.will_message_size, valid_packet.username, valid_packet.password,
-			// 									valid_packet.connect_flags, valid_packet.keep_alive);
-			// printf("rv: %s\n",mqtt_error_str(rv));
-			// assert_true(strcmp(mqtt_error_str(rv), "MQTT_ERROR_CONNECT_NULL_CLIENT_ID") == 0);
+			mqtt_init(&client,sockfd, sendbuf_ptr, bufsz, recvbuf_ptr, bufsz, publish_response_callback_ptr);
+			rv = mqtt_connect(&client, NULL,valid_packet.will_topic, valid_packet.will_message,
+												valid_packet.will_message_size, valid_packet.username, valid_packet.password,
+												valid_packet.connect_flags, valid_packet.keep_alive);
+
+			assert_true(strcmp(mqtt_error_str(rv), "MQTT_ERROR_CONNECT_NULL_CLIENT_ID") == 0);
 
 			free(sendbuf_ptr);
 			free(recvbuf_ptr);
@@ -198,10 +205,14 @@ static void test_mqtt_connect(){
 
 int main(){
 
+			pthread_t thread1;
+			int ret;
+			ret = pthread_create(&thread1, NULL, &housekeeping, NULL);
 			const struct CMUnitTest tests[] = {
 			    	cmocka_unit_test(test_mqtt_init),
 						cmocka_unit_test(test_mqtt_connect),
 			};
 
+			pthread_join(thread1, NULL);
 			return cmocka_run_group_tests(tests, NULL, NULL);
 }
