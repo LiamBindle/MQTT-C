@@ -38,7 +38,8 @@ You should be able to build these files with any **C99 (or more recent) compiler
 Then, simply <code>\#include <mqtt.h></code>.
 
 ## Documentation
-Pre-built documentation can be found at: `"docs/html/index.html"`. 
+Pre-built documentation can be found at `"docs/index.html"`, or online 
+[here](https://liambindle.ca/MQTT-C). 
 
 The @ref api documentation contains all the documentation application programmers should need. 
 The @ref pal documentation contains everything you should need to port MQTT-C to a new platform,
@@ -66,6 +67,12 @@ port 1883 will be used.
 MQTT-C provides a transparent platform abstraction layer (PAL) in `mqtt_pal.h` and `mqtt_pal.c`.
 These files declare and implement the types and calls that MQTT-C requires. Refer to 
 @ref pal for the complete documentation of the PAL.
+
+## Contributing
+Please feel free to submit issues and pull-requests [here](https://github.com/LiamBindle/MQTT-C).
+When submitting a pull-request please ensure you have *fully documented* your changes and 
+added the appropriate unit tests.
+
 
 ## License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). See the 
