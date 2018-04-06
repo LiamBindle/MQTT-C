@@ -5,6 +5,13 @@
  * @cond Doxygen_Suppress
  */
 
+enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
+    enum MQTTErrors err = __mqtt_recv(client);
+    if (err != MQTT_OK) return err;
+    err = __mqtt_send(client);
+    return err;
+}
+
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;

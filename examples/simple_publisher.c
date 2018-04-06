@@ -144,8 +144,7 @@ void* client_refresher(void* client)
 {
     while(1) 
     {
-        __mqtt_recv((struct mqtt_client*) client);
-        __mqtt_send((struct mqtt_client*) client);
+        mqtt_sync((struct mqtt_client*) client);
         usleep(100000U);
     }
     return NULL;

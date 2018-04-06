@@ -6,8 +6,40 @@
 /**
  * @file
  * 
+ * @example simple_publisher.c
+ * A simple program to that publishes the current time whenever ENTER is pressed. 
+ * 
+ * Usage:
+ * \code{.sh}
+ * ./simple_publisher [address [port [topic]]]
+ * \endcode     
+ * 
+ * Where \c address is the address of the MQTT broker, \c port it the port number the 
+ * MQTT broker is running on, and \c topic is the name of the topic to PUBLISH times to. Note
+ * that all these arguments are optional and the defaults are \c address = \c "test.mosquitto.org",
+ * \c port = \c "1883", and \c topic = "datetime".
+ * 
+ * @example simple_subscriber.c
+ * A simple program that subscribes to a single topic and prints all updates that are received.
+ * 
+ * Usage:
+ * \code{.sh}
+ * ./simple_subscriber [address [port [topic]]]
+ * \endcode   
+ * 
+ * Where \c address is the address of the MQTT broker, \c port it the port number the 
+ * MQTT broker is running on, and \c topic is the name of the topic to PUBLISH times to. Note
+ * that all these arguments are optional and the defaults are \c address = \c "test.mosquitto.org",
+ * \c port = \c "1883", and \c topic = "datetime".  
+ * 
  * @defgroup api API
- * @brief Application programmer interface documentation.
+ * @brief Application programmer interface documentation. See \ref simple_publisher.c and 
+ *        \ref simple_subscriber.c for examples of using the \ref api.
+ * 
+ * This module documents the functions that application programmers should use. 
+ * 
+ * @note MQTT-C can be used in both single-threaded and multi-threaded applications. All 
+ *       the functions in \ref api are thread-safe.
  * 
  * @defgroup packers Control Packet Serialization
  * @brief Documentation of functions and datastructures for MQTT control packet serialization.
@@ -1100,6 +1132,34 @@ ssize_t __mqtt_send(struct mqtt_client *client);
  * @returns MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
 ssize_t __mqtt_recv(struct mqtt_client *client);
+
+/**
+ * @brief Function that does the actual sending and receiving of 
+ *        traffic from the network.
+ * @ingroup api
+ * 
+ * All the other functions in the @ref api simply stage messages for
+ * being sent to the broker. This function does the actual sending of
+ * those messages. Additionally this function receives traffic (responses and 
+ * acknowledgements) from the broker and responds to that traffic accordingly.
+ * Lastly this function also calls the \c publish_response_callback when
+ * any \c MQTT_CONTROL_PUBLISH messages are received.
+ * 
+ * @pre mqtt_init must have been called.
+ * 
+ * @param[in,out] client The MQTT client.
+ * 
+ * @attention It is the responsibility of the application programmer to 
+ *            call this function periodically. All functions in the @ref api are
+ *            thread-safe so it is perfectly reasonable to have a thread dedicated
+ *            to calling this function every 200 ms or so. MQTT-C can be used in single
+ *            threaded application though by simply calling this functino periodically 
+ *            inside your main thread. See @ref simple_publisher.c and @ref simple_subscriber.c
+ *            for examples (specifically the \c client_refresher functions).
+ * 
+ * @returns MQTT_OK upon success, an \ref MQTTErrors otherwise. 
+ */
+enum MQTTErrors mqtt_sync(struct mqtt_client *client);
 
 
 /**

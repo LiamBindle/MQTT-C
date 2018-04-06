@@ -1,7 +1,7 @@
 
 /**
  * @file
- * A simple program to that publishes the current time whenever ENTER is pressed. 
+ * A simple program that subscribes to a topic.
  */
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,9 +30,6 @@ void* client_refresher(void* client);
  */
 void exit_example(int status, int sockfd, pthread_t *client_daemon);
 
-/**
- * A simple program to that publishes the current time whenever ENTER is pressed. 
- */
 int main(int argc, const char *argv[]) 
 {
     const char* addr;
@@ -132,8 +129,7 @@ void* client_refresher(void* client)
 {
     while(1) 
     {
-        __mqtt_recv((struct mqtt_client*) client);
-        __mqtt_send((struct mqtt_client*) client);
+        mqtt_sync((struct mqtt_client*) client);
         usleep(100000U);
     }
     return NULL;
