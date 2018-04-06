@@ -45,7 +45,7 @@ The @ref pal documentation contains everything you should need to port MQTT-C to
 and the other modules contain documentation for MQTT-C developers.
 
 ## Testing and Building the Tests
-Unit tests use the [cmocka unit testing framework](https://cmocka.org/). 
+The MQTT-C unit tests use the [cmocka unit testing framework](https://cmocka.org/). 
 Therefore, [cmocka](https://cmocka.org/) *must* be installed on your machine to build and run 
 the unit tests. For convenience, a simple `"makefile"` is included to build the unit tests and 
 examples on UNIX-like machines. The unit tests and examples can be built as follows:
@@ -58,7 +58,7 @@ like so:
     $ ./tests [address [port]]
 ```
 Note that the \c address and \c port arguments are both optional to specify the location of the
-MQTT broker to use for the tests. If no \c address is given then the 
+MQTT broker that is to be used for the tests. If no \c address is given then the 
 [Mosquitto MQTT Test Server](https://test.mosquitto.org/) will be used. If no \c port is given, 
 port 1883 will be used.
 
