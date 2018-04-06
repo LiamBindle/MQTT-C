@@ -1,4 +1,4 @@
-M\+Q\+T\+T-\/C is an \href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html}{\tt M\+Q\+TT v3.\+1.\+1} client written in C. M\+Q\+TT is a lightweight publisher-\/subscriber-\/based messaging protocol that is commonly used in IoT and networking applications where high-\/latency and low data-\/rate links are expected. The purpose of M\+Q\+T\+T-\/C is to provide a {\bfseries portable} M\+Q\+TT client, {\bfseries written in C}, for low-\/power, low-\/performance devices such as microcontrollers which might or might not be running an operating system.
+M\+Q\+T\+T-\/C is an \href{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html}{\tt M\+Q\+TT v3.\+1.\+1} client written in C. M\+Q\+TT is a lightweight publisher-\/subscriber-\/based messaging protocol that is commonly used in IoT and networking applications where high-\/latency and low data-\/rate links are expected. The purpose of M\+Q\+T\+T-\/C is to provide a {\bfseries portable} M\+Q\+TT client, {\bfseries written in C}, for embedded systems and PC\textquotesingle{}s alike. M\+Q\+T\+T-\/C does this by providing a transparent Platform Abstraction Layer (P\+AL) which makes porting to new platforms easy. M\+Q\+T\+T-\/C is completely thread-\/safe but can also run perfectly fine on single-\/threaded systems making M\+Q\+T\+T-\/C well-\/suited for embedded systems and microcontrollers.
 
 \subsection*{Getting Started}
 
@@ -16,7 +16,7 @@ To use M\+Q\+T\+T-\/C you must first instantiate a {\ttfamily struct \hyperlink{
 \textcolor{comment}{/* subscribe to "toaster/temperature" with a max QoS level of 0 */}
 \hyperlink{group__api_gaea5da9b546f6e91eb77c9eff9c478de5}{mqtt\_subscribe}(&client, \textcolor{stringliteral}{"toaster/temperature"}, 0);
 \end{DoxyCode}
- And we can publish, say the coffee makers temperature, like so\+: 
+ And we can publish, say the coffee maker\textquotesingle{}s temperature, like so\+: 
 \begin{DoxyCode}
 \textcolor{comment}{/* publish coffee temperature with a QoS level of 1 */}
 \textcolor{keywordtype}{int} temperature = 67;
@@ -34,23 +34,23 @@ Then, simply include {\ttfamily \hyperlink{mqtt_8h}{mqtt.\+h}}.
 
 Pre-\/built documentation can be found at\+: {\ttfamily \char`\"{}docs/html/index.\+html\char`\"{}}.
 
-The \hyperlink{group__api}{A\+PI} documentation contains all the M\+Q\+T\+T-\/C A\+PI documentation. Other modules contain documentation for M\+Q\+T\+T-\/C developers.
+The \hyperlink{group__api}{A\+PI} documentation contains all the documentation application programmers should need. The \hyperlink{group__pal}{Platform abstraction layer} documentation contains everything you should need to port M\+Q\+T\+T-\/C to a new platform, and the other modules contain documentation for M\+Q\+T\+T-\/C developers.
 
 \subsection*{Testing and Building the Tests}
 
-The M\+Q\+T\+T-\/C unit tests makes use of the \href{https://cmocka.org/}{\tt cmocka unit testing framework}. Therefore, \href{https://cmocka.org/}{\tt cmocka} {\itshape must} be installed on your machine in order to build and run the unit tests. For convenience we have included a simple makefile to build the M\+Q\+T\+T-\/C unit tests. The tests can be built as follows\+: 
+Unit tests use the \href{https://cmocka.org/}{\tt cmocka unit testing framework}. Therefore, \href{https://cmocka.org/}{\tt cmocka} {\itshape must} be installed on your machine to build and run the unit tests. For convenience, a simple {\ttfamily \char`\"{}makefile\char`\"{}} is included to build the unit tests and examples on U\+N\+I\+X-\/like machines. The unit tests and examples can be built as follows\+: 
 \begin{DoxyCode}
 1 $ make all
 \end{DoxyCode}
- And then run like so\+: 
+ The unit tests and examples will be built in the {\ttfamily \char`\"{}bin/\char`\"{}} directory. The unit tests can be run like so\+: 
 \begin{DoxyCode}
-1 $ ./tests
+1 $ ./tests [address [port]]
 \end{DoxyCode}
- Note that these unit tests make use of the \href{https://test.mosquitto.org/}{\tt Mosquitto M\+Q\+TT Test Server} which is a free service and is sometime down in which case some tests will fail.
+ Note that the {\ttfamily address} and {\ttfamily port} arguments are both optional to specify the location of the M\+Q\+TT broker to use for the tests. If no {\ttfamily address} is given then the \href{https://test.mosquitto.org/}{\tt Mosquitto M\+Q\+TT Test Server} will be used. If no {\ttfamily port} is given, port 1883 will be used.
 
 \subsection*{Portability}
 
-M\+Q\+T\+T-\/C provides a transparent platform abstraction layer (P\+AL) in {\ttfamily \hyperlink{mqtt__pal_8h}{mqtt\+\_\+pal.\+h}} and {\ttfamily \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c}}. These files declare and describe the types and system-\/calls that M\+Q\+T\+T-\/C requires. Refer to \hyperlink{group__pal}{Platform abstraction layer} for the complete documentation of the P\+AL.
+M\+Q\+T\+T-\/C provides a transparent platform abstraction layer (P\+AL) in {\ttfamily \hyperlink{mqtt__pal_8h}{mqtt\+\_\+pal.\+h}} and {\ttfamily \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c}}. These files declare and implement the types and calls that M\+Q\+T\+T-\/C requires. Refer to \hyperlink{group__pal}{Platform abstraction layer} for the complete documentation of the P\+AL.
 
 \subsection*{License}
 
@@ -60,6 +60,6 @@ This project is licensed under the \href{https://opensource.org/licenses/MIT}{\t
 
 M\+Q\+T\+T-\/C was initially developed as a C\+M\+PT 434 (Winter Term, 2018) final project at the University of Saskatchewan by\+:
 \begin{DoxyItemize}
-\item {\bfseries Demilade Adeoye}
-\item {\bfseries Liam Bindle} 
+\item {\bfseries Liam Bindle}
+\item {\bfseries Demilade Adeoye} 
 \end{DoxyItemize}
