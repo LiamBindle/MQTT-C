@@ -2,7 +2,7 @@
 \label{group__pal}\index{Platform abstraction layer@{Platform abstraction layer}}
 
 
-Abstraction layer for supporting type and system-\/call dependencies.  
+Documentation of the types and calls required to port M\+Q\+T\+T-\/C to a new platform.  
 
 
 \subsection*{Functions}
@@ -15,9 +15,9 @@ ssize\+\_\+t \hyperlink{group__pal_ga620d6ab20694c9b4d99293a47491004e}{mqtt\+\_\
 
 
 \subsection{Detailed Description}
-Abstraction layer for supporting type and system-\/call dependencies. 
+Documentation of the types and calls required to port M\+Q\+T\+T-\/C to a new platform. 
 
-Declaration of the types and functions that are required of the platform. Below is a list of the dependencies\+:
+\hyperlink{mqtt__pal_8h}{mqtt\+\_\+pal.\+h} is the {\itshape only} header file included in \hyperlink{mqtt_8c}{mqtt.\+c}. Therefore, to port M\+Q\+T\+T-\/C to a new platform the following types, functions, constants, and macros must be defined in \hyperlink{mqtt__pal_8h}{mqtt\+\_\+pal.\+h}\+:
 \begin{DoxyItemize}
 \item Types\+:
 \begin{DoxyItemize}
@@ -47,7 +47,7 @@ Additionally, three macro\textquotesingle{}s are required\+:
 \item {\ttfamily M\+Q\+T\+T\+\_\+\+P\+A\+L\+\_\+\+M\+U\+T\+E\+X\+\_\+\+R\+E\+L\+E\+A\+S\+E(mtx\+\_\+pointer)} \+: macro that unlocks the mutex pointed to by {\ttfamily mtx\+\_\+pointer}.
 \end{DoxyItemize}
 
-Lastly, the requires two functions, \hyperlink{group__pal_gac8dd7d5af889f5933dda733007adb9a3}{mqtt\+\_\+pal\+\_\+sendall} and \hyperlink{group__pal_ga620d6ab20694c9b4d99293a47491004e}{mqtt\+\_\+pal\+\_\+recvall}, for sending and receiving all the bytes in a buffer using the platforms socket calls. 
+Lastly, \hyperlink{group__pal_gac8dd7d5af889f5933dda733007adb9a3}{mqtt\+\_\+pal\+\_\+sendall} and \hyperlink{group__pal_ga620d6ab20694c9b4d99293a47491004e}{mqtt\+\_\+pal\+\_\+recvall}, must be implemented in \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c} for sending and receiving data using the platforms socket calls. 
 
 \subsection{Function Documentation}
 \index{Platform abstraction layer@{Platform abstraction layer}!mqtt\+\_\+pal\+\_\+recvall@{mqtt\+\_\+pal\+\_\+recvall}}

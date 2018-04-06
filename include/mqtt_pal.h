@@ -3,11 +3,17 @@
 
 /**
  * @file
- * @defgroup pal Platform abstraction layer
- * @brief Abstraction layer for supporting type and system-call dependencies.
+ * @brief Includes/supports the types/calls required by the MQTT-C client.
  * 
- * Declaration of the types and functions that are required of the platform. Below is
- * a list of the dependencies:
+ * @note This is the \em only file included in mqtt.h, and mqtt.c. It is therefore 
+ *       responsible for including/supporting all the required types and calls. 
+ * 
+ * @defgroup pal Platform abstraction layer
+ * @brief Documentation of the types and calls required to port MQTT-C to a new platform.
+ * 
+ * mqtt_pal.h is the \em only header file included in mqtt.c. Therefore, to port MQTT-C to a 
+ * new platform the following types, functions, constants, and macros must be defined in 
+ * mqtt_pal.h:
  *  - Types:
  *      - \c size_t, \c ssize_t
  *      - \c uint8_t, \c uint16_t, \c uint32_t
@@ -29,13 +35,12 @@
  *  - \c MQTT_PAL_MUTEX_RELEASE(mtx_pointer) : macro that unlocks the mutex pointed to by 
  *    \c mtx_pointer.
  * 
- * Lastly, the requires two functions, \ref mqtt_pal_sendall and \ref mqtt_pal_recvall,
- * for sending and receiving all the bytes in a buffer using the platforms socket calls.
- *  
+ * Lastly, \ref mqtt_pal_sendall and \ref mqtt_pal_recvall, must be implemented in mqtt_pal.c 
+ * for sending and receiving data using the platforms socket calls.
  */
 
 
-
+/* UNIX-like platform support */
 #ifdef __unix__
     #include <limits.h>
     #include <string.h>

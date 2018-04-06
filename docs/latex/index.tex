@@ -28,7 +28,7 @@ To use M\+Q\+T\+T-\/C you must first instantiate a {\ttfamily struct \hyperlink{
 
 There are {\bfseries only two source files} that need to be built, {\ttfamily \hyperlink{mqtt_8c}{mqtt.\+c}} and {\ttfamily \hyperlink{mqtt__pal_8c}{mqtt\+\_\+pal.\+c}}. You should be able to build these files with any {\bfseries C99 (or more recent) compilers}.
 
-Then, simply include {\ttfamily \hyperlink{mqtt_8h}{mqtt.\+h}}.
+Then, simply {\ttfamily \#include $<$\hyperlink{mqtt_8h}{mqtt.\+h}$>$}.
 
 \subsection*{Documentation}
 
@@ -44,7 +44,7 @@ The M\+Q\+T\+T-\/C unit tests use the \href{https://cmocka.org/}{\tt cmocka unit
 \end{DoxyCode}
  The unit tests and examples will be built in the {\ttfamily \char`\"{}bin/\char`\"{}} directory. The unit tests can be run like so\+: 
 \begin{DoxyCode}
-1 $ ./tests [address [port]]
+1 $ ./bin/tests [address [port]]
 \end{DoxyCode}
  Note that the {\ttfamily address} and {\ttfamily port} arguments are both optional to specify the location of the M\+Q\+TT broker that is to be used for the tests. If no {\ttfamily address} is given then the \href{https://test.mosquitto.org/}{\tt Mosquitto M\+Q\+TT Test Server} will be used. If no {\ttfamily port} is given, port 1883 will be used.
 

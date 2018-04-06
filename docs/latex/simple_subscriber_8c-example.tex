@@ -3,11 +3,11 @@ A simple program that subscribes to a single topic and prints all updates that a
 
 Usage\+: 
 \begin{DoxyCode}
-1 ./simple\_subscriber [address [port [topic]]]
+1 ./bin/simple\_subscriber [address [port [topic]]]
 \end{DoxyCode}
 
 
-Where {\ttfamily address} is the address of the M\+Q\+TT broker, {\ttfamily port} it the port number the M\+Q\+TT broker is running on, and {\ttfamily topic} is the name of the topic to P\+U\+B\+L\+I\+SH times to. Note that all these arguments are optional and the defaults are {\ttfamily address} = {\ttfamily \char`\"{}test.\+mosquitto.\+org\char`\"{}}, {\ttfamily port} = {\ttfamily \char`\"{}1883\char`\"{}}, and {\ttfamily topic} = \char`\"{}datetime\char`\"{}.
+Where {\ttfamily address} is the address of the M\+Q\+TT broker, {\ttfamily port} is the port number the M\+Q\+TT broker is running on, and {\ttfamily topic} is the name of the topic subscribe to. Note that all these arguments are optional and the defaults are {\ttfamily address} = {\ttfamily \char`\"{}test.\+mosquitto.\+org\char`\"{}}, {\ttfamily port} = {\ttfamily \char`\"{}1883\char`\"{}}, and {\ttfamily topic} = \char`\"{}datetime\char`\"{}.
 
 
 \begin{DoxyCodeInclude}

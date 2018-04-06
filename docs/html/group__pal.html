@@ -83,7 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Abstraction layer for supporting type and system-call dependencies.  
+<p>Documentation of the types and calls required to port MQTT-C to a new platform.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -96,8 +96,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga620d6ab20694c9b4d99293a47491004e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Abstraction layer for supporting type and system-call dependencies. </p>
-<p>Declaration of the types and functions that are required of the platform. Below is a list of the dependencies:</p><ul>
+<p>Documentation of the types and calls required to port MQTT-C to a new platform. </p>
+<p><a class="el" href="mqtt__pal_8h.html" title="Includes/supports the types/calls required by the MQTT-C client. ">mqtt_pal.h</a> is the <em>only</em> header file included in <a class="el" href="mqtt_8c.html" title="Implements the functionality of MQTT-C. ">mqtt.c</a>. Therefore, to port MQTT-C to a new platform the following types, functions, constants, and macros must be defined in <a class="el" href="mqtt__pal_8h.html" title="Includes/supports the types/calls required by the MQTT-C client. ">mqtt_pal.h</a>:</p><ul>
 <li>Types:<ul>
 <li><code>size_t</code>, <code>ssize_t</code> </li>
 <li><code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code> </li>
@@ -123,7 +123,7 @@ Functions</h2></td></tr>
 <li><code>MQTT_PAL_MUTEX_LOCK(mtx_pointer)</code> : macro that locks the mutex pointed to by <code>mtx_pointer</code>.</li>
 <li><code>MQTT_PAL_MUTEX_RELEASE(mtx_pointer)</code> : macro that unlocks the mutex pointed to by <code>mtx_pointer</code>.</li>
 </ul>
-<p>Lastly, the requires two functions, <a class="el" href="group__pal.html#gac8dd7d5af889f5933dda733007adb9a3">mqtt_pal_sendall</a> and <a class="el" href="group__pal.html#ga620d6ab20694c9b4d99293a47491004e">mqtt_pal_recvall</a>, for sending and receiving all the bytes in a buffer using the platforms socket calls. </p>
+<p>Lastly, <a class="el" href="group__pal.html#gac8dd7d5af889f5933dda733007adb9a3">mqtt_pal_sendall</a> and <a class="el" href="group__pal.html#ga620d6ab20694c9b4d99293a47491004e">mqtt_pal_recvall</a>, must be implemented in <a class="el" href="mqtt__pal_8c.html" title="Implements mqtt_pal_sendall and mqtt_pal_recvall and any platform-specific helpers you&#39;d like...">mqtt_pal.c</a> for sending and receiving data using the platforms socket calls. </p>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="ga620d6ab20694c9b4d99293a47491004e"></a>
 <div class="memitem">

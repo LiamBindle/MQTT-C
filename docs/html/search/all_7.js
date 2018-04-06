@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['implementation_20details',['Implementation details',['../group__details.html',1,'']]]
+  ['keep_5falive',['keep_alive',['../structmqtt__client.html#aff533344a060e58277698039f547147a',1,'mqtt_client']]]
 ];

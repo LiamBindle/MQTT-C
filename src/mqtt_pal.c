@@ -2,6 +2,8 @@
 
 /** 
  * @file 
+ * @brief Implements @ref mqtt_pal_sendall and @ref mqtt_pal_recvall and 
+ *        any platform-specific helpers you'd like.
  * @cond Doxygen_Suppress
  */
 

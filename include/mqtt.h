@@ -5,17 +5,20 @@
 
 /**
  * @file
+ * @brief Declares all the MQTT-C functions and datastructures.
+ * 
+ * @note You should <code>\#include <mqtt.h></code>.
  * 
  * @example simple_publisher.c
  * A simple program to that publishes the current time whenever ENTER is pressed. 
  * 
  * Usage:
  * \code{.sh}
- * ./simple_publisher [address [port [topic]]]
+ * ./bin/simple_publisher [address [port [topic]]]
  * \endcode     
  * 
- * Where \c address is the address of the MQTT broker, \c port it the port number the 
- * MQTT broker is running on, and \c topic is the name of the topic to PUBLISH times to. Note
+ * Where \c address is the address of the MQTT broker, \c port is the port number the 
+ * MQTT broker is running on, and \c topic is the name of the topic to publish with. Note
  * that all these arguments are optional and the defaults are \c address = \c "test.mosquitto.org",
  * \c port = \c "1883", and \c topic = "datetime".
  * 
@@ -24,31 +27,35 @@
  * 
  * Usage:
  * \code{.sh}
- * ./simple_subscriber [address [port [topic]]]
+ * ./bin/simple_subscriber [address [port [topic]]]
  * \endcode   
  * 
- * Where \c address is the address of the MQTT broker, \c port it the port number the 
- * MQTT broker is running on, and \c topic is the name of the topic to PUBLISH times to. Note
+ * Where \c address is the address of the MQTT broker, \c port is the port number the 
+ * MQTT broker is running on, and \c topic is the name of the topic subscribe to. Note
  * that all these arguments are optional and the defaults are \c address = \c "test.mosquitto.org",
  * \c port = \c "1883", and \c topic = "datetime".  
  * 
  * @defgroup api API
- * @brief Application programmer interface documentation. See \ref simple_publisher.c and 
- *        \ref simple_subscriber.c for examples of using the \ref api.
+ * @brief Documentation of everything you need to know to use the MQTT-C client.
  * 
- * This module documents the functions that application programmers should use. 
+ * This module contains everything you need to know to use MQTT-C in your application.
+ * For usage examples see:
+ *     - @ref simple_publisher.c
+ *     - @ref simple_subscriber.c
  * 
  * @note MQTT-C can be used in both single-threaded and multi-threaded applications. All 
  *       the functions in \ref api are thread-safe.
  * 
  * @defgroup packers Control Packet Serialization
- * @brief Documentation of functions and datastructures for MQTT control packet serialization.
+ * @brief Developer documentation of the functions and datastructures used for serializing MQTT 
+ *        control packets.
  * 
  * @defgroup unpackers Control Packet Deserialization
- * @brief Documentation of functions and datastructures for MQTT control packet deserialization.
+ * @brief Developer documentation of the functions and datastructures used for deserializing MQTT 
+ *        control packets.
  * 
- * @defgroup details Implementation details
- * @brief Documentation for developers.
+ * @defgroup details Utilities
+ * @brief Developer documentation for the utilities used to implement the MQTT-C client.
  *
  * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
  *       function you need).

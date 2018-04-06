@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['implementation_20details',['Implementation details',['../group__details.html',1,'']]]
+  ['platform_20abstraction_20layer',['Platform abstraction layer',['../group__pal.html',1,'']]]
 ];

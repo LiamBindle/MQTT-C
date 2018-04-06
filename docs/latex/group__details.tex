@@ -1,8 +1,8 @@
-\hypertarget{group__details}{}\section{Implementation details}
-\label{group__details}\index{Implementation details@{Implementation details}}
+\hypertarget{group__details}{}\section{Utilities}
+\label{group__details}\index{Utilities@{Utilities}}
 
 
-Documentation for developers.  
+Developer documentation for the utilities used to implement the M\+Q\+T\+T-\/C client.  
 
 
 \subsection*{Data Structures}
@@ -64,7 +64,7 @@ struct \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} $\
 
 
 \subsection{Detailed Description}
-Documentation for developers. 
+Developer documentation for the utilities used to implement the M\+Q\+T\+T-\/C client. 
 
 \begin{DoxyNote}{Note}
 To deserialize a packet from a buffer use \hyperlink{group__unpackers_gaae124a93579dcd31e6f52411f4582fbd}{mqtt\+\_\+unpack\+\_\+response} (it\textquotesingle{}s the only function you need). 
@@ -72,8 +72,8 @@ To deserialize a packet from a buffer use \hyperlink{group__unpackers_gaae124a93
 
 
 \subsection{Macro Definition Documentation}
-\index{Implementation details@{Implementation details}!mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}}
-\index{mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}}
+\index{mqtt\+\_\+mq\+\_\+get@{mqtt\+\_\+mq\+\_\+get}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+get}{mqtt_mq_get}}]{\setlength{\rightskip}{0pt plus 5cm}\#define mqtt\+\_\+mq\+\_\+get(
 \begin{DoxyParamCaption}
 \item[{}]{mq\+\_\+ptr, }
@@ -97,8 +97,8 @@ The \hyperlink{structmqtt__queued__message}{mqtt\+\_\+queued\+\_\+message} at {\
 
 
 \subsection{Function Documentation}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid@{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid}}
-\index{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid@{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid@{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid}}
+\index{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid@{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid(struct mqtt\+\_\+client $\ast$client)}{__mqtt_next_pid(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t \+\_\+\+\_\+mqtt\+\_\+next\+\_\+pid (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client}
@@ -118,8 +118,8 @@ Packet ID\textquotesingle{}s are generated using a max-\/length L\+F\+SR.
 \begin{DoxyReturn}{Returns}
 The new packet ID that should be used. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+puback@{\+\_\+\+\_\+mqtt\+\_\+puback}}
-\index{\+\_\+\+\_\+mqtt\+\_\+puback@{\+\_\+\+\_\+mqtt\+\_\+puback}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+puback@{\+\_\+\+\_\+mqtt\+\_\+puback}}
+\index{\+\_\+\+\_\+mqtt\+\_\+puback@{\+\_\+\+\_\+mqtt\+\_\+puback}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+puback(struct mqtt\+\_\+client $\ast$client, uint16\+\_\+t packet\+\_\+id)}{__mqtt_puback(struct mqtt_client *client, uint16_t packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+puback (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client, }
@@ -140,8 +140,8 @@ Acknowledge an ingree publish with Q\+OS==1.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+pubcomp@{\+\_\+\+\_\+mqtt\+\_\+pubcomp}}
-\index{\+\_\+\+\_\+mqtt\+\_\+pubcomp@{\+\_\+\+\_\+mqtt\+\_\+pubcomp}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+pubcomp@{\+\_\+\+\_\+mqtt\+\_\+pubcomp}}
+\index{\+\_\+\+\_\+mqtt\+\_\+pubcomp@{\+\_\+\+\_\+mqtt\+\_\+pubcomp}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+pubcomp(struct mqtt\+\_\+client $\ast$client, uint16\+\_\+t packet\+\_\+id)}{__mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+pubcomp (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client, }
@@ -162,8 +162,8 @@ Acknowledge an ingree P\+U\+B\+R\+EL packet.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+pubrec@{\+\_\+\+\_\+mqtt\+\_\+pubrec}}
-\index{\+\_\+\+\_\+mqtt\+\_\+pubrec@{\+\_\+\+\_\+mqtt\+\_\+pubrec}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+pubrec@{\+\_\+\+\_\+mqtt\+\_\+pubrec}}
+\index{\+\_\+\+\_\+mqtt\+\_\+pubrec@{\+\_\+\+\_\+mqtt\+\_\+pubrec}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+pubrec(struct mqtt\+\_\+client $\ast$client, uint16\+\_\+t packet\+\_\+id)}{__mqtt_pubrec(struct mqtt_client *client, uint16_t packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+pubrec (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client, }
@@ -184,8 +184,8 @@ Acknowledge an ingree publish with Q\+OS==2.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+pubrel@{\+\_\+\+\_\+mqtt\+\_\+pubrel}}
-\index{\+\_\+\+\_\+mqtt\+\_\+pubrel@{\+\_\+\+\_\+mqtt\+\_\+pubrel}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+pubrel@{\+\_\+\+\_\+mqtt\+\_\+pubrel}}
+\index{\+\_\+\+\_\+mqtt\+\_\+pubrel@{\+\_\+\+\_\+mqtt\+\_\+pubrel}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+pubrel(struct mqtt\+\_\+client $\ast$client, uint16\+\_\+t packet\+\_\+id)}{__mqtt_pubrel(struct mqtt_client *client, uint16_t packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+pubrel (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client, }
@@ -206,8 +206,8 @@ Acknowledge an ingree P\+U\+B\+R\+EC packet.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+recv@{\+\_\+\+\_\+mqtt\+\_\+recv}}
-\index{\+\_\+\+\_\+mqtt\+\_\+recv@{\+\_\+\+\_\+mqtt\+\_\+recv}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+recv@{\+\_\+\+\_\+mqtt\+\_\+recv}}
+\index{\+\_\+\+\_\+mqtt\+\_\+recv@{\+\_\+\+\_\+mqtt\+\_\+recv}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+recv(struct mqtt\+\_\+client $\ast$client)}{__mqtt_recv(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+recv (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client}
@@ -225,8 +225,8 @@ Handles ingress client traffic.
 \begin{DoxyReturn}{Returns}
 M\+Q\+T\+T\+\_\+\+OK upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!\+\_\+\+\_\+mqtt\+\_\+send@{\+\_\+\+\_\+mqtt\+\_\+send}}
-\index{\+\_\+\+\_\+mqtt\+\_\+send@{\+\_\+\+\_\+mqtt\+\_\+send}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!\+\_\+\+\_\+mqtt\+\_\+send@{\+\_\+\+\_\+mqtt\+\_\+send}}
+\index{\+\_\+\+\_\+mqtt\+\_\+send@{\+\_\+\+\_\+mqtt\+\_\+send}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{\+\_\+\+\_\+mqtt\+\_\+send(struct mqtt\+\_\+client $\ast$client)}{__mqtt_send(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}ssize\+\_\+t \+\_\+\+\_\+mqtt\+\_\+send (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client}
@@ -244,8 +244,8 @@ Handles egress client traffic.
 \begin{DoxyReturn}{Returns}
 M\+Q\+T\+T\+\_\+\+OK upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}}
-\index{mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}}
+\index{mqtt\+\_\+mq\+\_\+clean@{mqtt\+\_\+mq\+\_\+clean}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+clean(struct mqtt\+\_\+message\+\_\+queue $\ast$mq)}{mqtt_mq_clean(struct mqtt_message_queue *mq)}}]{\setlength{\rightskip}{0pt plus 5cm}void mqtt\+\_\+mq\+\_\+clean (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq}
@@ -263,8 +263,8 @@ Calls to this function are the {\itshape only} way to remove messages from the q
 {\em mq} & The message queue. \\
 \hline
 \end{DoxyParams}
-\index{Implementation details@{Implementation details}!mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}}
-\index{mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}}
+\index{mqtt\+\_\+mq\+\_\+find@{mqtt\+\_\+mq\+\_\+find}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+find(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, enum M\+Q\+T\+T\+Control\+Packet\+Type control\+\_\+type, uint16\+\_\+t $\ast$packet\+\_\+id)}{mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf mqtt\+\_\+queued\+\_\+message} $\ast$ mqtt\+\_\+mq\+\_\+find (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }
@@ -288,8 +288,8 @@ Find a message in the message queue.
 \begin{DoxyReturn}{Returns}
 The found message. {\ttfamily N\+U\+LL} if the message was not found. 
 \end{DoxyReturn}
-\index{Implementation details@{Implementation details}!mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}}
-\index{mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}}
+\index{mqtt\+\_\+mq\+\_\+init@{mqtt\+\_\+mq\+\_\+init}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+init(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, void $\ast$buf, size\+\_\+t bufsz)}{mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)}}]{\setlength{\rightskip}{0pt plus 5cm}void mqtt\+\_\+mq\+\_\+init (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }
@@ -310,8 +310,8 @@ Initialize a message queue.
 \mbox{\tt in}  & {\em bufsz} & The number of bytes in the buffer. \\
 \hline
 \end{DoxyParams}
-\index{Implementation details@{Implementation details}!mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}}
-\index{mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}!Implementation details@{Implementation details}}
+\index{Utilities@{Utilities}!mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}}
+\index{mqtt\+\_\+mq\+\_\+register@{mqtt\+\_\+mq\+\_\+register}!Utilities@{Utilities}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+mq\+\_\+register(struct mqtt\+\_\+message\+\_\+queue $\ast$mq, size\+\_\+t nbytes)}{mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)}}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf mqtt\+\_\+queued\+\_\+message} $\ast$ mqtt\+\_\+mq\+\_\+register (
 \begin{DoxyParamCaption}
 \item[{struct {\bf mqtt\+\_\+message\+\_\+queue} $\ast$}]{mq, }

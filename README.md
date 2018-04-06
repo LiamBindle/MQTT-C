@@ -35,7 +35,7 @@ And we can publish, say the coffee maker's temperature, like so:
 There are **only two source files** that need to be built, `mqtt.c` and `mqtt_pal.c`.
 You should be able to build these files with any **C99 (or more recent) compilers**.
 
-Then, simply include `mqtt.h`.
+Then, simply <code>\#include <mqtt.h></code>.
 
 ## Documentation
 Pre-built documentation can be found at: `"docs/html/index.html"`. 
@@ -55,7 +55,7 @@ examples on UNIX-like machines. The unit tests and examples can be built as foll
 The unit tests and examples will be built in the `"bin/"` directory. The unit tests can be run 
 like so:
 ```bash
-    $ ./tests [address [port]]
+    $ ./bin/tests [address [port]]
 ```
 Note that the \c address and \c port arguments are both optional to specify the location of the
 MQTT broker that is to be used for the tests. If no \c address is given then the 
