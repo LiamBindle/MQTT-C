@@ -2,7 +2,7 @@
 \label{group__api}\index{A\+PI@{A\+PI}}
 
 
-Application programmer interface documentation.  
+Application programmer interface documentation. See \hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c} and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c} for examples of using the \hyperlink{group__api}{A\+PI}.  
 
 
 \subsection*{Enumerations}
@@ -48,6 +48,10 @@ enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Error
 \item 
 const char $\ast$ \hyperlink{group__api_ga47b62bdd24e8b05957825d2419d7c848}{mqtt\+\_\+error\+\_\+str} (enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} error)
 \begin{DoxyCompactList}\small\item\em Returns an error message for error code, {\ttfamily error}. \end{DoxyCompactList}\item 
+enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gae3d3aafc7588ed53a90c9f66fc620a6e}{mqtt\+\_\+sync} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client)
+\begin{DoxyCompactList}\small\item\em Function that does the actual sending and receiving of traffic from the network.
+
+All the other functions in the \hyperlink{group__api}{A\+PI} simply stage messages for being sent to the broker. This function does the actual sending of those messages. Additionally this function receives traffic (responses and acknowledgements) from the broker and responds to that traffic accordingly. Lastly this function also calls the {\ttfamily publish\+\_\+response\+\_\+callback} when any {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+L\+I\+SH} messages are received. \end{DoxyCompactList}\item 
 enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} \hyperlink{group__api_gab07105b049dd86a8ec39c518cf9fa4c7}{mqtt\+\_\+init} (struct \hyperlink{structmqtt__client}{mqtt\+\_\+client} $\ast$client, int sockfd, uint8\+\_\+t $\ast$sendbuf, size\+\_\+t sendbufsz, uint8\+\_\+t $\ast$recvbuf, size\+\_\+t recvbufsz, void($\ast$publish\+\_\+response\+\_\+callback)(void $\ast$$\ast$state, struct \hyperlink{structmqtt__response__publish}{mqtt\+\_\+response\+\_\+publish} $\ast$publish))
 \begin{DoxyCompactList}\small\item\em Initialize an M\+Q\+TT client.
 
@@ -69,8 +73,13 @@ enum \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Error
 
 
 \subsection{Detailed Description}
-Application programmer interface documentation. 
+Application programmer interface documentation. See \hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c} and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c} for examples of using the \hyperlink{group__api}{A\+PI}. 
 
+This module documents the functions that application programmers should use.
+
+\begin{DoxyNote}{Note}
+M\+Q\+T\+T-\/C can be used in both single-\/threaded and multi-\/threaded applications. All the functions in \hyperlink{group__api}{A\+PI} are thread-\/safe. 
+\end{DoxyNote}
 
 
 \subsection{Enumeration Type Documentation}
@@ -133,6 +142,9 @@ mqtt\+\_\+init must have been called.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c}, and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c}.\end{Desc}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+disconnect@{mqtt\+\_\+disconnect}}
 \index{mqtt\+\_\+disconnect@{mqtt\+\_\+disconnect}!A\+PI@{A\+PI}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+disconnect(struct mqtt\+\_\+client $\ast$client)}{mqtt_disconnect(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+disconnect (
@@ -177,6 +189,9 @@ Returns an error message for error code, {\ttfamily error}.
 \begin{DoxyReturn}{Returns}
 The associated error message. 
 \end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c}, and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c}.\end{Desc}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+init@{mqtt\+\_\+init}}
 \index{mqtt\+\_\+init@{mqtt\+\_\+init}!A\+PI@{A\+PI}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+init(struct mqtt\+\_\+client $\ast$client, int sockfd, uint8\+\_\+t $\ast$sendbuf, size\+\_\+t sendbufsz, uint8\+\_\+t $\ast$recvbuf, size\+\_\+t recvbufsz, void($\ast$publish\+\_\+response\+\_\+callback)(void $\ast$$\ast$state, struct mqtt\+\_\+response\+\_\+publish $\ast$publish))}{mqtt_init(struct mqtt_client *client, int sockfd, uint8_t *sendbuf, size_t sendbufsz, uint8_t *recvbuf, size_t recvbufsz, void(*publish_response_callback)(void **state, struct mqtt_response_publish *publish))}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+init (
@@ -229,6 +244,9 @@ A pointer to \hyperlink{structmqtt__client_a948d816462128ef2216c230644407f21}{mq
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c}, and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c}.\end{Desc}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+ping@{mqtt\+\_\+ping}}
 \index{mqtt\+\_\+ping@{mqtt\+\_\+ping}!A\+PI@{A\+PI}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+ping(struct mqtt\+\_\+client $\ast$client)}{mqtt_ping(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+ping (
@@ -287,6 +305,9 @@ mqtt\+\_\+connect must have been called.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c}.\end{Desc}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+subscribe@{mqtt\+\_\+subscribe}}
 \index{mqtt\+\_\+subscribe@{mqtt\+\_\+subscribe}!A\+PI@{A\+PI}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+subscribe(struct mqtt\+\_\+client $\ast$client, const char $\ast$topic\+\_\+name, int max\+\_\+qos\+\_\+level)}{mqtt_subscribe(struct mqtt_client *client, const char *topic_name, int max_qos_level)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+subscribe (
@@ -315,6 +336,39 @@ mqtt\+\_\+connect must have been called.
 \begin{DoxyReturn}{Returns}
 {\ttfamily M\+Q\+T\+T\+\_\+\+OK} upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
 \end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c}.\end{Desc}
+\index{A\+PI@{A\+PI}!mqtt\+\_\+sync@{mqtt\+\_\+sync}}
+\index{mqtt\+\_\+sync@{mqtt\+\_\+sync}!A\+PI@{A\+PI}}
+\subsubsection[{\texorpdfstring{mqtt\+\_\+sync(struct mqtt\+\_\+client $\ast$client)}{mqtt_sync(struct mqtt_client *client)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+sync (
+\begin{DoxyParamCaption}
+\item[{struct {\bf mqtt\+\_\+client} $\ast$}]{client}
+\end{DoxyParamCaption}
+)}\hypertarget{group__api_gae3d3aafc7588ed53a90c9f66fc620a6e}{}\label{group__api_gae3d3aafc7588ed53a90c9f66fc620a6e}
+
+
+Function that does the actual sending and receiving of traffic from the network.
+
+All the other functions in the \hyperlink{group__api}{A\+PI} simply stage messages for being sent to the broker. This function does the actual sending of those messages. Additionally this function receives traffic (responses and acknowledgements) from the broker and responds to that traffic accordingly. Lastly this function also calls the {\ttfamily publish\+\_\+response\+\_\+callback} when any {\ttfamily M\+Q\+T\+T\+\_\+\+C\+O\+N\+T\+R\+O\+L\+\_\+\+P\+U\+B\+L\+I\+SH} messages are received. 
+
+\begin{DoxyPrecond}{Precondition}
+mqtt\+\_\+init must have been called.
+\end{DoxyPrecond}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em client} & The M\+Q\+TT client.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyAttention}{Attention}
+It is the responsibility of the application programmer to call this function periodically. All functions in the \hyperlink{group__api}{A\+PI} are thread-\/safe so it is perfectly reasonable to have a thread dedicated to calling this function every 200 ms or so. M\+Q\+T\+T-\/C can be used in single threaded application though by simply calling this functino periodically inside your main thread. See \hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c} and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c} for examples (specifically the {\ttfamily client\+\_\+refresher} functions).
+\end{DoxyAttention}
+\begin{DoxyReturn}{Returns}
+M\+Q\+T\+T\+\_\+\+OK upon success, an \hyperlink{group__api_gad0c901a8d30691ed0ca17915b691b7e7}{M\+Q\+T\+T\+Errors} otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{simple_publisher_8c-example}{simple\+\_\+publisher.\+c}, and \hyperlink{simple_subscriber_8c-example}{simple\+\_\+subscriber.\+c}.\end{Desc}
 \index{A\+PI@{A\+PI}!mqtt\+\_\+unsubscribe@{mqtt\+\_\+unsubscribe}}
 \index{mqtt\+\_\+unsubscribe@{mqtt\+\_\+unsubscribe}!A\+PI@{A\+PI}}
 \subsubsection[{\texorpdfstring{mqtt\+\_\+unsubscribe(struct mqtt\+\_\+client $\ast$client, const char $\ast$topic\+\_\+name)}{mqtt_unsubscribe(struct mqtt_client *client, const char *topic_name)}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf M\+Q\+T\+T\+Errors} mqtt\+\_\+unsubscribe (

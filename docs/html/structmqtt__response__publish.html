@@ -41,6 +41,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="modules.html"><span>Modules</span></a></li>
       <li class="current"><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
+      <li><a href="examples.html"><span>Examples</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -140,7 +141,8 @@ Related Functions</h2></td></tr>
 <div class="textblock"><p>A publish packet received from the broker.</p>
 <p>A publish packet is received from the broker when a client publishes to a topic that the <em>{local</em> client} is subscribed to. </p>
 <dl class="section see"><dt>See also</dt><dd><a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037">MQTT v3.1.1: PUBLISH - Publish Message. </a> </dd></dl>
-</div><h2 class="groupheader">Field Documentation</h2>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#_a0">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#_a0">simple_subscriber.c</a>.</dd>
+</dl></div><h2 class="groupheader">Field Documentation</h2>
 <a class="anchor" id="ab6bc13774afcff002ce4f9afbee05493"></a>
 <div class="memitem">
 <div class="memproto">
@@ -168,7 +170,8 @@ Related Functions</h2></td></tr>
 
 <p>The topic name. </p>
 <dl class="section note"><dt>Note</dt><dd>topic_name is not null terminated. Therefore topic_name_size must be used to get the string length. </dd></dl>
-
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_subscriber_8c-example.html#a7">simple_subscriber.c</a>.</dd>
+</dl>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>

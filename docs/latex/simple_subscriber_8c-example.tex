@@ -1,0 +1,137 @@
+\hypertarget{simple_subscriber_8c-example}{}\section{simple\+\_\+subscriber.\+c}
+A simple program that subscribes to a single topic and prints all updates that are received.
+
+Usage\+: 
+\begin{DoxyCode}
+1 ./simple\_subscriber [address [port [topic]]]
+\end{DoxyCode}
+
+
+Where {\ttfamily address} is the address of the M\+Q\+TT broker, {\ttfamily port} it the port number the M\+Q\+TT broker is running on, and {\ttfamily topic} is the name of the topic to P\+U\+B\+L\+I\+SH times to. Note that all these arguments are optional and the defaults are {\ttfamily address} = {\ttfamily \char`\"{}test.\+mosquitto.\+org\char`\"{}}, {\ttfamily port} = {\ttfamily \char`\"{}1883\char`\"{}}, and {\ttfamily topic} = \char`\"{}datetime\char`\"{}.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include <unistd.h>}
+\textcolor{preprocessor}{#include <stdlib.h>}
+\textcolor{preprocessor}{#include <stdio.h>}
+
+\textcolor{preprocessor}{#include <\hyperlink{mqtt_8h}{mqtt.h}>}
+
+
+\textcolor{keywordtype}{void} publish\_callback(\textcolor{keywordtype}{void}** unused, \textcolor{keyword}{struct} \hyperlink{structmqtt__response__publish}{mqtt\_response\_publish} *published);
+
+\textcolor{keywordtype}{void}* client\_refresher(\textcolor{keywordtype}{void}* client);
+
+\textcolor{keywordtype}{void} exit\_example(\textcolor{keywordtype}{int} status, \textcolor{keywordtype}{int} sockfd, pthread\_t *client\_daemon);
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *argv[]) 
+\{
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char}* addr;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char}* port;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char}* topic;
+
+    \textcolor{comment}{/* get address (argv[1] if present) */}
+    \textcolor{keywordflow}{if} (argc > 1) \{
+        addr = argv[1];
+    \} \textcolor{keywordflow}{else} \{
+        addr = \textcolor{stringliteral}{"test.mosquitto.org"};
+    \}
+
+    \textcolor{comment}{/* get port number (argv[2] if present) */}
+    \textcolor{keywordflow}{if} (argc > 2) \{
+        port = argv[2];
+    \} \textcolor{keywordflow}{else} \{
+        port = \textcolor{stringliteral}{"1883"};
+    \}
+
+    \textcolor{comment}{/* get the topic name to publish */}
+    \textcolor{keywordflow}{if} (argc > 3) \{
+        topic = argv[3];
+    \} \textcolor{keywordflow}{else} \{
+        topic = \textcolor{stringliteral}{"datetime"};
+    \}
+
+    \textcolor{comment}{/* open the non-blocking TCP socket (connecting to the broker) */}
+    \textcolor{keywordtype}{int} sockfd = mqtt\_pal\_sockopen(addr, port, AF\_INET);
+
+    \textcolor{keywordflow}{if} (sockfd == -1) \{
+        perror(\textcolor{stringliteral}{"Failed to open socket: "});
+        exit\_example(EXIT\_FAILURE, sockfd, NULL);
+    \}
+
+    \textcolor{comment}{/* setup a client */}
+    \textcolor{keyword}{struct }\hyperlink{structmqtt__client}{mqtt\_client} client;
+    uint8\_t sendbuf[2048]; \textcolor{comment}{/* sendbuf should be large enough to hold multiple whole mqtt messages */}
+    uint8\_t recvbuf[1024]; \textcolor{comment}{/* recvbuf should be large enough any whole mqtt message expected to be received
+       */}
+    \hyperlink{group__api_gab07105b049dd86a8ec39c518cf9fa4c7}{mqtt\_init}(&client, sockfd, sendbuf, \textcolor{keyword}{sizeof}(sendbuf), recvbuf, \textcolor{keyword}{sizeof}(recvbuf), 
+      publish\_callback);
+    \hyperlink{group__api_gadbe914e5a9d4f93314c4e7637cb4f7b3}{mqtt\_connect}(&client, \textcolor{stringliteral}{"subscribing\_client"}, NULL, NULL, 0, NULL, NULL, 0, 400);
+
+    \textcolor{comment}{/* check that we don't have any errors */}
+    \textcolor{keywordflow}{if} (client.error != MQTT\_OK) \{
+        fprintf(stderr, \textcolor{stringliteral}{"error: %s\(\backslash\)n"}, \hyperlink{group__api_ga47b62bdd24e8b05957825d2419d7c848}{mqtt\_error\_str}(client.error));
+        exit\_example(EXIT\_FAILURE, sockfd, NULL);
+    \}
+
+    \textcolor{comment}{/* start a thread to refresh the client (handle egress and ingree client traffic) */}
+    pthread\_t client\_daemon;
+    \textcolor{keywordflow}{if}(pthread\_create(&client\_daemon, NULL, client\_refresher, &client)) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Failed to start client daemon.\(\backslash\)n"});
+        exit\_example(EXIT\_FAILURE, sockfd, NULL);
+
+    \}
+
+    \textcolor{comment}{/* subscribe */}
+    \hyperlink{group__api_gaea5da9b546f6e91eb77c9eff9c478de5}{mqtt\_subscribe}(&client, \textcolor{stringliteral}{"datetime"}, 0);
+
+    \textcolor{comment}{/* start publishing the time */}
+    printf(\textcolor{stringliteral}{"%s listening for '%s' messages.\(\backslash\)n"}, argv[0], topic);
+    printf(\textcolor{stringliteral}{"Press CTRL-D to exit.\(\backslash\)n\(\backslash\)n"});
+    
+    \textcolor{comment}{/* block */}
+    \textcolor{keywordflow}{while}(fgetc(stdin) != EOF); 
+    
+    \textcolor{comment}{/* disconnect */}
+    printf(\textcolor{stringliteral}{"\(\backslash\)n%s disconnecting from %s\(\backslash\)n"}, argv[0], addr);
+    sleep(1);
+
+    \textcolor{comment}{/* exit */} 
+    exit\_example(EXIT\_SUCCESS, sockfd, &client\_daemon);
+\}
+
+\textcolor{keywordtype}{void} exit\_example(\textcolor{keywordtype}{int} status, \textcolor{keywordtype}{int} sockfd, pthread\_t *client\_daemon)
+\{
+    \textcolor{keywordflow}{if} (sockfd != -1) close(sockfd);
+    \textcolor{keywordflow}{if} (client\_daemon != NULL) pthread\_cancel(*client\_daemon);
+    exit(status);
+\}
+
+
+
+\textcolor{keywordtype}{void} publish\_callback(\textcolor{keywordtype}{void}** unused, \textcolor{keyword}{struct} \hyperlink{structmqtt__response__publish}{mqtt\_response\_publish} *published) 
+\{
+    \textcolor{comment}{/* note that published->topic\_name is NOT null-terminated (here we'll change it to a c-string) */}
+    \textcolor{keywordtype}{char}* topic\_name = (\textcolor{keywordtype}{char}*) malloc(published->\hyperlink{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}{topic\_name\_size} + 1);
+    memcpy(topic\_name, published->\hyperlink{structmqtt__response__publish_a5f35698c457c51f8099ff1d8f4198403}{topic\_name}, published->
+      \hyperlink{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}{topic\_name\_size});
+    topic\_name[published->\hyperlink{structmqtt__response__publish_aba0470673fc54d85da3d94228a05f8a3}{topic\_name\_size}] = \textcolor{charliteral}{'\(\backslash\)0'};
+
+    printf(\textcolor{stringliteral}{"Received publish('%s'): %s\(\backslash\)n"}, topic\_name, (\textcolor{keyword}{const} \textcolor{keywordtype}{char}*) published->
+      \hyperlink{structmqtt__response__publish_ab62bd140a0f0ec6886a1397252faea52}{application\_message});
+
+    free(topic\_name);
+\}
+
+\textcolor{keywordtype}{void}* client\_refresher(\textcolor{keywordtype}{void}* client)
+\{
+    \textcolor{keywordflow}{while}(1) 
+    \{
+        \hyperlink{group__api_gae3d3aafc7588ed53a90c9f66fc620a6e}{mqtt\_sync}((\textcolor{keyword}{struct} \hyperlink{structmqtt__client}{mqtt\_client}*) client);
+        usleep(100000U);
+    \}
+    \textcolor{keywordflow}{return} NULL;
+\}
+\end{DoxyCodeInclude}
+ 

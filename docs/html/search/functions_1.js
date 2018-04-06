@@ -21,6 +21,7 @@ var searchData=
   ['mqtt_5fping',['mqtt_ping',['../group__api.html#gae472795684a1d973bfb89d075d17a29e',1,'mqtt.h']]],
   ['mqtt_5fpublish',['mqtt_publish',['../group__api.html#ga0d8fed24a799ab9b55eeb28f3cd2d0a8',1,'mqtt.h']]],
   ['mqtt_5fsubscribe',['mqtt_subscribe',['../group__api.html#gaea5da9b546f6e91eb77c9eff9c478de5',1,'mqtt.h']]],
+  ['mqtt_5fsync',['mqtt_sync',['../group__api.html#gae3d3aafc7588ed53a90c9f66fc620a6e',1,'mqtt.h']]],
   ['mqtt_5funpack_5fconnack_5fresponse',['mqtt_unpack_connack_response',['../group__unpackers.html#gaa174fec8a214d65ee887b5b6c9b79d78',1,'mqtt_response_connack']]],
   ['mqtt_5funpack_5ffixed_5fheader',['mqtt_unpack_fixed_header',['../group__unpackers.html#gad596aa5faf7f79e05fb15da33321db10',1,'mqtt.h']]],
   ['mqtt_5funpack_5fpublish_5fresponse',['mqtt_unpack_publish_response',['../group__unpackers.html#gae8ee6c1da210c4782f4f9939fe6ec828',1,'mqtt_response_publish']]],
