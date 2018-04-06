@@ -1,40 +1,22 @@
 
 CC = gcc
-CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -fPIC -Lbin
-LDFLAGS = -shared
-VPATH = include:src
+CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -Wno-unused-parameter -Wunused-variable
 
+MQTT_C_SOURCES = src/mqtt.c src/mqtt_pal.c
+MQTT_C_EXAMPLES = bin/simple_publisher bin/simple_subscriber
+MQTT_C_UNITTESTS = bin/tests
 BINDIR = bin
-OBJDIR = obj
-SRCDIR = src
-SOURCES := $(wildcard $(SRCDIR)/*.c)
-SOURCES := $(patsubst $(SRCDIR)/%.c,%.c,$(SOURCES))
-OBJECTS := $(addprefix $(OBJDIR)/,$(SOURCES:%.c=%.o))
 
-LIBMQTT_TARGET := $(BINDIR)/libmqtt.so
-LIBMQTT_DEPENDENCIES := $(OBJECTS)
+all: $(BINDIR) $(MQTT_C_UNITTESTS) $(MQTT_C_EXAMPLES)
 
-all: dirs $(LIBMQTT_TARGET) tests simple_publisher simple_subscriber
+bin/simple_%: examples/simple_%.c $(MQTT_C_SOURCES)
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) -c $(CFLAGS) $< -o $@
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
-dirs:
-	mkdir -p obj
-	mkdir -p bin
-
-$(LIBMQTT_TARGET): $(LIBMQTT_DEPENDENCIES)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-
-TESTS_CFLAGS := -Wno-unused-parameter -Wunused-variable -Wl,-rpath=$(abspath ./bin)
-tests: tests.c $(LIBMQTT_TARGET)
-	$(CC) $(CFLAGS) $(TESTS_CFLAGS) $< -lcmocka -lmqtt -o $@
-
-simple_publisher: examples/simple_publisher.c src/mqtt.c src/mqtt_pal.c 
-	$(CC) $(CFLAGS) -Wno-unused-parameter -Wunused-variable $^ -lpthread -o $@
-
-simple_subscriber: examples/simple_subscriber.c src/mqtt.c src/mqtt_pal.c 
-	$(CC) $(CFLAGS) -Wno-unused-parameter -Wunused-variable $^ -lpthread -o $@
+$(MQTT_C_UNITTESTS): tests.c $(MQTT_C_SOURCES)
+	$(CC) $(CFLAGS) $^ -lcmocka -o $@
 
 clean:
-	rm -rf obj bin tests simple_publisher simple_subscriber
+	rm -rf $(BINDIR)

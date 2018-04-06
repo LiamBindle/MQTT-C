@@ -1,6 +1,2 @@
 .vscode/
 bin/
-obj/
-tests
-simple_publisher
-simple_subscriber

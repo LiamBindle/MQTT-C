@@ -19,6 +19,9 @@
 
 #include <mqtt.h>
 
+const char* addr = "test.mosquitto.org";
+const char* port = "1883";
+
 static void TEST__framing__fixed_header(void** state) {
     uint8_t correct_buf[1024];
     uint8_t buf[1024];
@@ -200,8 +203,6 @@ static void TEST__framing__publish(void** state) {
 
 static void TEST__utility__connect_disconnect(void** state) {
     uint8_t buf[256];
-    const char* addr = "test.mosquitto.org";
-    const char* port = "1883";
     struct mqtt_client client;
     ssize_t rv;
     struct mqtt_response mqtt_response;
@@ -404,8 +405,6 @@ static void TEST__framing__ping(void** state) {
 
 static void TEST__utility__ping(void** state) {
     uint8_t buf[256];
-    const char* addr = "test.mosquitto.org";
-    const char* port = "1883";
     struct mqtt_client client;
     ssize_t rv;
     struct mqtt_response mqtt_response;
@@ -558,8 +557,6 @@ void publish_callback(void** state, struct mqtt_response_publish *publish) {
 static void TEST__api__connect_ping_disconnect(void **unused) {
     uint8_t sendmem[2048];
     uint8_t recvmem[1024];
-    const char* addr = "test.mosquitto.org";
-    const char* port = "1883";
     ssize_t rv;
     struct mqtt_client client;
 
@@ -601,11 +598,9 @@ static void TEST__api__connect_ping_disconnect(void **unused) {
     assert_true(__mqtt_send(&client) > 0);
 }
 
-static void TEST__api__publish_subscribe__basic(void **unused) {
+static void TEST__api__publish_subscribe__single(void **unused) {
     uint8_t sendmem1[2048], sendmem2[2048];
     uint8_t recvmem1[1024], recvmem2[1024];
-    const char* addr = "test.mosquitto.org";
-    const char* port = "1883";
     struct mqtt_client sender, receiver;
 
     int state = 0;
@@ -669,8 +664,6 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
             sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
-    const char* addr = "test.mosquitto.org";
-    const char* port = "1883";
     struct mqtt_client sender, receiver;
     ssize_t rv;
 
@@ -904,12 +897,21 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     }
 }
 
-int main(void)
-{
+int main(int argc, const char *argv[]) {
     int rv = 0;
 
+    /* get address (argv[1] if present) */
+    if (argc > 1) {
+        addr = argv[1];
+    }
+
+    /* get port number (argv[2] if present) */
+    if (argc > 2) {
+        port = argv[2];
+    }
+
     printf("Staring MQTT-C unit-tests.\n");
-    printf("Using broker: %s\n\n", "test.mosquitto.org:1883");
+    printf("Using broker: \"%s:%s\"\n\n", addr, port);
 
     printf("[MQTT Packet Serialization/Deserialization Tests]\n");
     const struct CMUnitTest framing_tests[] = {
@@ -941,7 +943,7 @@ int main(void)
     printf("\n[MQTT-C API Tests]\n");
     const struct CMUnitTest api_tests[] = {
         cmocka_unit_test(TEST__api__connect_ping_disconnect),
-        cmocka_unit_test(TEST__api__publish_subscribe__basic),
+        cmocka_unit_test(TEST__api__publish_subscribe__single),
         cmocka_unit_test(TEST__api__publish_subscribe__multiple),
     };
 
