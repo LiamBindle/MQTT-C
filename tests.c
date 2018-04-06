@@ -19,51 +19,7 @@
 
 #include <mqtt.h>
 
-int conf_client(const char* addr, const char* port, const struct addrinfo* hints, struct sockaddr_storage* sockaddr) {
-    int sockfd = -1;
-    int rv;
-    struct addrinfo *p, *servinfo;
-    char errbuf[128];
-
-    /* get address information */
-    rv = getaddrinfo(addr, port, hints, &servinfo);
-    if(rv != 0) {
-        fprintf(stderr, "error: %s: line %d: getaddrinfo: %s\n",
-            __FILE__, __LINE__ - 3, gai_strerror(rv)
-        );
-        return -1;
-    }
-
-    /* open the first possible socket */
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (sockfd == -1) {
-            sprintf(errbuf, "error: %s: line %d: socket: ", __FILE__, __LINE__ - 2);
-            perror(errbuf);
-            continue;
-        }
-
-        /* connect to server */
-        rv = connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
-        if(rv == -1) {
-            sprintf(errbuf, "error: %s: line %d: connect: ", __FILE__, __LINE__ - 2);
-            perror(errbuf);
-            continue;
-        }
-        break;
-    }  
-
-    /* memcpy the configured socket info */
-    if(sockaddr != NULL) memcpy(sockaddr, p->ai_addr, p->ai_addrlen);
-
-    /* free servinfo */
-    freeaddrinfo(servinfo);
-
-    /* return the new socket fd */
-    return sockfd;  
-}
-
-static void test_mqtt_fixed_header(void** state) {
+static void TEST__framing__fixed_header(void** state) {
     uint8_t correct_buf[1024];
     uint8_t buf[1024];
     struct mqtt_response response;
@@ -174,7 +130,7 @@ static void test_mqtt_fixed_header(void** state) {
     assert_true( mqtt_unpack_fixed_header(&response, buf, 2) == 0 );
 }
 
-static void test_mqtt_pack_connection_request(void** state) {
+static void TEST__framing__connect(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct_bytes[] = {
@@ -213,7 +169,7 @@ static void test_mqtt_pack_connection_request(void** state) {
     assert_true(memcmp(correct_bytes2, buf, sizeof(correct_bytes2)));
 }
 
-static void test_mqtt_pack_publish(void** state) {
+static void TEST__framing__publish(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct_bytes[] = {
@@ -242,19 +198,16 @@ static void test_mqtt_pack_publish(void** state) {
     assert_true(memcmp(response->application_message, "0123456789", 10) == 0);
 }
 
-static void test_mosquitto_connect_disconnect(void** state) {
+static void TEST__utility__connect_disconnect(void** state) {
     uint8_t buf[256];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
-    struct addrinfo hints = {0};
-    struct sockaddr_storage sockaddr;
     struct mqtt_client client;
     ssize_t rv;
     struct mqtt_response mqtt_response;
 
-    hints.ai_family = AF_INET;         /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    client.socketfd = conf_client(addr, port, &hints, &sockaddr);
+    client.socketfd = mqtt_pal_sockopen(addr, port, AF_INET);
+    fcntl(client.socketfd, F_SETFL, fcntl(client.socketfd, F_GETFL) & ~O_NONBLOCK);
     assert_true(client.socketfd != -1);
 
     rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam-123456", NULL, NULL, 0, NULL, NULL, 0, 30);
@@ -277,7 +230,7 @@ static void test_mosquitto_connect_disconnect(void** state) {
     close(client.socketfd);
 }
 
-static void test_mqtt_unpack_connection_response(void** state) {
+static void TEST__framing__connack(void** state) {
     uint8_t buf[] = {
         (MQTT_CONTROL_CONNACK << 4) | 0, 2,        
         0, MQTT_CONNACK_ACCEPTED
@@ -294,7 +247,7 @@ static void test_mqtt_unpack_connection_response(void** state) {
     assert_true(mqtt_response.decoded.connack.return_code == MQTT_CONNACK_ACCEPTED);
 }
 
-static void test_mqtt_pubxxx(void** state) {
+static void TEST__framing__pubxxx(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     struct mqtt_response response;
@@ -364,7 +317,7 @@ static void test_mqtt_pubxxx(void** state) {
     assert_true(response.decoded.pubcomp.packet_id == 213u);
 }
 
-static void test_mqtt_pack_subscribe(void** state) {
+static void TEST__framing__subscribe(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct[] = {
@@ -380,7 +333,7 @@ static void test_mqtt_pack_subscribe(void** state) {
     assert_true(memcmp(buf, correct, 25) == 0);
 }
 
-static void test_mqtt_unpack_suback(void** state) {
+static void TEST__framing__suback(void** state) {
     ssize_t rv;
     struct mqtt_response response;
     const uint8_t buf[] = {
@@ -402,7 +355,7 @@ static void test_mqtt_unpack_suback(void** state) {
     assert_true(response.decoded.suback.return_codes[2] == MQTT_SUBACK_FAILURE);
 }
 
-static void test_mqtt_pack_unsubscribe(void** state) {
+static void TEST__framing__unsubscribe(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct[] = {
@@ -418,7 +371,7 @@ static void test_mqtt_pack_unsubscribe(void** state) {
     assert_true(memcmp(buf, correct, sizeof(correct)) == 0);
 }
 
-static void test_mqtt_unpack_unsuback(void** state) {
+static void TEST__framing__unsuback(void** state) {
     uint8_t buf[] = {
         MQTT_CONTROL_UNSUBACK << 4, 2,
         0, 213u
@@ -434,12 +387,12 @@ static void test_mqtt_unpack_unsuback(void** state) {
     assert_true(response.decoded.unsuback.packet_id == 213u);
 }
 
-static void test_mqtt_pack_disconnect(void** state) {
+static void TEST__framing__disconnect(void** state) {
     uint8_t buf[2];
     assert_true(mqtt_pack_disconnect(buf, 2) == 2);   
 }
 
-static void test_mqtt_pack_ping(void** state) {
+static void TEST__framing__ping(void** state) {
     uint8_t buf[2];
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
@@ -449,19 +402,16 @@ static void test_mqtt_pack_ping(void** state) {
     assert_true(fixed_header->remaining_length == 0);
 }
 
-static void test_mqtt_connect_and_ping(void** state) {
+static void TEST__utility__ping(void** state) {
     uint8_t buf[256];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
-    struct addrinfo hints = {0};
-    struct sockaddr_storage sockaddr;
     struct mqtt_client client;
     ssize_t rv;
     struct mqtt_response mqtt_response;
 
-    hints.ai_family = AF_INET;         /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    client.socketfd = conf_client(addr, port, &hints, &sockaddr);
+    client.socketfd = mqtt_pal_sockopen(addr, port, AF_INET);
+    fcntl(client.socketfd, F_SETFL, fcntl(client.socketfd, F_GETFL) & ~O_NONBLOCK);
     assert_true(client.socketfd != -1);
 
     rv = mqtt_pack_connection_request(buf, sizeof(buf), "this-is-me", NULL, NULL, 0, NULL, NULL, 0, 30);
@@ -496,7 +446,7 @@ static void test_mqtt_connect_and_ping(void** state) {
 }
 
 #define QM_SZ (int) sizeof(struct mqtt_queued_message)
-static void test_message_queue(void **unused) {
+static void TEST__utility__message_queue(void **unused) {
     uint8_t mem[32 + 4*QM_SZ];
     struct mqtt_message_queue mq;
     struct mqtt_queued_message *tail;
@@ -582,7 +532,7 @@ static void test_message_queue(void **unused) {
     assert_true((void*) mq.queue_tail == mq.mem_end);
 }
 
-static void test_packet_id_lfsr(void **unused) {
+static void TEST__utility__pid_lfsr(void **unused) {
     struct mqtt_client client;
     client.pid_lfsr = 163u;
     uint32_t period = 0;
@@ -605,18 +555,15 @@ void publish_callback(void** state, struct mqtt_response_publish *publish) {
     **(int**)state += 1;
 }
 
-static void test_client_simple(void **unused) {
+static void TEST__api__connect_ping_disconnect(void **unused) {
     uint8_t sendmem[2048];
     uint8_t recvmem[1024];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
-    struct addrinfo hints = {0};
-    struct mqtt_client client;
     ssize_t rv;
+    struct mqtt_client client;
 
-    hints.ai_family = AF_INET;          /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    int sockfd = conf_client(addr, port, &hints, NULL);
+    int sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
 
     /* initialize */
@@ -654,28 +601,20 @@ static void test_client_simple(void **unused) {
     assert_true(__mqtt_send(&client) > 0);
 }
 
-static void test_client_simple_subpub(void **unused) {
+static void TEST__api__publish_subscribe__basic(void **unused) {
     uint8_t sendmem1[2048], sendmem2[2048];
     uint8_t recvmem1[1024], recvmem2[1024];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
-    struct addrinfo hints;
     struct mqtt_client sender, receiver;
 
     int state = 0;
 
-    /* initialize sender */
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;          /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    int sockfd = conf_client(addr, port, &hints, NULL);
+    int sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
     mqtt_init(&sender, sockfd, sendmem1, sizeof(sendmem1), recvmem1, sizeof(recvmem1), publish_callback);
 
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;          /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    sockfd = conf_client(addr, port, &hints, NULL);
+    sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
     mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
     receiver.publish_response_callback_state = &state;
@@ -726,30 +665,23 @@ static void test_client_simple_subpub(void **unused) {
 
 #define TEST_PACKET_SIZE (149)
 #define TEST_DATA_SIZE (128)
-static void test_client_subpub(void **unused) {
+static void TEST__api__publish_subscribe__multiple(void **unused) {
     uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
             sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
     const char* addr = "test.mosquitto.org";
     const char* port = "1883";
-    struct addrinfo hints;
     struct mqtt_client sender, receiver;
     ssize_t rv;
 
     int state = 0;
 
     /* initialize sender */
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;          /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    int sockfd = conf_client(addr, port, &hints, NULL);
+    int sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
     mqtt_init(&sender, sockfd, sendmem1, sizeof(sendmem1), recvmem1, sizeof(recvmem1), publish_callback);
 
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;          /* use IPv4 */
-    hints.ai_socktype = SOCK_STREAM;    /* TCP */
-    sockfd = conf_client(addr, port, &hints, NULL);
+    sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
     fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
     mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
     receiver.publish_response_callback_state = &state;
@@ -974,26 +906,46 @@ static void test_client_subpub(void **unused) {
 
 int main(void)
 {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_mqtt_fixed_header),
-        cmocka_unit_test(test_mqtt_pack_connection_request),
-        cmocka_unit_test(test_mqtt_unpack_connection_response),
-        cmocka_unit_test(test_mqtt_pack_disconnect),
-        cmocka_unit_test(test_mosquitto_connect_disconnect),
-        cmocka_unit_test(test_mqtt_pack_publish),
-        cmocka_unit_test(test_mqtt_pubxxx),
-        cmocka_unit_test(test_mqtt_pack_subscribe),
-        cmocka_unit_test(test_mqtt_unpack_suback),
-        cmocka_unit_test(test_mqtt_pack_unsubscribe),
-        cmocka_unit_test(test_mqtt_unpack_unsuback),
-        cmocka_unit_test(test_mqtt_pack_ping),
-        cmocka_unit_test(test_mqtt_connect_and_ping),
-        cmocka_unit_test(test_message_queue),
-        cmocka_unit_test(test_packet_id_lfsr),
-        cmocka_unit_test(test_client_simple),
-        cmocka_unit_test(test_client_simple_subpub),
-        cmocka_unit_test(test_client_subpub)
+    int rv = 0;
+
+    printf("Staring MQTT-C unit-tests.\n");
+    printf("Using broker: %s\n\n", "test.mosquitto.org:1883");
+
+    printf("[MQTT Packet Serialization/Deserialization Tests]\n");
+    const struct CMUnitTest framing_tests[] = {
+        cmocka_unit_test(TEST__framing__fixed_header),
+        cmocka_unit_test(TEST__framing__connect),
+        cmocka_unit_test(TEST__framing__connack),
+        cmocka_unit_test(TEST__framing__publish),
+        cmocka_unit_test(TEST__framing__pubxxx),
+        cmocka_unit_test(TEST__framing__subscribe),
+        cmocka_unit_test(TEST__framing__suback),
+        cmocka_unit_test(TEST__framing__unsubscribe),
+        cmocka_unit_test(TEST__framing__unsuback),
+        cmocka_unit_test(TEST__framing__ping),
+        cmocka_unit_test(TEST__framing__disconnect),
     };
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    rv |= cmocka_run_group_tests(framing_tests, NULL, NULL);
+
+    printf("\n[MQTT-C Utilities Tests]\n");
+    const struct CMUnitTest util_tests[] = {
+        cmocka_unit_test(TEST__utility__message_queue),
+        cmocka_unit_test(TEST__utility__pid_lfsr),
+        cmocka_unit_test(TEST__utility__connect_disconnect),
+        cmocka_unit_test(TEST__utility__ping),
+    };
+
+    rv |= cmocka_run_group_tests(util_tests, NULL, NULL);
+
+    printf("\n[MQTT-C API Tests]\n");
+    const struct CMUnitTest api_tests[] = {
+        cmocka_unit_test(TEST__api__connect_ping_disconnect),
+        cmocka_unit_test(TEST__api__publish_subscribe__basic),
+        cmocka_unit_test(TEST__api__publish_subscribe__multiple),
+    };
+
+    rv |= cmocka_run_group_tests(api_tests, NULL, NULL);
+
+    return rv;
 }

@@ -41,8 +41,6 @@ Pre-built documentation can be found at: `"docs/html/index.html"`.
 The @ref api documentation contains all the MQTT-C API documentation. Other modules contain
 documentation for MQTT-C developers.
 
-## The Fundamentals
-
 ## Testing and Building the Tests
 The MQTT-C unit tests makes use of the [cmocka unit testing framework](https://cmocka.org/). 
 Therefore, [cmocka](https://cmocka.org/) *must* be installed on your machine in order to 
