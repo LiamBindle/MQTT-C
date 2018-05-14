@@ -1079,30 +1079,34 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     ssize_t rv;
     struct mqtt_fixed_header fixed_header;
     uint16_t remaining_length;
-    uint8_t temp;
+    uint8_t inspected_qos;
 
     /* check for null pointers */
     if(buf == NULL || topic_name == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
 
+    /* inspect QoS level */
+    inspected_qos = (publish_flags & 0x06) >> 1; /* mask */
+
     /* build the fixed header */
     fixed_header.control_type = MQTT_CONTROL_PUBLISH;
 
     /* calculate remaining length */
-    remaining_length = __mqtt_packed_cstrlen(topic_name) + 2; /* variable header size */
+    remaining_length = __mqtt_packed_cstrlen(topic_name);
+    if (inspected_qos > 0) {
+        remaining_length += 2;
+    }
     remaining_length += application_message_size;
     fixed_header.remaining_length = remaining_length;
 
     /* force dup to 0 if qos is 0 */
-    temp = publish_flags & 0x06; /* mask */
-    if (temp == 0) {
-        /* qos is zero */
+    if (inspected_qos == 0) {
         publish_flags &= ~MQTT_PUBLISH_DUP;
     }
 
     /* make sure that qos is not 3 */
-    if (temp == 0x06) {
+    if (inspected_qos == 3) {
         return MQTT_ERROR_PUBLISH_FORBIDDEN_QOS;
     }
     fixed_header.control_flags = publish_flags;
@@ -1123,8 +1127,10 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 
     /* pack variable header */
     buf += __mqtt_pack_str(buf, topic_name);
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
-    buf += 2;
+    if (inspected_qos > 0) {
+        *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
+        buf += 2;
+    }
 
     /* pack payload */
     memcpy(buf, application_message, application_message_size);
@@ -1158,12 +1164,18 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     response->topic_name = buf;
     buf += response->topic_name_size;
 
-    response->packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
-    buf += 2;
+    if (response->qos_level > 0) {
+        response->packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+        buf += 2;
+    }
 
     /* get payload */
     response->application_message = buf;
-    response->application_message_size = fixed_header->remaining_length - response->topic_name_size - 4;
+    if (response->qos_level == 0) {
+        response->application_message_size = fixed_header->remaining_length - response->topic_name_size - 2;
+    } else {
+        response->application_message_size = fixed_header->remaining_length - response->topic_name_size - 4;
+    }
     buf += response->application_message_size;
     
     /* return number of bytes consumed */

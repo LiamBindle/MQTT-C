@@ -176,8 +176,8 @@ static void TEST__framing__publish(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct_bytes[] = {
-        (MQTT_CONTROL_PUBLISH << 4) | MQTT_PUBLISH_RETAIN, 20,
-        0, 6, 't', 'o', 'p', 'i', 'c', '1', 0, 23,
+        (MQTT_CONTROL_PUBLISH << 4) | MQTT_PUBLISH_RETAIN, 18,
+        0, 6, 't', 'o', 'p', 'i', 'c', '1',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
     struct mqtt_response mqtt_response;
@@ -186,10 +186,10 @@ static void TEST__framing__publish(void** state) {
     
     
     rv = mqtt_pack_publish_request(buf, 256, "topic1", 23, "0123456789", 10, MQTT_PUBLISH_RETAIN);
-    assert_true(rv == 22);
-    assert_true(memcmp(buf, correct_bytes, 22) == 0);
+    assert_true(rv == 20);
+    assert_true(memcmp(buf, correct_bytes, 20) == 0);
 
-    rv = mqtt_unpack_fixed_header(&mqtt_response, buf, 22);
+    rv = mqtt_unpack_fixed_header(&mqtt_response, buf, 20);
     assert_true(rv == 2);
     rv = mqtt_unpack_publish_response(&mqtt_response, buf + 2);
     assert_true(response->qos_level == 0);
