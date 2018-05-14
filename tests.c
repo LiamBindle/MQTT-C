@@ -533,6 +533,8 @@ static void TEST__utility__message_queue(void **unused) {
 
 static void TEST__utility__pid_lfsr(void **unused) {
     struct mqtt_client client;
+    uint8_t send[256], recv[256];
+    mqtt_init(&client, -1, send, 256, recv, 256, NULL);
     client.pid_lfsr = 163u;
     uint32_t period = 0;
     do {

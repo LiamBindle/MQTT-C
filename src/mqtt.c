@@ -20,11 +20,25 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
         client->pid_lfsr = 163u;
     }
     /* LFSR taps taken from: https://en.wikipedia.org/wiki/Linear-feedback_shift_register */
-    unsigned lsb = client->pid_lfsr & 1;
-    (client->pid_lfsr) >>= 1;
-    if (lsb) {
-        client->pid_lfsr ^= 0xB400u;
-    }
+    int pid_exists = 0;
+    do {
+        unsigned lsb = client->pid_lfsr & 1;
+        (client->pid_lfsr) >>= 1;
+        if (lsb) {
+            client->pid_lfsr ^= 0xB400u;
+        }
+
+        /* check that the PID is unique */
+        pid_exists = 0;
+        struct mqtt_queued_message *curr;
+        for(curr = mqtt_mq_get(&(client->mq), 0); curr >= client->mq.queue_tail; --curr) {
+            if (curr->packet_id == client->pid_lfsr) {
+                pid_exists = 1;
+                break;
+            }
+        }
+
+    } while(pid_exists);
     return client->pid_lfsr;
 }
 
@@ -532,7 +546,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             -> handle response
         MQTT_CONTROL_PUBLISH:
             -> stage response, none if qos==0, PUBACK if qos==1, PUBREC if qos==2
-            -> call publish callback        TODO: prevent redelivery of QOS==2
+            -> call publish callback
         MQTT_CONTROL_PUBACK:
             -> release associated PUBLISH
         MQTT_CONTROL_PUBREC:
@@ -592,7 +606,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         return rv;
                     }
                 }
-                /* call publish callback  TODO: prevent redelivery of QOS==2*/
+                /* call publish callback */
                 client->publish_response_callback(&client->publish_response_callback_state, &response.decoded.publish);
                 break;
             case MQTT_CONTROL_PUBACK:
@@ -1500,6 +1514,7 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
     }
     return NULL;
 }
+
 
 /* RESPONSE UNPACKING */
 ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf, size_t bufsz) {
