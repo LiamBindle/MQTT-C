@@ -368,6 +368,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
 
     /* loop through all messages in the queue */
     int len = mqtt_mq_length(&client->mq);
+    int inflight_qos2 = 0;
     for(int i = 0; i < len; ++i) {
         struct mqtt_queued_message *msg = mqtt_mq_get(&client->mq, i);
         int resend = 0;
@@ -379,6 +380,19 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             if (MQTT_PAL_TIME() > msg->time_sent + client->response_timeout) {
                 resend = 1;
                 client->number_of_timeouts += 1;
+            }
+        }
+
+        /* only send QoS 2 message if there are no inflight QoS 2 PUBLISH messages */
+        if (msg->control_type == MQTT_CONTROL_PUBLISH
+            && (msg->state == MQTT_QUEUED_UNSENT || msg->state == MQTT_QUEUED_AWAITING_ACK)) 
+        {
+            inspected = 0x03 & ((msg->start[0]) >> 1); /* qos */
+            if (inspected == 2) {
+                if (inflight_qos2) {
+                    resend = 0;
+                }
+                inflight_qos2 = 1;
             }
         }
 
