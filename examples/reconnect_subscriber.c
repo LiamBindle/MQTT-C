@@ -1,7 +1,7 @@
 
 /**
  * @file
- * A simple program that subscribes to a topic.
+ * A simple subscriber program that performs automatic reconnections.
  */
 #include <unistd.h>
 #include <stdlib.h>
@@ -9,6 +9,13 @@
 
 #include <mqtt.h>
 
+/**
+ * @brief A structure that I will use to keep track of some data needed 
+ *        to setup the connection to the broker.
+ * 
+ * An instance of this struct will be created in my \c main(). Then, whenever
+ * \ref reconnect_client is called, this instance will be passed. 
+ */
 struct reconnect_state_t {
     const char* hostname;
     const char* port;
@@ -19,8 +26,12 @@ struct reconnect_state_t {
     size_t recvbufsz;
 };
 
-void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
 
+/**
+ * @brief My reconnect callback. It will reestablish the connection whenever 
+ *        an error occurs. 
+ */
+void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
 
 /**
  * @brief The function will be called whenever a PUBLISH message is received.
@@ -41,6 +52,7 @@ void* client_refresher(void* client);
  * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit. 
  */
 void exit_example(int status, int sockfd, pthread_t *client_daemon);
+
 
 int main(int argc, const char *argv[]) 
 {
@@ -158,8 +170,6 @@ void exit_example(int status, int sockfd, pthread_t *client_daemon)
     if (client_daemon != NULL) pthread_cancel(*client_daemon);
     exit(status);
 }
-
-
 
 void publish_callback(void** unused, struct mqtt_response_publish *published) 
 {
