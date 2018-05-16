@@ -35,6 +35,9 @@
  * that all these arguments are optional and the defaults are \c address = \c "test.mosquitto.org",
  * \c port = \c "1883", and \c topic = "datetime".  
  * 
+ * @example reconnect_subscriber.c
+ * Same program as \ref simple_subscriber.c, but using the automatic reconnect functionality. 
+ * 
  * @defgroup api API
  * @brief Documentation of everything you need to know to use the MQTT-C client.
  * 

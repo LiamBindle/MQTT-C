@@ -237,7 +237,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a3">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a3">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a8">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a3">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a3">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -294,7 +294,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The associated error message. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a4">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a4">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a6">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a4">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a4">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -434,7 +434,8 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
 </dl>
 <dl class="section post"><dt>Postcondition</dt><dd>Call <code>reconnect_callback</code> yourself, or call <a class="el" href="group__api.html#gae3d3aafc7588ed53a90c9f66fc620a6e">mqtt_sync</a> (which will trigger the call to <code>reconnect_callback</code>).</dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>Only initialize an MQTT client once (i.e. don't call <a class="el" href="group__api.html#gab07105b049dd86a8ec39c518cf9fa4c7">mqtt_init</a> or <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a> more than once per client). </dd></dl>
-
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a2">reconnect_subscriber.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="gae472795684a1d973bfb89d075d17a29e"></a>
@@ -591,7 +592,8 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
 </dl>
 <dl class="section post"><dt>Postcondition</dt><dd>Call <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a>.</dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>This function should be used in conjunction with clients that have been initialzed with <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a>. </dd></dl>
-
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a7">reconnect_subscriber.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="gaea5da9b546f6e91eb77c9eff9c478de5"></a>
@@ -637,7 +639,7 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_subscriber_8c-example.html#a5">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a9">reconnect_subscriber.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a5">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -667,7 +669,7 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
 </dl>
 <dl class="section attention"><dt>Attention</dt><dd>It is the responsibility of the application programmer to call this function periodically. All functions in the <a class="el" href="group__api.html">API</a> are thread-safe so it is perfectly reasonable to have a thread dedicated to calling this function every 200 ms or so. MQTT-C can be used in single threaded application though by simply calling this functino periodically inside your main thread. See <a class="el" href="simple_publisher_8c-example.html">simple_publisher.c</a> and <a class="el" href="simple_subscriber_8c-example.html">simple_subscriber.c</a> for examples (specifically the <code>client_refresher</code> functions).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>MQTT_OK upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a6">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a9">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a13">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a6">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a9">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
