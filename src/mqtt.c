@@ -15,6 +15,21 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     return err;
 }
 
+#include <stdio.h>
+
+void mqtt_recover(struct mqtt_client *client) {
+    if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
+        /* purge the send and recv buffers */
+        MQTT_PAL_MUTEX_LOCK(&client->mutex);
+        mqtt_mq_init(&client->mq, client->mq.mem_start, client->mq.mem_end - client->mq.mem_start);
+        client->recv_buffer.curr = client->recv_buffer.mem_start;
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+
+        /* call reconnect */
+        client->reconnect_callback(client, &client->reconnect_state);
+    }
+}
+
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
@@ -66,7 +81,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->recv_buffer.curr = client->recv_buffer.mem_start;
     client->recv_buffer.curr_sz = client->recv_buffer.mem_size;
 
-    client->error = MQTT_ERROR_CLIENT_NOT_CONNECTED;
+    client->error = MQTT_ERROR_NO_SOCKET;
     client->response_timeout = 30;
     client->number_of_timeouts = 0;
     client->number_of_keep_alives = 0;
@@ -75,6 +90,18 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 
     MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
     return MQTT_OK;
+}
+
+void mqtt_init2(struct mqtt_client *client,
+                void (*reconnect)(struct mqtt_client *, void**),
+                void *reconnect_state,
+                uint8_t *sendbuf, size_t sendbufsz,
+                uint8_t *recvbuf, size_t recvbufsz,
+                void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
+{
+    mqtt_init(client, -1, sendbuf, sendbufsz, recvbuf, recvbufsz, publish_response_callback);
+    client->reconnect_callback = reconnect;
+    client->reconnect_state = reconnect_state;
 }
 
 /** 
@@ -128,7 +155,7 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
 
     /* update the client's state */
     client->keep_alive = keep_alive;
-    if (client->error == MQTT_ERROR_CLIENT_NOT_CONNECTED) {
+    if (client->error == MQTT_ERROR_NO_SOCKET) {
         client->error = MQTT_OK;
     }
     
