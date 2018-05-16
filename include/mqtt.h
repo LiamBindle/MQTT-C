@@ -135,7 +135,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
     MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
-    MQTT_ERROR(MQTT_ERROR_NO_SOCKET)          \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NOT_CALLED)          \
     MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
     MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \
     MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
@@ -145,6 +145,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \
     MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
+    MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
 
 /* todo: add more connection refused errors */
 
@@ -1032,7 +1033,7 @@ struct mqtt_client {
      * 
      * error should be MQTT_OK for the entirety of the connection.
      * 
-     * @note The error state will be MQTT_ERROR_NO_SOCKET until
+     * @note The error state will be MQTT_ERROR_CONNECT_NOT_CALLED until
      *       you call mqtt_connect.
      */
     enum MQTTErrors error;
@@ -1079,6 +1080,7 @@ struct mqtt_client {
      */
     void* publish_response_callback_state;
 
+    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
     void (*reconnect_callback)(struct mqtt_client*, void**);
     void* reconnect_state;
 
@@ -1171,9 +1173,6 @@ ssize_t __mqtt_recv(struct mqtt_client *client);
  */
 enum MQTTErrors mqtt_sync(struct mqtt_client *client);
 
-void mqtt_recover(struct mqtt_client *client);
-
-
 /**
  * @brief Initialize an MQTT client.
  * @ingroup api
@@ -1209,16 +1208,15 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
                           uint8_t *recvbuf, size_t recvbufsz,
                           void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
 
-/**
- * @brief Alternate MQTT client initializer.
- * @ingroup api
- */
-void mqtt_init2(struct mqtt_client *client,
-                void (*reconnect)(struct mqtt_client *, void**),
-                void *reconnect_state,
-                uint8_t *sendbuf, size_t sendbufsz,
-                uint8_t *recvbuf, size_t recvbufsz,
-                void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
+void mqtt_init_reconnect(struct mqtt_client *client,
+                         void (*reconnect)(struct mqtt_client *, void**),
+                         void *reconnect_state,
+                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
+
+void mqtt_reinit(struct mqtt_client* client,
+                 int socketfd,
+                 uint8_t *sendbuf, size_t sendbufsz,
+                 uint8_t *recvbuf, size_t recvbufsz);
 
 /**
  * @brief Establishes a session with the MQTT broker.

@@ -13,6 +13,10 @@ struct reconnect_state_t {
     const char* hostname;
     const char* port;
     const char* topic;
+    uint8_t* sendbuf;
+    size_t sendbufsz;
+    uint8_t* recvbuf;
+    size_t recvbufsz;
 };
 
 void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
@@ -70,16 +74,19 @@ int main(int argc, const char *argv[])
     reconnect_state.hostname = addr;
     reconnect_state.port = port;
     reconnect_state.topic = topic;
+    uint8_t sendbuf[2048];
+    uint8_t recvbuf[1024];
+    reconnect_state.sendbuf = sendbuf;
+    reconnect_state.sendbufsz = sizeof(sendbuf);
+    reconnect_state.recvbuf = recvbuf;
+    reconnect_state.recvbufsz = sizeof(recvbuf);
 
     /* setup a client */
     struct mqtt_client client;
-    uint8_t sendbuf[2048]; /* sendbuf should be large enough to hold multiple whole mqtt messages */
-    uint8_t recvbuf[1024]; /* recvbuf should be large enough any whole mqtt message expected to be received */
-    mqtt_init2(&client, 
-               reconnect_client, &reconnect_state, 
-               sendbuf, sizeof(sendbuf), 
-               recvbuf, sizeof(recvbuf), 
-               publish_callback
+
+    mqtt_init_reconnect(&client, 
+                        reconnect_client, &reconnect_state, 
+                        publish_callback
     );
 
     /* start a thread to refresh the client (handle egress and ingree client traffic) */
@@ -113,27 +120,30 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
 {
     struct reconnect_state_t *reconnect_state = *((struct reconnect_state_t**) reconnect_state_vptr);
 
-    /* Firstly, we should close the clients socket if one is open. */
-    if (client->error != MQTT_ERROR_NO_SOCKET) {
+    /* Close the clients socket if this isn't the initial reconnect call */
+    if (client->error != MQTT_ERROR_INITIAL_RECONNECT) {
         close(client->socketfd);
     }
-    
-    /* Next, perform error handling/logging. */
-    if (client->error != MQTT_ERROR_NO_SOCKET) {
-        printf("reconnect_client: called while client was in error state \"%s\"\n", mqtt_error_str(client->error));
+
+    /* Perform error handling here. */
+    if (client->error != MQTT_ERROR_INITIAL_RECONNECT) {
+        printf("reconnect_client: called while client was in error state \"%s\"\n", 
+               mqtt_error_str(client->error)
+        );
     }
 
-    /* Now I'll clear the clients error. */
-    client->error = MQTT_OK;
-
-    /* Currently the clients socket is either not present or closed; so we need to make a new one. */
-    client->socketfd = mqtt_pal_sockopen(reconnect_state->hostname, reconnect_state->port, AF_INET);
-    if (client->socketfd == -1) {
+    /* Open a new socket. */
+    int sockfd = mqtt_pal_sockopen(reconnect_state->hostname, reconnect_state->port, AF_INET);
+    if (sockfd == -1) {
         perror("Failed to open socket: ");
-        exit_example(EXIT_FAILURE, client->socketfd, NULL);
+        exit_example(EXIT_FAILURE, sockfd, NULL);
     }
 
-    /* Now all normal API calls are valid (except mqtt_init). So lets set the client back up. */
+    /* Reinitialize the client. */
+    mqtt_reinit(client, sockfd, 
+                reconnect_state->sendbuf, reconnect_state->sendbufsz,
+                reconnect_state->recvbuf, reconnect_state->recvbufsz
+    );
     
     /* Send connection request to the broker. */
     mqtt_connect(client, "subscribing_client", NULL, NULL, 0, NULL, NULL, 0, 400);
@@ -168,7 +178,6 @@ void* client_refresher(void* client)
     while(1) 
     {
         mqtt_sync((struct mqtt_client*) client);
-        mqtt_recover((struct mqtt_client*) client);
         usleep(100000U);
     }
     return NULL;
