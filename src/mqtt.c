@@ -10,9 +10,12 @@
 
 enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     /* Recover from any errors */
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
     if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
-        MQTT_PAL_MUTEX_LOCK(&client->mutex); /* unlocked during CONNECT */
         client->reconnect_callback(client, &client->reconnect_state);
+        /* unlocked during CONNECT */
+    } else {
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
     }
 
     /* Call inspector callback if necessary */
