@@ -87,7 +87,7 @@ int main(int argc, const char *argv[])
     }
 
     /* subscribe */
-    mqtt_subscribe(&client, "datetime", 0);
+    mqtt_subscribe(&client, topic, 0);
 
     /* start publishing the time */
     printf("%s listening for '%s' messages.\n", argv[0], topic);
