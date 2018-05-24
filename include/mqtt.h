@@ -1008,7 +1008,7 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
  */
 struct mqtt_client {
     /** @brief The socket connecting to the MQTT broker. */
-    int socketfd;
+    mqtt_pal_socket_handle socketfd;
 
     /** @brief The LFSR state used to generate packet ID's. */
     uint16_t pid_lfsr;
@@ -1237,7 +1237,7 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
 enum MQTTErrors mqtt_init(struct mqtt_client *client,
-                          int sockfd,
+                          mqtt_pal_socket_handle sockfd,
                           uint8_t *sendbuf, size_t sendbufsz,
                           uint8_t *recvbuf, size_t recvbufsz,
                           void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
@@ -1314,7 +1314,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
  *            initialzed with \ref mqtt_init_reconnect.  
  */
 void mqtt_reinit(struct mqtt_client* client,
-                 int socketfd,
+                 mqtt_pal_socket_handle socketfd,
                  uint8_t *sendbuf, size_t sendbufsz,
                  uint8_t *recvbuf, size_t recvbufsz);
 
