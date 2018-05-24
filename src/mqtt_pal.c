@@ -10,6 +10,44 @@
 
 #ifdef __unix__
 
+#ifdef MQTT_USE_BIO
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    size_t sent = 0;
+    while(sent < len) {
+        int tmp = BIO_write(fd, buf + sent, len - sent);
+        if (tmp > 0) {
+            sent += (size_t) tmp;
+        } else if (tmp <= 0 && !BIO_should_retry(fd)) {
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+    }
+    
+    return sent;
+}
+
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
+    const void const *start = buf;
+    int rv;
+    do {
+        rv = BIO_read(fd, buf, bufsz);
+        if (rv > 0) {
+            /* successfully read bytes from the socket */
+            buf += rv;
+            bufsz -= rv;
+        } else if (!BIO_should_retry(fd)) {
+            /* an error occurred that wasn't "nothing to read". */
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+    } while (!BIO_should_read(fd));
+
+    return (ssize_t)(buf - start);
+}
+
+#else
 #include <errno.h>
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
@@ -41,6 +79,8 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
 
     return buf - start;
 }
+
+#endif
 
 #endif
 
