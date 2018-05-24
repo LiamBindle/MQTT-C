@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include <mqtt.h>
+#include "templates/bsd_sockets.h"
 
 
 /**
@@ -58,7 +59,7 @@ int main(int argc, const char *argv[])
     }
 
     /* open the non-blocking TCP socket (connecting to the broker) */
-    int sockfd = mqtt_pal_sockopen(addr, port, AF_INET);
+    int sockfd = open_nb_socket(addr, port);
 
     if (sockfd == -1) {
         perror("Failed to open socket: ");

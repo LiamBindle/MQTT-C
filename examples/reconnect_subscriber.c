@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include <mqtt.h>
+#include "templates/bsd_sockets.h"
 
 /**
  * @brief A structure that I will use to keep track of some data needed 
@@ -145,7 +146,7 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
     }
 
     /* Open a new socket. */
-    int sockfd = mqtt_pal_sockopen(reconnect_state->hostname, reconnect_state->port, AF_INET);
+    int sockfd = open_nb_socket(reconnect_state->hostname, reconnect_state->port);
     if (sockfd == -1) {
         perror("Failed to open socket: ");
         exit_example(EXIT_FAILURE, sockfd, NULL);
