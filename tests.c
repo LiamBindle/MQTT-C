@@ -750,12 +750,12 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     /* wait for retained publish and receiver and sender have 0 length mq's */
     time_t start = time(NULL);
     while(start + 10 > time(NULL)  && (state < 1 || mqtt_mq_length(&receiver.mq) > 0 || mqtt_mq_length(&sender.mq) > 0)) {
-        if ((rv = __mqtt_recv(&receiver)) < 0) {
+        if ((rv = mqtt_sync(&receiver)) < 0) {
             printf("error: %s\n", mqtt_error_str(rv));
             assert_true(0);
         }
         mqtt_mq_clean(&receiver.mq);
-        if ((rv = __mqtt_recv(&sender)) < 0) {
+        if ((rv = mqtt_sync(&sender)) < 0) {
             printf("error: %s\n", mqtt_error_str(rv));
             assert_true(0);
         }
