@@ -586,14 +586,14 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 break;
             case MQTT_CONTROL_PUBLISH:
                 /* stage response, none if qos==0, PUBACK if qos==1, PUBREC if qos==2 */
-                if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_1) {
+                if (response.decoded.publish.qos_level == 1) {
                     rv = __mqtt_puback(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
                         client->error = rv;
                         MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
                         return rv;
                     }
-                } else if (response.decoded.publish.qos_level == MQTT_PUBLISH_QOS_2) {
+                } else if (response.decoded.publish.qos_level == 2) {
                     /* check if this is a duplicate */
                     if (mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREC, &response.decoded.publish.packet_id) != NULL) {
                         break;
