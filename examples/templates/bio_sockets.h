@@ -5,6 +5,9 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+/*
+    A template for opening a non-blocking BIO socket.
+*/
 BIO* open_nb_socket(const char* addr, const char* port) {
     BIO* bio = BIO_new_connect(addr);
     BIO_set_nbio(bio, 1);

@@ -1,7 +1,6 @@
 
 /**
  * @file
- * A simple program to that publishes the current time whenever ENTER is pressed. 
  */
 #include <unistd.h>
 #include <stdlib.h>
@@ -41,6 +40,7 @@ int main(int argc, const char *argv[])
     const char* addr;
     const char* port;
     const char* topic;
+    const char* ca_file;
 
     /* Load OpenSSL */
     SSL_load_error_strings();
@@ -51,29 +51,36 @@ int main(int argc, const char *argv[])
     SSL_CTX* ssl_ctx;
     BIO* sockfd;
 
-    /* get address (argv[1] if present) */
     if (argc > 1) {
-        addr = argv[1];
+        ca_file = argv[1];
+    } else {
+        printf("error: path to the CA certificate to use\n");
+        exit(1);
+    }
+
+    /* get address (argv[2] if present) */
+    if (argc > 2) {
+        addr = argv[2];
     } else {
         addr = "test.mosquitto.org";
     }
 
-    /* get port number (argv[2] if present) */
-    if (argc > 2) {
-        port = argv[2];
+    /* get port number (argv[3] if present) */
+    if (argc > 3) {
+        port = argv[3];
     } else {
         port = "8883";
     }
 
     /* get the topic name to publish */
-    if (argc > 3) {
-        topic = argv[3];
+    if (argc > 4) {
+        topic = argv[4];
     } else {
         topic = "datetime";
     }
 
     /* open the non-blocking TCP socket (connecting to the broker) */
-    open_nb_socket(&sockfd, &ssl_ctx, addr, port, "/home/liam/Downloads/mosquitto.org.crt", NULL);
+    open_nb_socket(&sockfd, &ssl_ctx, addr, port, ca_file, NULL);
 
     if (sockfd == NULL) {
         exit_example(EXIT_FAILURE, sockfd, NULL);

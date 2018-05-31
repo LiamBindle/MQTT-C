@@ -38,6 +38,18 @@
  * @example reconnect_subscriber.c
  * Same program as \ref simple_subscriber.c, but using the automatic reconnect functionality. 
  * 
+ * @example bio_publisher.c
+ * Same program as \ref simple_publisher.c, but uses a unencrypted BIO socket.
+ *
+ * @example openssl_publisher.c
+ * Same program as \ref simple_publisher.c, but over an encrypted connection using OpenSSL.
+ * 
+ * Usage:
+ * \code{.sh}
+ * ./bin/openssl_publisher ca_file [address [port [topic]]]
+ * \endcode   
+ * 
+ * 
  * @defgroup api API
  * @brief Documentation of everything you need to know to use the MQTT-C client.
  * 
@@ -45,6 +57,9 @@
  * For usage examples see:
  *     - @ref simple_publisher.c
  *     - @ref simple_subscriber.c
+ *     - @ref reconnect_subscriber.c
+ *     - @ref bio_publisher.c
+ *     - @ref openssl_publisher.c
  * 
  * @note MQTT-C can be used in both single-threaded and multi-threaded applications. All 
  *       the functions in \ref api are thread-safe.
@@ -1213,7 +1228,8 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * @pre None.
  * 
  * @param[out] client The MQTT client.
- * @param[in] sockfd The socket file descriptor connected to the MQTT broker. 
+ * @param[in] sockfd The socket file descriptor (or equivalent socket handle, e.g. BIO pointer 
+ *            for OpenSSL sockets) connected to the MQTT broker.
  * @param[in] sendbuf A buffer that will be used for sending messages to the broker.
  * @param[in] sendbufsz The size of \p sendbuf in bytes.
  * @param[in] recvbuf A buffer that will be used for receiving messages from the broker.

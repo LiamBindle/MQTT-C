@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include <mqtt.h>
-#include "templates/bsd_sockets.h"
+#include "templates/posix_sockets.h"
 
 /**
  * @brief A structure that I will use to keep track of some data needed 

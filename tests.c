@@ -18,7 +18,7 @@
 #include <time.h>
 
 #include <mqtt.h>
-#include "examples/templates/bsd_sockets.h"
+#include "examples/templates/posix_sockets.h"
 
 const char* addr = "test.mosquitto.org";
 const char* port = "1883";
