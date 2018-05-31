@@ -46,6 +46,7 @@ int main(int argc, const char *argv[])
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();
+    SSL_library_init();
 
     SSL_CTX* ssl_ctx;
     BIO* sockfd;
