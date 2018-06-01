@@ -9,8 +9,29 @@
  */
 
 enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
-    enum MQTTErrors err = __mqtt_recv(client);
+    /* Recover from any errors */
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
+        client->reconnect_callback(client, &client->reconnect_state);
+        /* unlocked during CONNECT */
+    } else {
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+    }
+
+    /* Call inspector callback if necessary */
+    enum MQTTErrors err;
+    if (client->inspector_callback != NULL) {
+        MQTT_PAL_MUTEX_LOCK(&client->mutex);
+        err = client->inspector_callback(client);
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+        if (err != MQTT_OK) return err;
+    }
+
+    /* Call receive */
+    err = __mqtt_recv(client);
     if (err != MQTT_OK) return err;
+
+    /* Call send */
     err = __mqtt_send(client);
     return err;
 }
@@ -43,7 +64,7 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
 }
 
 enum MQTTErrors mqtt_init(struct mqtt_client *client,
-               int sockfd,
+               mqtt_pal_socket_handle sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
                void (*publish_response_callback)(void** state,struct mqtt_response_publish *publish))
@@ -54,27 +75,74 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 
     /* initialize mutex */
     MQTT_PAL_MUTEX_INIT(&client->mutex);
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    MQTT_PAL_MUTEX_LOCK(&client->mutex); /* unlocked during CONNECT */
 
     client->socketfd = sockfd;
 
     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
-
 
     client->recv_buffer.mem_start = recvbuf;
     client->recv_buffer.mem_size = recvbufsz;
     client->recv_buffer.curr = client->recv_buffer.mem_start;
     client->recv_buffer.curr_sz = client->recv_buffer.mem_size;
 
-    client->error = MQTT_ERROR_CLIENT_NOT_CONNECTED;
+    client->error = MQTT_ERROR_CONNECT_NOT_CALLED;
     client->response_timeout = 30;
     client->number_of_timeouts = 0;
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0;
     client->publish_response_callback = publish_response_callback;
 
-    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+    client->inspector_callback = NULL;
+    client->reconnect_callback = NULL;
+    client->reconnect_state = NULL;
+
     return MQTT_OK;
+}
+
+void mqtt_init_reconnect(struct mqtt_client *client,
+                         void (*reconnect)(struct mqtt_client *, void**),
+                         void *reconnect_state,
+                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
+{
+    /* initialize mutex */
+    MQTT_PAL_MUTEX_INIT(&client->mutex);
+
+    client->socketfd = (mqtt_pal_socket_handle) -1;
+
+    mqtt_mq_init(&client->mq, NULL, 0);
+
+    client->recv_buffer.mem_start = NULL;
+    client->recv_buffer.mem_size = 0;
+    client->recv_buffer.curr = NULL;
+    client->recv_buffer.curr_sz = 0;
+
+    client->error = MQTT_ERROR_INITIAL_RECONNECT;
+    client->response_timeout = 30;
+    client->number_of_timeouts = 0;
+    client->number_of_keep_alives = 0;
+    client->typical_response_time = -1.0;
+    client->publish_response_callback = publish_response_callback;
+
+    client->inspector_callback = NULL;
+    client->reconnect_callback = reconnect;
+    client->reconnect_state = reconnect_state;
+}
+
+void mqtt_reinit(struct mqtt_client* client,
+                 mqtt_pal_socket_handle socketfd,
+                 uint8_t *sendbuf, size_t sendbufsz,
+                 uint8_t *recvbuf, size_t recvbufsz)
+{
+    client->error = MQTT_ERROR_CONNECT_NOT_CALLED;
+    client->socketfd = socketfd;
+
+    mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
+
+    client->recv_buffer.mem_start = recvbuf;
+    client->recv_buffer.mem_size = recvbufsz;
+    client->recv_buffer.curr = client->recv_buffer.mem_start;
+    client->recv_buffer.curr_sz = client->recv_buffer.mem_size;
 }
 
 /** 
@@ -124,11 +192,11 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
     ssize_t rv;
     struct mqtt_queued_message *msg;
 
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    /* Note: Current thread already has mutex locked. */
 
     /* update the client's state */
     client->keep_alive = keep_alive;
-    if (client->error == MQTT_ERROR_CLIENT_NOT_CONNECTED) {
+    if (client->error == MQTT_ERROR_CONNECT_NOT_CALLED) {
         client->error = MQTT_OK;
     }
     

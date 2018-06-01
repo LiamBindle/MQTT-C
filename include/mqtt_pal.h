@@ -61,7 +61,12 @@
     #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
-    int mqtt_pal_sockopen(const char* addr, const char* port, int af);
+    #ifdef MQTT_USE_BIO
+        #include <openssl/bio.h>
+        typedef BIO* mqtt_pal_socket_handle;
+    #else
+        typedef int mqtt_pal_socket_handle;
+    #endif
 #endif
 
 /**
@@ -75,7 +80,7 @@
  * 
  * @returns The number of bytes sent if successful, an \ref MQTTErrors otherwise.
  */
-ssize_t mqtt_pal_sendall(int fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags);
 
 /**
  * @brief Non-blocking receive all the byte available.
@@ -88,6 +93,6 @@ ssize_t mqtt_pal_sendall(int fd, const void* buf, size_t len, int flags);
  * 
  * @returns The number of bytes received if successful, an \ref MQTTErrors otherwise.
  */
-ssize_t mqtt_pal_recvall(int fd, void* buf, size_t bufsz, int flags);
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags);
 
 #endif

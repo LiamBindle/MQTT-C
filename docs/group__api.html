@@ -69,7 +69,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<b>MQTT_ERROR_MALFORMED_RESPONSE</b>, 
 <b>MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS</b>, 
 <b>MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE</b>, 
-<b>MQTT_ERROR_CLIENT_NOT_CONNECTED</b>, 
+<b>MQTT_ERROR_CONNECT_NOT_CALLED</b>, 
 <br />
 &#160;&#160;<b>MQTT_ERROR_SEND_BUFFER_IS_FULL</b>, 
 <b>MQTT_ERROR_SOCKET_ERROR</b>, 
@@ -82,6 +82,7 @@ Enumerations</h2></td></tr>
 <b>MQTT_ERROR_SUBSCRIBE_FAILED</b>, 
 <br />
 &#160;&#160;<b>MQTT_ERROR_CONNECTION_CLOSED</b>, 
+<b>MQTT_ERROR_INITIAL_RECONNECT</b>, 
 <b>MQTT_OK</b> = 1
 <br />
  }<tr class="memdesc:gad0c901a8d30691ed0ca17915b691b7e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">An enumeration of error codes. Error messages can be retrieved by calling <a class="el" href="group__api.html#ga47b62bdd24e8b05957825d2419d7c848">mqtt_error_str</a>.  <a href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">More...</a><br /></td></tr>
@@ -96,9 +97,15 @@ Functions</h2></td></tr>
 <tr class="memitem:gae3d3aafc7588ed53a90c9f66fc620a6e"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gae3d3aafc7588ed53a90c9f66fc620a6e">mqtt_sync</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client)</td></tr>
 <tr class="memdesc:gae3d3aafc7588ed53a90c9f66fc620a6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function that does the actual sending and receiving of traffic from the network.All the other functions in the <a class="el" href="group__api.html">API</a> simply stage messages for being sent to the broker. This function does the actual sending of those messages. Additionally this function receives traffic (responses and acknowledgements) from the broker and responds to that traffic accordingly. Lastly this function also calls the <code>publish_response_callback</code> when any <code>MQTT_CONTROL_PUBLISH</code> messages are received.  <a href="#gae3d3aafc7588ed53a90c9f66fc620a6e">More...</a><br /></td></tr>
 <tr class="separator:gae3d3aafc7588ed53a90c9f66fc620a6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gab07105b049dd86a8ec39c518cf9fa4c7">mqtt_init</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, int sockfd, uint8_t *sendbuf, size_t sendbufsz, uint8_t *recvbuf, size_t recvbufsz, void(*publish_response_callback)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish))</td></tr>
-<tr class="memdesc:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize an MQTT client.This function <em>must</em> be called before any other API function calls.  <a href="#gab07105b049dd86a8ec39c518cf9fa4c7">More...</a><br /></td></tr>
-<tr class="separator:gab07105b049dd86a8ec39c518cf9fa4c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa5dab8a06f016b09c7a5259274b3b3ce"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gaa5dab8a06f016b09c7a5259274b3b3ce">mqtt_init</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, mqtt_pal_socket_handle sockfd, uint8_t *sendbuf, size_t sendbufsz, uint8_t *recvbuf, size_t recvbufsz, void(*publish_response_callback)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish))</td></tr>
+<tr class="memdesc:gaa5dab8a06f016b09c7a5259274b3b3ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an MQTT client.This function <em>must</em> be called before any other API function calls.  <a href="#gaa5dab8a06f016b09c7a5259274b3b3ce">More...</a><br /></td></tr>
+<tr class="separator:gaa5dab8a06f016b09c7a5259274b3b3ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4becaa66425469cf462b531aa7eb1ac9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, void(*reconnect_callback)(struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, void **state), void *reconnect_state, void(*publish_response_callback)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish))</td></tr>
+<tr class="memdesc:ga4becaa66425469cf462b531aa7eb1ac9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes an MQTT client and enables automatic reconnections.An alternative to <a class="el" href="group__api.html#gaa5dab8a06f016b09c7a5259274b3b3ce">mqtt_init</a> that allows the client to automatically reconnect to the broker after an error occurs (e.g. socket error or internal buffer overflows).  <a href="#ga4becaa66425469cf462b531aa7eb1ac9">More...</a><br /></td></tr>
+<tr class="separator:ga4becaa66425469cf462b531aa7eb1ac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf5ae4b5b880431ef1bcd72f343de9ac6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gaf5ae4b5b880431ef1bcd72f343de9ac6">mqtt_reinit</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, mqtt_pal_socket_handle socketfd, uint8_t *sendbuf, size_t sendbufsz, uint8_t *recvbuf, size_t recvbufsz)</td></tr>
+<tr class="memdesc:gaf5ae4b5b880431ef1bcd72f343de9ac6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safely assign/reassign a socket and buffers to an new/existing client.This function also clears the <code>client</code> error state. Upon exiting this function <code>client-&gt;error</code> will be <code>MQTT_ERROR_CONNECT_NOT_CALLED</code> (which will be cleared) as soon as <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a> is called.  <a href="#gaf5ae4b5b880431ef1bcd72f343de9ac6">More...</a><br /></td></tr>
+<tr class="separator:gaf5ae4b5b880431ef1bcd72f343de9ac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadbe914e5a9d4f93314c4e7637cb4f7b3"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a> (struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, const char *client_id, const char *will_topic, const void *will_message, size_t will_message_size, const char *user_name, const char *password, uint8_t connect_flags, uint16_t keep_alive)</td></tr>
 <tr class="memdesc:gadbe914e5a9d4f93314c4e7637cb4f7b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Establishes a session with the MQTT broker.  <a href="#gadbe914e5a9d4f93314c4e7637cb4f7b3">More...</a><br /></td></tr>
 <tr class="separator:gadbe914e5a9d4f93314c4e7637cb4f7b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -123,6 +130,9 @@ Functions</h2></td></tr>
 <p>This module contains everything you need to know to use MQTT-C in your application. For usage examples see:</p><ul>
 <li><a class="el" href="simple_publisher_8c-example.html">simple_publisher.c</a></li>
 <li><a class="el" href="simple_subscriber_8c-example.html">simple_subscriber.c</a></li>
+<li><a class="el" href="reconnect_subscriber_8c-example.html">reconnect_subscriber.c</a></li>
+<li><a class="el" href="bio_publisher_8c-example.html">bio_publisher.c</a></li>
+<li><a class="el" href="openssl_publisher_8c-example.html">openssl_publisher.c</a></li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>MQTT-C can be used in both single-threaded and multi-threaded applications. All the functions in <a class="el" href="group__api.html">API</a> are thread-safe. </dd></dl>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
@@ -225,7 +235,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a3">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a3">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="bio_publisher_8c-example.html#a3">bio_publisher.c</a>, <a class="el" href="openssl_publisher_8c-example.html#a3">openssl_publisher.c</a>, <a class="el" href="reconnect_subscriber_8c-example.html#a7">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a3">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a3">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -278,11 +288,11 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The associated error message. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a4">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a4">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="bio_publisher_8c-example.html#a4">bio_publisher.c</a>, <a class="el" href="openssl_publisher_8c-example.html#a4">openssl_publisher.c</a>, <a class="el" href="reconnect_subscriber_8c-example.html#a5">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a4">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a4">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
-<a class="anchor" id="gab07105b049dd86a8ec39c518cf9fa4c7"></a>
+<a class="anchor" id="gaa5dab8a06f016b09c7a5259274b3b3ce"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -295,7 +305,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">mqtt_pal_socket_handle&#160;</td>
           <td class="paramname"><em>sockfd</em>, </td>
         </tr>
         <tr>
@@ -336,12 +346,12 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize an MQTT client.This function <em>must</em> be called before any other API function calls. </p>
+<p>Initializes an MQTT client.This function <em>must</em> be called before any other API function calls. </p>
 <dl class="section pre"><dt>Precondition</dt><dd>None.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">sockfd</td><td>The socket file descriptor connected to the MQTT broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sockfd</td><td>The socket file descriptor (or equivalent socket handle, e.g. BIO pointer for OpenSSL sockets) connected to the MQTT broker. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">sendbuf</td><td>A buffer that will be used for sending messages to the broker. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">sendbufsz</td><td>The size of <code>sendbuf</code> in bytes. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">recvbuf</td><td>A buffer that will be used for receiving messages from the broker. </td></tr>
@@ -356,8 +366,65 @@ Functions</h2></td></tr>
 If <code>sendbuf</code> fills up completely during runtime a <code>MQTT_ERROR_SEND_BUFFER_IS_FULL</code> error will be set. Similarly if <code>recvbuf</code> is ever to small to receive a message from the broker an MQTT_ERROR_RECV_BUFFER_TOO_SMALL error will be set. </dd>
 <dd>
 A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c230644407f21">mqtt_client::publish_response_callback_state</a> is always passed as the <code>state</code> argument to <code>publish_response_callback</code>. Note that the second argument is the <a class="el" href="structmqtt__response__publish.html" title="A publish packet received from the broker.A publish packet is received from the broker when a client ...">mqtt_response_publish</a> that was received from the broker.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Only initialize an MQTT client once (i.e. don't call <a class="el" href="group__api.html#gaa5dab8a06f016b09c7a5259274b3b3ce">mqtt_init</a> or <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a> more than once per client).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a2">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a2">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="bio_publisher_8c-example.html#a2">bio_publisher.c</a>, <a class="el" href="openssl_publisher_8c-example.html#a2">openssl_publisher.c</a>, <a class="el" href="simple_publisher_8c-example.html#a2">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a2">simple_subscriber.c</a>.</dd>
+</dl>
+</div>
+</div>
+<a class="anchor" id="ga4becaa66425469cf462b531aa7eb1ac9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mqtt_init_reconnect </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *client, void **state)&#160;</td>
+          <td class="paramname"><em>reconnect_callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>reconnect_state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void **state, struct <a class="el" href="structmqtt__response__publish.html">mqtt_response_publish</a> *publish)&#160;</td>
+          <td class="paramname"><em>publish_response_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes an MQTT client and enables automatic reconnections.An alternative to <a class="el" href="group__api.html#gaa5dab8a06f016b09c7a5259274b3b3ce">mqtt_init</a> that allows the client to automatically reconnect to the broker after an error occurs (e.g. socket error or internal buffer overflows). </p>
+<p>This is accomplished by calling the <code>reconnect_callback</code> whenever the client enters an error state. The job of the <code>reconnect_callback</code> is to: (1) perform error handling/logging, (2) clean up the old connection (i.e. close client-&gt;socketfd), (3) <a class="el" href="group__api.html#gaf5ae4b5b880431ef1bcd72f343de9ac6">mqtt_reinit</a> the client, and (4) reconfigure the MQTT session by calling <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a> followed by other API calls such as <a class="el" href="group__api.html#gaea5da9b546f6e91eb77c9eff9c478de5">mqtt_subscribe</a>.</p>
+<p>The first argument to the <code>reconnect_callback</code> is the client (which will be in an error state) and the second argument is a pointer to a void pointer where you can store some state information. Internally, MQTT-C calls the reconnect callback like so:</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;client-&gt;reconnect_callback(client, &amp;client-&gt;reconnect_state)</div></div><!-- fragment --><p>Note that the <code>reconnect_callback</code> is also called to setup the initial session. After calling <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a> the client will be in the error state <code>MQTT_ERROR_INITIAL_RECONNECT</code>.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>None.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client that will be initialized. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">reconnect_callback</td><td>The callback that will be called to connect/reconnect the client to the broker and perform application level error handling. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">reconnect_state</td><td>A pointer to some state data for your <code>reconnect_callback</code>. If your <code>reconnect_callback</code> does not require any state information set this to NULL. A pointer to the memory address where the client stores a copy of this pointer is passed as the second argumnet to <code>reconnect_callback</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">publish_response_callback</td><td>The callback to call whenever application messages are received from the broker.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section post"><dt>Postcondition</dt><dd>Call <code>reconnect_callback</code> yourself, or call <a class="el" href="group__api.html#gae3d3aafc7588ed53a90c9f66fc620a6e">mqtt_sync</a> (which will trigger the call to <code>reconnect_callback</code>).</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Only initialize an MQTT client once (i.e. don't call <a class="el" href="group__api.html#gaa5dab8a06f016b09c7a5259274b3b3ce">mqtt_init</a> or <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a> more than once per client). </dd></dl>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a2">reconnect_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -442,7 +509,74 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a5">simple_publisher.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="bio_publisher_8c-example.html#a5">bio_publisher.c</a>, <a class="el" href="openssl_publisher_8c-example.html#a5">openssl_publisher.c</a>, and <a class="el" href="simple_publisher_8c-example.html#a5">simple_publisher.c</a>.</dd>
+</dl>
+</div>
+</div>
+<a class="anchor" id="gaf5ae4b5b880431ef1bcd72f343de9ac6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mqtt_reinit </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structmqtt__client.html">mqtt_client</a> *&#160;</td>
+          <td class="paramname"><em>client</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">mqtt_pal_socket_handle&#160;</td>
+          <td class="paramname"><em>socketfd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>sendbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>sendbufsz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>recvbuf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>recvbufsz</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Safely assign/reassign a socket and buffers to an new/existing client.This function also clears the <code>client</code> error state. Upon exiting this function <code>client-&gt;error</code> will be <code>MQTT_ERROR_CONNECT_NOT_CALLED</code> (which will be cleared) as soon as <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a> is called. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>This function must be called BEFORE <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">client</td><td>The MQTT client. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">socketfd</td><td>The new socket connected to the broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sendbuf</td><td>The buffer that will be used to buffer egress traffic to the broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">sendbufsz</td><td>The size of <code>sendbuf</code> in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">recvbuf</td><td>The buffer that will be used to buffer ingress traffic from the broker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">recvbufsz</td><td>The size of <code>recvbuf</code> in bytes.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section post"><dt>Postcondition</dt><dd>Call <a class="el" href="group__api.html#gadbe914e5a9d4f93314c4e7637cb4f7b3">mqtt_connect</a>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>This function should be used in conjunction with clients that have been initialzed with <a class="el" href="group__api.html#ga4becaa66425469cf462b531aa7eb1ac9">mqtt_init_reconnect</a>. </dd></dl>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a6">reconnect_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -487,7 +621,7 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>MQTT_OK</code> upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_subscriber_8c-example.html#a5">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="reconnect_subscriber_8c-example.html#a8">reconnect_subscriber.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a5">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>
@@ -515,7 +649,7 @@ A pointer to <a class="el" href="structmqtt__client.html#a948d816462128ef2216c23
 </dl>
 <dl class="section attention"><dt>Attention</dt><dd>It is the responsibility of the application programmer to call this function periodically. All functions in the <a class="el" href="group__api.html">API</a> are thread-safe so it is perfectly reasonable to have a thread dedicated to calling this function every 200 ms or so. MQTT-C can be used in single threaded application though by simply calling this functino periodically inside your main thread. See <a class="el" href="simple_publisher_8c-example.html">simple_publisher.c</a> and <a class="el" href="simple_subscriber_8c-example.html">simple_subscriber.c</a> for examples (specifically the <code>client_refresher</code> functions).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>MQTT_OK upon success, an <a class="el" href="group__api.html#gad0c901a8d30691ed0ca17915b691b7e7">MQTTErrors</a> otherwise. </dd></dl>
-<dl><dt><b>Examples: </b></dt><dd><a class="el" href="simple_publisher_8c-example.html#a6">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a9">simple_subscriber.c</a>.</dd>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="bio_publisher_8c-example.html#a6">bio_publisher.c</a>, <a class="el" href="openssl_publisher_8c-example.html#a6">openssl_publisher.c</a>, <a class="el" href="reconnect_subscriber_8c-example.html#a12">reconnect_subscriber.c</a>, <a class="el" href="simple_publisher_8c-example.html#a6">simple_publisher.c</a>, and <a class="el" href="simple_subscriber_8c-example.html#a9">simple_subscriber.c</a>.</dd>
 </dl>
 </div>
 </div>

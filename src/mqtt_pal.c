@@ -10,15 +10,47 @@
 
 #ifdef __unix__
 
-#include <stdio.h>
+#ifdef MQTT_USE_BIO
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    size_t sent = 0;
+    while(sent < len) {
+        int tmp = BIO_write(fd, buf + sent, len - sent);
+        if (tmp > 0) {
+            sent += (size_t) tmp;
+        } else if (tmp <= 0 && !BIO_should_retry(fd)) {
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+    }
+    
+    return sent;
+}
+
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
+    const void const *start = buf;
+    int rv;
+    do {
+        rv = BIO_read(fd, buf, bufsz);
+        if (rv > 0) {
+            /* successfully read bytes from the socket */
+            buf += rv;
+            bufsz -= rv;
+        } else if (!BIO_should_retry(fd)) {
+            /* an error occurred that wasn't "nothing to read". */
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+    } while (!BIO_should_read(fd));
+
+    return (ssize_t)(buf - start);
+}
+
+#else
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <fcntl.h>
 
-
-ssize_t mqtt_pal_sendall(int fd, const void* buf, size_t len, int flags) {
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
     size_t sent = 0;
     while(sent < len) {
         ssize_t tmp = send(fd, buf + sent, len - sent, flags);
@@ -30,7 +62,7 @@ ssize_t mqtt_pal_sendall(int fd, const void* buf, size_t len, int flags) {
     return sent;
 }
 
-ssize_t mqtt_pal_recvall(int fd, void* buf, size_t bufsz, int flags) {
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
     const void const *start = buf;
     ssize_t rv;
     do {
@@ -48,43 +80,7 @@ ssize_t mqtt_pal_recvall(int fd, void* buf, size_t bufsz, int flags) {
     return buf - start;
 }
 
-
-int mqtt_pal_sockopen(const char* addr, const char* port, int af) {
-    struct addrinfo hints = {0};
-
-    hints.ai_family = af; /* IPv4 or IPv6 */
-    hints.ai_socktype = SOCK_STREAM; /* Must be TCP */
-    int sockfd = -1;
-    int rv;
-    struct addrinfo *p, *servinfo;
-
-    /* get address information */
-    rv = getaddrinfo(addr, port, &hints, &servinfo);
-    if(rv != 0) {
-        fprintf(stderr, "Failed to open socket (getaddrinfo): %s\n", gai_strerror(rv));
-        return -1;
-    }
-
-    /* open the first possible socket */
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (sockfd == -1) continue;
-
-        /* connect to server */
-        rv = connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
-        if(rv == -1) continue;
-        break;
-    }  
-
-    /* free servinfo */
-    freeaddrinfo(servinfo);
-
-    /* make non-blocking */
-    if (sockfd != -1) fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
-
-    /* return the new socket fd */
-    return sockfd;  
-}
+#endif
 
 #endif
 
