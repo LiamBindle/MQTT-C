@@ -1575,7 +1575,8 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
     struct mqtt_queued_message *curr;
     for(curr = mqtt_mq_get(mq, 0); curr >= mq->queue_tail; --curr) {
         if (curr->control_type == control_type) {
-            if (packet_id == NULL || (packet_id != NULL && *packet_id == curr->packet_id)) {
+            if ((packet_id == NULL && curr->state != MQTT_QUEUED_COMPLETE) ||
+                (packet_id != NULL && *packet_id == curr->packet_id)) {
                 return curr;
             }
         }
