@@ -1010,7 +1010,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 { 
     struct mqtt_fixed_header fixed_header;
     uint32_t remaining_length;
-    const uint8_t const* start = buf;
+    const uint8_t *const start = buf;
     ssize_t rv;
     uint8_t temp;
 
@@ -1119,7 +1119,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 
 /* CONNACK */
 ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const uint8_t *buf) {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     struct mqtt_response_connack *response;
 
     /* check that remaining length is 2 */
@@ -1171,7 +1171,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
                                   size_t application_message_size,
                                   uint8_t publish_flags)
 {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     ssize_t rv;
     struct mqtt_fixed_header fixed_header;
     uint16_t remaining_length;
@@ -1237,7 +1237,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 
 ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const uint8_t *buf)
 {    
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     struct mqtt_fixed_header *fixed_header;
     struct mqtt_response_publish *response;
     
@@ -1283,7 +1283,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
                                  enum MQTTControlPacketType control_type,
                                  uint16_t packet_id) 
 {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     struct mqtt_fixed_header fixed_header;
     ssize_t rv;
     if (buf == NULL) {
@@ -1317,7 +1317,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
 
 ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const uint8_t *buf) 
 {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     uint16_t packet_id;
 
     /* assert remaining length is correct */
@@ -1344,7 +1344,7 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
 
 /* SUBACK */
 ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const uint8_t *buf) {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     uint32_t remaining_length = mqtt_response->fixed_header.remaining_length;
     
     /* assert remaining length is at least 3 (for packet id and at least 1 topic) */
@@ -1368,7 +1368,7 @@ ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const 
 /* SUBSCRIBE */
 ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...) {
     va_list args;
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     ssize_t rv;
     struct mqtt_fixed_header fixed_header;
     unsigned int num_subs = 0;
@@ -1433,7 +1433,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_
 /* UNSUBACK */
 ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const uint8_t *buf) 
 {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
 
     if (mqtt_response->fixed_header.remaining_length != 2) {
         return MQTT_ERROR_MALFORMED_RESPONSE;
@@ -1449,7 +1449,7 @@ ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const
 /* UNSUBSCRIBE */
 ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...) {
     va_list args;
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     ssize_t rv;
     struct mqtt_fixed_header fixed_header;
     unsigned int num_subs = 0;
@@ -1587,7 +1587,7 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
 
 /* RESPONSE UNPACKING */
 ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf, size_t bufsz) {
-    const uint8_t const *start = buf;
+    const uint8_t *const start = buf;
     ssize_t rv = mqtt_unpack_fixed_header(response, buf, bufsz);
     if (rv <= 0) return rv;
     else buf += rv;
