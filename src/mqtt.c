@@ -919,6 +919,11 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *
 
     lshift = 0;
     do {
+
+        /* MQTT spec (2.2.3) says the maximum length is 28 bits */
+        if(lshift == 28)
+            return MQTT_ERROR_INVALID_REMAINING_LENGTH;
+
         /* consume byte and assert at least 1 byte left */
         --bufsz;
         ++buf;
@@ -972,6 +977,11 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
     *buf |= ((uint8_t) fixed_header->control_flags)       & 0x0F;
 
     remaining_length = fixed_header->remaining_length;
+
+    /* MQTT spec (2.2.3) says maximum remaining length is 2^28-1 */
+    if(remaining_length >= 256*1024*1024)
+        return MQTT_ERROR_INVALID_REMAINING_LENGTH;
+
     do {
         /* consume byte and assert at least 1 byte left */
         --bufsz;
