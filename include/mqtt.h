@@ -164,6 +164,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
+    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)
 
 /* todo: add more connection refused errors */
 

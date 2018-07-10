@@ -24,11 +24,37 @@ const char* addr = "test.mosquitto.org";
 const char* port = "1883";
 
 static void TEST__framing__fixed_header(void** state) {
+static uint32_t remaining_lengths[] = { 0, 127, 128, 16383, 16384, 2097151, 2097152, 268435455, 268435456 };
+static ssize_t  actual_lengths[] = { 2, 2, 3, 3, 4, 4, 5, 5, MQTT_ERROR_INVALID_REMAINING_LENGTH };
     uint8_t correct_buf[1024];
     uint8_t buf[1024];
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
     ssize_t rv;
+    size_t k;
+
+    /*
+     * remaining length tests on pack and unpack
+     */
+    for(k = 0; k < sizeof(remaining_lengths)/sizeof(remaining_lengths[0]); ++k) {
+        fixed_header->control_type = MQTT_CONTROL_CONNECT;
+        fixed_header->control_flags = 0;
+        fixed_header->remaining_length = remaining_lengths[k];
+
+        /* the length is a necessary lie */
+        rv = mqtt_pack_fixed_header(buf, sizeof(buf) + remaining_lengths[k], fixed_header);
+        assert_true(rv == actual_lengths[k]);
+
+        if(k == 8)
+            buf[4] = 0x86;
+
+        /* another unavoidable lie */
+	rv = mqtt_unpack_fixed_header(&response, buf, sizeof(buf) + remaining_lengths[k]);
+	assert_true(rv == actual_lengths[k]);
+
+        if(k != 8)
+            assert_true(remaining_lengths[k] == response.fixed_header.remaining_length);
+    }
 
     /* sanity check with valid fixed_header */
     correct_buf[0] = (MQTT_CONTROL_CONNECT << 4) | 0;
