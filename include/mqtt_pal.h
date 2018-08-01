@@ -80,8 +80,11 @@
  * 
  * @returns The number of bytes sent if successful, an \ref MQTTErrors otherwise.
  */
+#ifdef MQTT_USE_CUSTOM_PAL_PTR
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags, void* client);
+#else
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags);
-
+#endif
 /**
  * @brief Non-blocking receive all the byte available.
  * @ingroup pal
@@ -93,6 +96,10 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
  * 
  * @returns The number of bytes received if successful, an \ref MQTTErrors otherwise.
  */
+#ifdef MQTT_USE_CUSTOM_PAL_PTR
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags, void* client);
+#else
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
 
 #endif

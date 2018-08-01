@@ -1158,6 +1158,11 @@ struct mqtt_client {
 
     /** @brief The sending message queue. */
     struct mqtt_message_queue mq;
+    
+#ifdef MQTT_USE_CUSTOM_PAL_PTR
+    /** @brief A custom pointer to store additional info and states for each client. */
+    void* custom;
+#endif
 };
 
 /**

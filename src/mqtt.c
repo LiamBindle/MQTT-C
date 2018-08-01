@@ -484,7 +484,11 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         }
 
         /* we're sending the message */
+#ifdef MQTT_USE_CUSTOM_PAL_PTR
+        ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0, client);
+#else
         ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0);
+#endif
         if (tmp < 0) {
             client->error = tmp;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
@@ -571,7 +575,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
         /* read in as many bytes as possible */
         ssize_t rv, consumed;
 
+#ifdef MQTT_USE_CUSTOM_PAL_PTR
+        rv = mqtt_pal_recvall(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0, client);
+#else
         rv = mqtt_pal_recvall(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
+#endif
         if (rv < 0) {
             /* an error occurred */
             client->error = rv;
