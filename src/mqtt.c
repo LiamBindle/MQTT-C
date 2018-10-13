@@ -1113,6 +1113,8 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
         buf += __mqtt_pack_str(buf, will_topic);
+        *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(will_message_size);
+        buf += 2;
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }

@@ -164,15 +164,17 @@ static void TEST__framing__connect(void** state) {
     uint8_t buf[256];
     ssize_t rv;
     const uint8_t correct_bytes[] = {
-        (MQTT_CONTROL_DISCONNECT << 4) | 0, 16,
-        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
+        (MQTT_CONTROL_CONNECT << 4) | 0, 16,
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 0, 120u, 
         0, 4, 'l', 'i', 'a', 'm'
     };
     const uint8_t correct_bytes2[] = {
-        (MQTT_CONTROL_DISCONNECT << 4) | 0, 16,
-        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 120u, 
+        (MQTT_CONTROL_CONNECT << 4) | 0, 51,
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 
+        MQTT_CONNECT_WILL_FLAG | MQTT_CONNECT_USER_NAME | MQTT_CONNECT_PASSWORD, 
+        0, 120u, 
         0, 4, 'l', 'i', 'a', 'm',
-        0, 8, 'w', 'i', 'l', 't', 'o', 'p', 'i', 'c',
+        0, 9, 'w', 'i', 'l', 'l', 't', 'o', 'p', 'i', 'c',
         0, 2, 'h', 'i',
         0, 8, 'u', 's', 'e', 'r', 'n', 'a', 'm', 'e',
         0, 8, 'p', 'a', 's', 's', 'w', 'o', 'r', 'd'
@@ -181,7 +183,7 @@ static void TEST__framing__connect(void** state) {
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
 
     rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", NULL, NULL, 0, NULL, NULL, 0, 120u);
-    assert_true(rv == 18);
+    assert_true(rv == sizeof(correct_bytes));
 
     /* check that fixed header is correct */
     rv = mqtt_unpack_fixed_header(&response, buf, rv);
@@ -189,14 +191,14 @@ static void TEST__framing__connect(void** state) {
     assert_true(fixed_header->remaining_length == 16);
 
     /* check that memory is correct */
-    assert_true(memcmp(correct_bytes, buf, sizeof(correct_bytes)));
+    assert_true(memcmp(correct_bytes, buf, sizeof(correct_bytes)) == 0);
 
     /* check that will flags are okay and user name and password */
     rv = mqtt_pack_connection_request(buf, sizeof(buf), "liam", "willtopic", "hi", 2, "username", "password", 0, 120u);
     assert_true(rv == sizeof(correct_bytes2));
 
     /* check that memory is correct */
-    assert_true(memcmp(correct_bytes2, buf, sizeof(correct_bytes2)));
+    assert_true(memcmp(correct_bytes2, buf, sizeof(correct_bytes2)) == 0);
 }
 
 static void TEST__framing__publish(void** state) {
