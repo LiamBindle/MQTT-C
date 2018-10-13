@@ -61,11 +61,13 @@
     #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
-    #ifdef MQTT_USE_BIO
-        #include <openssl/bio.h>
-        typedef BIO* mqtt_pal_socket_handle;
-    #else
-        typedef int mqtt_pal_socket_handle;
+    #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
+        #ifdef MQTT_USE_BIO
+            #include <openssl/bio.h>
+            typedef BIO* mqtt_pal_socket_handle;
+        #else
+            typedef int mqtt_pal_socket_handle;
+        #endif
     #endif
 #endif
 
