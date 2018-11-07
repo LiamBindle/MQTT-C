@@ -1523,7 +1523,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packe
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
 {
     mq->mem_start = buf;
-    mq->mem_end = buf + bufsz;
+    mq->mem_end = (uint8_t*)buf + bufsz;
     mq->curr = buf;
     mq->queue_tail = mq->mem_end;
     mq->curr_sz = mqtt_mq_currsz(mq);
@@ -1566,7 +1566,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     size_t n = mq->curr - new_head->start;
     size_t removing = new_head->start - (uint8_t*) mq->mem_start;
     memmove(mq->mem_start, new_head->start, n);
-    mq->curr = mq->mem_start + n;
+    mq->curr = (uint8_t*)mq->mem_start + n;
 
     /* move queue */
     ssize_t new_tail_idx = new_head - mq->queue_tail;
