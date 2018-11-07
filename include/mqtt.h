@@ -429,7 +429,9 @@ struct mqtt_response_unsuback {
  * MQTT v3.1.1: PINGRESP - Ping Response.
  * </a> 
  */
-struct mqtt_response_pingresp {};
+struct mqtt_response_pingresp {
+  int dummy;
+};
 
 /**
  * @brief A struct used to deserialize/interpret an incoming packet from the broker.
