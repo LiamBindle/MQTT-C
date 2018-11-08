@@ -34,6 +34,7 @@ SOFTWARE.
 
 enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     /* Recover from any errors */
+    enum MQTTErrors err;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
         client->reconnect_callback(client, &client->reconnect_state);
@@ -43,7 +44,7 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     }
 
     /* Call inspector callback if necessary */
-    enum MQTTErrors err;
+    
     if (client->inspector_callback != NULL) {
         MQTT_PAL_MUTEX_LOCK(&client->mutex);
         err = client->inspector_callback(client);
@@ -61,12 +62,14 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
 }
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
+    int pid_exists = 0;
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
     }
     /* LFSR taps taken from: https://en.wikipedia.org/wiki/Linear-feedback_shift_register */
-    int pid_exists = 0;
+    
     do {
+        struct mqtt_queued_message *curr;
         unsigned lsb = client->pid_lfsr & 1;
         (client->pid_lfsr) >>= 1;
         if (lsb) {
@@ -75,7 +78,6 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
 
         /* check that the PID is unique */
         pid_exists = 0;
-        struct mqtt_queued_message *curr;
         for(curr = mqtt_mq_get(&(client->mq), 0); curr >= client->mq.queue_tail; --curr) {
             if (curr->packet_id == client->pid_lfsr) {
                 pid_exists = 1;
@@ -247,10 +249,12 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
                      size_t application_message_size,
                      uint8_t publish_flags)
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    uint16_t packet_id = __mqtt_next_pid(client);
-    ssize_t rv;
     struct mqtt_queued_message *msg;
+    ssize_t rv;
+    uint16_t packet_id;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    packet_id = __mqtt_next_pid(client);
+
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -361,10 +365,11 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
                        const char* topic_name,
                        int max_qos_level)
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    uint16_t packet_id = __mqtt_next_pid(client);
     ssize_t rv;
+    uint16_t packet_id;
     struct mqtt_queued_message *msg;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    packet_id = __mqtt_next_pid(client);
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -389,10 +394,10 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
 enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
                          const char* topic_name)
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
     uint16_t packet_id = __mqtt_next_pid(client);
     ssize_t rv;
     struct mqtt_queued_message *msg;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -443,9 +448,9 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client)
 
 enum MQTTErrors mqtt_disconnect(struct mqtt_client *client) 
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
     ssize_t rv;
     struct mqtt_queued_message *msg;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -464,18 +469,21 @@ enum MQTTErrors mqtt_disconnect(struct mqtt_client *client)
 
 ssize_t __mqtt_send(struct mqtt_client *client) 
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
     uint8_t inspected;
-
+    int len;
+    int inflight_qos2 = 0;
+    int i = 0;
+    
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    
     if (client->error < 0 && client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL) {
         MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
         return client->error;
     }
 
     /* loop through all messages in the queue */
-    int len = mqtt_mq_length(&client->mq);
-    int inflight_qos2 = 0;
-    for(int i = 0; i < len; ++i) {
+    len = mqtt_mq_length(&client->mq);
+    for(; i < len; ++i) {
         struct mqtt_queued_message *msg = mqtt_mq_get(&client->mq, i);
         int resend = 0;
         if (msg->state == MQTT_QUEUED_UNSENT) {
@@ -508,11 +516,13 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         }
 
         /* we're sending the message */
-        ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0);
-        if (tmp < 0) {
+        {
+          ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0);
+          if (tmp < 0) {
             client->error = tmp;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return tmp;
+          }
         }
 
         /* update timeout watcher */
@@ -571,13 +581,15 @@ ssize_t __mqtt_send(struct mqtt_client *client)
     }
 
     /* check for keep-alive */
-    mqtt_pal_time_t keep_alive_timeout = client->time_of_last_send + (mqtt_pal_time_t) ((float) (client->keep_alive) * 0.75);
-    if (MQTT_PAL_TIME() > keep_alive_timeout) {
-        ssize_t rv = __mqtt_ping(client);
-        if (rv != MQTT_OK) {
+    {
+        mqtt_pal_time_t keep_alive_timeout = client->time_of_last_send + (mqtt_pal_time_t)((float)(client->keep_alive) * 0.75);
+        if (MQTT_PAL_TIME() > keep_alive_timeout) {
+          ssize_t rv = __mqtt_ping(client);
+          if (rv != MQTT_OK) {
             client->error = rv;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return rv;
+          }
         }
     }
 
@@ -587,13 +599,14 @@ ssize_t __mqtt_send(struct mqtt_client *client)
 
 ssize_t __mqtt_recv(struct mqtt_client *client) 
 {
-    MQTT_PAL_MUTEX_LOCK(&client->mutex);
     struct mqtt_response response;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
 
     /* read until there is nothing left to read */
     while(1) {
         /* read in as many bytes as possible */
         ssize_t rv, consumed;
+        struct mqtt_queued_message *msg = NULL;
 
         rv = mqtt_pal_recvall(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
         if (rv < 0) {
@@ -627,7 +640,6 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
         }
 
         /* response was unpacked successfully */
-        struct mqtt_queued_message *msg = NULL;
 
         /*
         The switch statement below manages how the client responds to messages from the broker.
@@ -814,14 +826,15 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
                 return MQTT_ERROR_MALFORMED_RESPONSE;
         }
-
-        /* we've handled the response, now clean the buffer */
-        void *dest = client->recv_buffer.mem_start;
-        void *src  = client->recv_buffer.mem_start + consumed;
-        size_t n = client->recv_buffer.curr - client->recv_buffer.mem_start - consumed;
-        memmove(dest, src, n);
-        client->recv_buffer.curr -= consumed;
-        client->recv_buffer.curr_sz += consumed;
+        {
+          /* we've handled the response, now clean the buffer */
+          void* dest = (unsigned char*)client->recv_buffer.mem_start;
+          void* src  = (unsigned char*)client->recv_buffer.mem_start + consumed;
+          size_t n = client->recv_buffer.curr - client->recv_buffer.mem_start - consumed;
+          memmove(dest, src, n);
+          client->recv_buffer.curr -= consumed;
+          client->recv_buffer.curr_sz += consumed;
+        }
     }
 
     /* never hit (always return once there's nothing left. */
@@ -1547,7 +1560,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packe
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
 {
     mq->mem_start = buf;
-    mq->mem_end = (uint8_t*)buf + bufsz;
+    mq->mem_end = (unsigned char*)buf + bufsz;
     mq->curr = buf;
     mq->queue_tail = mq->mem_end;
     mq->curr_sz = mqtt_mq_currsz(mq);
@@ -1587,19 +1600,27 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     }
 
     /* move buffered data */
-    size_t n = mq->curr - new_head->start;
-    size_t removing = new_head->start - (uint8_t*) mq->mem_start;
-    memmove(mq->mem_start, new_head->start, n);
-    mq->curr = (uint8_t*)mq->mem_start + n;
+    {
+        size_t n = mq->curr - new_head->start;
+        size_t removing = new_head->start - (uint8_t*) mq->mem_start;
+        memmove(mq->mem_start, new_head->start, n);
+        mq->curr = (unsigned char*)mq->mem_start + n;
+      
 
-    /* move queue */
-    ssize_t new_tail_idx = new_head - mq->queue_tail;
-    memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (new_tail_idx + 1));
-    mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
-
-    /* bump back start's */
-    for(ssize_t i = 0; i < new_tail_idx + 1; ++i) {
-        mqtt_mq_get(mq, i)->start -= removing;
+        /* move queue */
+        {
+            ssize_t new_tail_idx = new_head - mq->queue_tail;
+            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (new_tail_idx + 1));
+            mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
+          
+            {
+                /* bump back start's */
+                ssize_t i = 0;
+                for(; i < new_tail_idx + 1; ++i) {
+                    mqtt_mq_get(mq, i)->start -= removing;
+                }
+            }
+        }
     }
 
     /* get curr_sz */
@@ -1666,13 +1687,13 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
 /* EXTRA DETAILS */
 ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
     uint16_t length = strlen(str);
-
+    int i = 0;
     /* pack string length */
     *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(length);
     buf += 2;
 
     /* pack string */
-    for(int i = 0; i < length; ++i) {
+    for(; i < length; ++i) {
         *(buf++) = str[i];
     }
     
