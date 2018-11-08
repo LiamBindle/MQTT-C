@@ -379,7 +379,7 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
             packet_id,
             topic_name,
             max_qos_level,
-            NULL
+            (const char*)NULL
         ), 
         1
     );
@@ -406,7 +406,7 @@ enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
             client->mq.curr, client->mq.curr_sz,
             packet_id,
             topic_name,
-            NULL
+            (const char*)NULL
         ), 
         1
     );
