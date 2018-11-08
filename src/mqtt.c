@@ -1059,7 +1059,6 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     uint32_t remaining_length;
     const uint8_t *const start = buf;
     ssize_t rv;
-    uint8_t temp;
 
     /* pack the fixed headr */
     fixed_header.control_type = MQTT_CONTROL_CONNECT;
@@ -1078,6 +1077,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     }
     
     if (will_topic != NULL) {
+        uint8_t temp;
         /* there is a will */
         connect_flags |= MQTT_CONNECT_WILL_FLAG;
         remaining_length += __mqtt_packed_cstrlen(will_topic);
