@@ -142,7 +142,7 @@ struct mqtt_fixed_header {
     enum MQTTControlPacketType control_type;
 
     /** The packets control flags.*/
-    uint8_t control_flags: 4;
+    uint32_t  control_flags: 4;
 
     /** The remaining size of the packet in bytes (i.e. the size of variable header and payload).*/
     uint32_t remaining_length;
