@@ -1415,7 +1415,7 @@ ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const 
 }
 
 /* SUBSCRIBE */
-ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...) {
+ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int packet_id, ...) {
     va_list args;
     const uint8_t *const start = buf;
     ssize_t rv;
@@ -1466,7 +1466,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_
     }
 
     /* pack variable header */
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
+    *(uint16_t*) buf = MQTT_PAL_HTONS((uint16_t)packet_id);
     buf += 2;
 
 
@@ -1496,7 +1496,7 @@ ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const
 }
 
 /* UNSUBSCRIBE */
-ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packet_id, ...) {
+ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int packet_id, ...) {
     va_list args;
     const uint8_t *const start = buf;
     ssize_t rv;
@@ -1544,7 +1544,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, uint16_t packe
     }
 
     /* pack variable header */
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
+    *(uint16_t*) buf = MQTT_PAL_HTONS((uint16_t)packet_id);
     buf += 2;
 
 
