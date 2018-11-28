@@ -470,7 +470,7 @@ enum MQTTErrors mqtt_disconnect(struct mqtt_client *client)
 ssize_t __mqtt_send(struct mqtt_client *client) 
 {
     uint8_t inspected;
-    int len;
+    ssize_t len;
     int inflight_qos2 = 0;
     int i = 0;
     
@@ -1056,7 +1056,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
                                      uint16_t keep_alive)
 { 
     struct mqtt_fixed_header fixed_header;
-    uint32_t remaining_length;
+    size_t remaining_length;
     const uint8_t *const start = buf;
     ssize_t rv;
 
@@ -1143,15 +1143,13 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     *buf++ = (uint8_t) 'T';
     *buf++ = MQTT_PROTOCOL_LEVEL;
     *buf++ = connect_flags;
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(keep_alive);
-    buf += 2;
+    buf += __mqtt_pack_uint16(buf, keep_alive);
 
     /* pack the payload */
     buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
         buf += __mqtt_pack_str(buf, will_topic);
-        *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(will_message_size);
-        buf += 2;
+        buf += __mqtt_pack_uint16(buf, will_message_size);
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }
@@ -1273,8 +1271,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     /* pack variable header */
     buf += __mqtt_pack_str(buf, topic_name);
     if (inspected_qos > 0) {
-        *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
-        buf += 2;
+        buf += __mqtt_pack_uint16(buf, packet_id);
     }
 
     /* pack payload */
@@ -1304,13 +1301,13 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     }
 
     /* parse variable header */
-    response->topic_name_size = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+    response->topic_name_size = __mqtt_unpack_uint16(buf);
     buf += 2;
     response->topic_name = buf;
     buf += response->topic_name_size;
 
     if (response->qos_level > 0) {
-        response->packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+        response->packet_id = __mqtt_unpack_uint16(buf);
         buf += 2;
     }
 
@@ -1358,8 +1355,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
         return 0;
     }
     
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(packet_id);
-    buf += 2;
+    buf += __mqtt_pack_uint16(buf, packet_id);
 
     return buf - start;
 }
@@ -1375,7 +1371,7 @@ ssize_t mqtt_unpack_pubxxx_response(struct mqtt_response *mqtt_response, const u
     }
 
     /* parse packet_id */
-    packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+    packet_id = __mqtt_unpack_uint16(buf);
     buf += 2;
 
     if (mqtt_response->fixed_header.control_type == MQTT_CONTROL_PUBACK) {
@@ -1402,7 +1398,7 @@ ssize_t mqtt_unpack_suback_response (struct mqtt_response *mqtt_response, const 
     }
 
     /* unpack packet_id */
-    mqtt_response->decoded.suback.packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+    mqtt_response->decoded.suback.packet_id = __mqtt_unpack_uint16(buf);
     buf += 2;
     remaining_length -= 2;
 
@@ -1464,10 +1460,10 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
     if (bufsz < fixed_header.remaining_length) {
         return 0;
     }
-
+    
+    
     /* pack variable header */
-    *(uint16_t*) buf = MQTT_PAL_HTONS((uint16_t)packet_id);
-    buf += 2;
+    buf += __mqtt_pack_uint16(buf, packet_id);
 
 
     /* pack payload */
@@ -1489,7 +1485,7 @@ ssize_t mqtt_unpack_unsuback_response(struct mqtt_response *mqtt_response, const
     }
 
     /* parse packet_id */
-    mqtt_response->decoded.unsuback.packet_id = (uint16_t) MQTT_PAL_NTOHS(*(uint16_t*) buf);
+    mqtt_response->decoded.unsuback.packet_id = __mqtt_unpack_uint16(buf);
     buf += 2;
 
     return buf - start;
@@ -1544,8 +1540,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
     }
 
     /* pack variable header */
-    *(uint16_t*) buf = MQTT_PAL_HTONS((uint16_t)packet_id);
-    buf += 2;
+    buf += __mqtt_pack_uint16(buf, packet_id);
 
 
     /* pack payload */
@@ -1685,12 +1680,25 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
 }
 
 /* EXTRA DETAILS */
+ssize_t __mqtt_pack_uint16(uint8_t *buf, uint16_t integer)
+{
+  uint16_t integer_htons = MQTT_PAL_HTONS(integer);
+  memcpy(buf, &integer_htons, 2);
+  return 2;
+}
+
+uint16_t __mqtt_unpack_uint16(const uint8_t *buf)
+{
+  uint16_t integer_htons;
+  memcpy(&integer_htons, buf, 2);
+  return MQTT_PAL_NTOHS(integer_htons);
+}
+
 ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
     uint16_t length = strlen(str);
     int i = 0;
-    /* pack string length */
-    *(uint16_t*) buf = (uint16_t) MQTT_PAL_HTONS(length);
-    buf += 2;
+     /* pack string length */
+    buf += __mqtt_pack_uint16(buf, length);
 
     /* pack string */
     for(; i < length; ++i) {

@@ -230,6 +230,29 @@ enum MQTTErrors {
 const char* mqtt_error_str(enum MQTTErrors error);
 
 /**
+ * @brief Pack a MQTT 16 bit integer, given a native 16 bit integer .
+ * 
+ * @param[out] buf the buffer that the MQTT integer will be written to.
+ * @param[in] integer the native integer to be written to \p buf.
+ * 
+ * @warning This function provides no error checking.
+ * 
+ * @returns 2
+*/
+ssize_t __mqtt_pack_uint16(uint8_t *buf, uint16_t integer);
+
+/**
+ * @brief Unpack a MQTT 16 bit integer to a native 16 bit integer.
+ * 
+ * @param[in] buf the buffer that the MQTT integer will be read from.
+ * 
+ * @warning This function provides no error checking and does not modify \p buf.
+ * 
+ * @returns The native integer
+*/
+uint16_t __mqtt_unpack_uint16(const uint8_t *buf);
+
+/**
  * @brief Pack a MQTT string, given a c-string \p str.
  * 
  * @param[out] buf the buffer that the MQTT string will be written to.
