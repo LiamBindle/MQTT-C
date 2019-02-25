@@ -116,6 +116,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0;
     client->publish_response_callback = publish_response_callback;
+    client->pid_lfsr = 0;
 
     client->inspector_callback = NULL;
     client->reconnect_callback = NULL;
