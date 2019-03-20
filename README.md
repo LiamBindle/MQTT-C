@@ -6,7 +6,12 @@ are expected. The purpose of MQTT-C is to provide a **portable** MQTT client, **
 for embedded systems and PC's alike. MQTT-C does this by providing a transparent Platform 
 Abstraction Layer (PAL) which makes porting to new platforms easy. MQTT-C is completely 
 thread-safe but can also run perfectly fine on single-threaded systems making MQTT-C 
-well-suited for embedded systems and microcontrollers.
+well-suited for embedded systems and microcontrollers. Finally, MQTT-C is small; there are only 
+two source files totalling less than 2000 lines.
+
+#### A note from the author
+It's been amazing to hear about all the places MQTT-C is being used! Please don't hesitate
+to get in touch with me or submit issues on GitHub!
 
 ## Getting Started
 To use MQTT-C you must first instantiate a `struct mqtt_client` and initialize it by calling
@@ -33,13 +38,12 @@ And we can publish, say the coffee maker's temperature, like so:
 
 ## Building
 There are **only two source files** that need to be built, `mqtt.c` and `mqtt_pal.c`.
-You should be able to build these files with any **C99 (or more recent) compilers**.
+These files are ANSI C (C89) compatible, and should compile with any C compiler.
 
 Then, simply <code>\#include <mqtt.h></code>.
 
 ## Documentation
-Pre-built documentation can be found at `"docs/index.html"`, or online 
-[here](https://liambindle.ca/MQTT-C). 
+Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C).
 
 The @ref api documentation contains all the documentation application programmers should need. 
 The @ref pal documentation contains everything you should need to port MQTT-C to a new platform,
