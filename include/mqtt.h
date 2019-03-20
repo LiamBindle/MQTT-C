@@ -142,7 +142,7 @@ struct mqtt_fixed_header {
     enum MQTTControlPacketType control_type;
 
     /** The packets control flags.*/
-    uint8_t control_flags: 4;
+    uint32_t  control_flags: 4;
 
     /** The remaining size of the packet in bytes (i.e. the size of variable header and payload).*/
     uint32_t remaining_length;
@@ -228,6 +228,29 @@ enum MQTTErrors {
  * @returns The associated error message.
  */
 const char* mqtt_error_str(enum MQTTErrors error);
+
+/**
+ * @brief Pack a MQTT 16 bit integer, given a native 16 bit integer .
+ * 
+ * @param[out] buf the buffer that the MQTT integer will be written to.
+ * @param[in] integer the native integer to be written to \p buf.
+ * 
+ * @warning This function provides no error checking.
+ * 
+ * @returns 2
+*/
+ssize_t __mqtt_pack_uint16(uint8_t *buf, uint16_t integer);
+
+/**
+ * @brief Unpack a MQTT 16 bit integer to a native 16 bit integer.
+ * 
+ * @param[in] buf the buffer that the MQTT integer will be read from.
+ * 
+ * @warning This function provides no error checking and does not modify \p buf.
+ * 
+ * @returns The native integer
+*/
+uint16_t __mqtt_unpack_uint16(const uint8_t *buf);
 
 /**
  * @brief Pack a MQTT string, given a c-string \p str.
@@ -639,7 +662,7 @@ enum MQTTConnectFlags {
     MQTT_CONNECT_WILL_QOS_2 = (2u & 0x03) << 3,
     MQTT_CONNECT_WILL_RETAIN = 32u,
     MQTT_CONNECT_PASSWORD = 64u,
-    MQTT_CONNECT_USER_NAME = 128u,
+    MQTT_CONNECT_USER_NAME = 128u
 };
 
 /**
@@ -801,7 +824,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
  *          packet, a negative value if there was a protocol violation.
  */
 ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, 
-                                    uint16_t packet_id, 
+                                    unsigned int packet_id, 
                                     ...); /* null terminated */
 
 /** 
@@ -835,7 +858,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz,
  *          packet, a negative value if there was a protocol violation.
  */
 ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, 
-                                      uint16_t packet_id, 
+                                      unsigned int packet_id, 
                                       ...); /* null terminated */
 
 /**
