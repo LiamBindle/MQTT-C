@@ -10,7 +10,7 @@ well-suited for embedded systems and microcontrollers. Finally, MQTT-C is small;
 two source files totalling less than 2000 lines.
 
 #### A note from the author
-It's been amazing to hear about all the places MQTT-C is being used! Please don't hesitate
+It's been great to hear about all the places MQTT-C is being used! Please don't hesitate
 to get in touch with me or submit issues on GitHub!
 
 ## Getting Started
