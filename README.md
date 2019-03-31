@@ -29,27 +29,28 @@ It's been great to hear about all the places MQTT-C is being used! Please don't 
 to get in touch with me or submit issues on GitHub!
 
 ## Getting Started
-To use MQTT-C you must first instantiate a `struct mqtt_client` and initialize it by calling
+To use MQTT-C you first instantiate a `struct mqtt_client` and initialize it by calling
 @ref mqtt_init.
 ```c
     struct mqtt_client client; /* instantiate the client */
     mqtt_init(&client, ...);   /* initialize the client */
 ```
-Once your client is initialized you must connect to an MQTT broker.
+Once your client is initialized you need to connect to an MQTT broker.
 ```c
     mqtt_connect(&client, ...); /* send a connection request to the broker. */
 ```
-At this point the client is ready to use! For example, we can subscribe to like so:
+At this point the client is ready to use! For example, we can subscribe to a topic like so:
 ```c
     /* subscribe to "toaster/temperature" with a max QoS level of 0 */
     mqtt_subscribe(&client, "toaster/temperature", 0);
 ```
-And we can publish, say the coffee maker's temperature, like so:
+And we can publish to a topic like so:
 ```c
     /* publish coffee temperature with a QoS level of 1 */
     int temperature = 67;
     mqtt_publish(&client, "coffee/temperature", &temperature, sizeof(int), MQTT_PUBLISH_QOS_1);
 ```
+Those are the basics! From here the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) and [API documentation](https://liambindle.ca/MQTT-C/group__api.html) are good places to get started.
 
 ## Building
 There are **only two source files** that need to be built, `mqtt.c` and `mqtt_pal.c`.
@@ -58,7 +59,7 @@ These files are ANSI C (C89) compatible, and should compile with any C compiler.
 Then, simply <code>\#include <mqtt.h></code>.
 
 ## Documentation
-Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C).
+Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C). Be sure to check out the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) too.
 
 The @ref api documentation contains all the documentation application programmers should need. 
 The @ref pal documentation contains everything you should need to port MQTT-C to a new platform,
