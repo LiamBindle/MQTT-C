@@ -12,6 +12,8 @@
     <a href="https://github.com/LiamBindle/MQTT-C/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
+# 
+
 MQTT-C is an [MQTT v3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) 
 client written in C. MQTT is a lightweight publisher-subscriber-based messaging protocol that is
 commonly used in IoT and networking applications where high-latency and low data-rate links 
