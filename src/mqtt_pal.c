@@ -24,60 +24,17 @@ SOFTWARE.
 
 #include <mqtt.h>
 
-/** 
- * @file 
- * @brief Implements @ref mqtt_pal_sendall and @ref mqtt_pal_recvall and 
- *        any platform-specific helpers you'd like.
- * @cond Doxygen_Suppress
- */
-
-
-#ifdef __unix__
-
-#ifdef MQTT_USE_BIO
-#include <openssl/bio.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-
+/* [attn:Glenn] You'll have to implement this function. It's job is to send all the bytes in buf (number of bytes to send is len).
+    You can ignore flags...those aren't used.
+    If you don't have a socket fd...you can ignore it. fd is just whatever you passed to mqtt_init initially (again...it's not touched by MQTT-C internals).
+    Return the number of bytes sent (IMPORTANT).
+*/
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    /* below is the implementation for POSIX-like sockets for your reference */
+
     size_t sent = 0;
     while(sent < len) {
-        int tmp = BIO_write(fd, buf + sent, len - sent);
-        if (tmp > 0) {
-            sent += (size_t) tmp;
-        } else if (tmp <= 0 && !BIO_should_retry(fd)) {
-            return MQTT_ERROR_SOCKET_ERROR;
-        }
-    }
-    
-    return sent;
-}
-
-ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
-    const void const *start = buf;
-    int rv;
-    do {
-        rv = BIO_read(fd, buf, bufsz);
-        if (rv > 0) {
-            /* successfully read bytes from the socket */
-            buf += rv;
-            bufsz -= rv;
-        } else if (!BIO_should_retry(fd)) {
-            /* an error occurred that wasn't "nothing to read". */
-            return MQTT_ERROR_SOCKET_ERROR;
-        }
-    } while (!BIO_should_read(fd));
-
-    return (ssize_t)(buf - start);
-}
-
-#else
-#include <errno.h>
-
-ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
-    size_t sent = 0;
-    while(sent < len) {
-        ssize_t tmp = send(fd, buf + sent, len - sent, flags);
+        ssize_t tmp = 0; /* "0" used to be: send(fd, buf + sent, len - sent, flags);*/
         if (tmp < 1) {
             return MQTT_ERROR_SOCKET_ERROR;
         }
@@ -86,16 +43,20 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
     return sent;
 }
 
+/* [attn:Glenn] You'll have to implement this function. It's job is to receive bytes from the network and put them in buf.
+    If the number of bytes to receive is LARGER than bufsz (the size of the buffer your're writing to)...you should return MQTT_ERROR_SOCKET_ERROR.
+    Return the number of bytes written to buf (IMPORTANT). 
+*/
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
     const void const *start = buf;
     ssize_t rv;
     do {
-        rv = recv(fd, buf, bufsz, flags);
+        rv = 0; /* "0" used to be: recv(fd, buf, bufsz, flags); */
         if (rv > 0) {
             /* successfully read bytes from the socket */
             buf += rv;
             bufsz -= rv;
-        } else if (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+        } else if (rv < 0 /*&& errno != EAGAIN && errno != EWOULDBLOCK*/) {
             /* an error occurred that wasn't "nothing to read". */
             return MQTT_ERROR_SOCKET_ERROR;
         }
@@ -103,9 +64,3 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
 
     return buf - start;
 }
-
-#endif
-
-#endif
-
-/** @endcond */
