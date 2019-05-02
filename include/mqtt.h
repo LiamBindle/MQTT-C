@@ -137,7 +137,7 @@ SOFTWARE.
  */
 struct mqtt_fixed_header {
     /** The type of packet. */
-    enum MQTTControlPacketType control_type;
+    uint8_t control_type;
 
     /** The packets control flags.*/
     uint32_t  control_flags: 4;
@@ -194,7 +194,7 @@ struct mqtt_fixed_header {
  * 
  * @returns The associated error message.
  */
-const char* mqtt_error_str(enum MQTTErrors error);
+const char* mqtt_error_str(int error);
 
 /**
  * @brief Pack a MQTT 16 bit integer, given a native 16 bit integer .
@@ -271,7 +271,7 @@ struct mqtt_response_connack {
      * 
      * @see MQTTConnackReturnCode
      */
-    enum MQTTConnackReturnCode return_code;
+    uint8_t return_code;
 };
 
  /**
@@ -748,7 +748,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
  *          packet, a negative value if there was a protocol violation.
  */
 ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
-                                 enum MQTTControlPacketType control_type,
+                                 uint8_t control_type,
                                  uint16_t packet_id);
 
 /** 
@@ -873,7 +873,7 @@ struct mqtt_queued_message {
     size_t size;
 
     /** @brief The state of the message. */
-    enum MQTTQueuedMessageState state;
+    uint8_t state;
 
     /** 
      * @brief The time at which the message was sent..
@@ -886,7 +886,7 @@ struct mqtt_queued_message {
     /**
      * @brief The control type of the message.
      */
-    enum MQTTControlPacketType control_type;
+    uint8_t control_type;
 
     /** 
      * @brief The packet id of the message.
@@ -995,7 +995,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
  * @relates mqtt_message_queue
  * @returns The found message. \c NULL if the message was not found.
  */
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq,  enum MQTTControlPacketType control_type, uint16_t *packet_id);
+struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq,  uint8_t control_type, uint16_t *packet_id);
 
 /**
  * @brief Returns the mqtt_queued_message at \p index.
@@ -1061,7 +1061,7 @@ struct mqtt_client {
      * @note The error state will be MQTT_ERROR_CONNECT_NOT_CALLED until
      *       you call mqtt_connect.
      */
-     enum MQTTErrors error;
+     int error;
 
     /** 
      * @brief The timeout period in seconds.
@@ -1120,7 +1120,7 @@ struct mqtt_client {
      * This member is always initialized to NULL but it can be manually set at any 
      * time.
      */
-    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+    int (*inspector_callback)(struct mqtt_client*);
 
     /**
      * @brief A callback that is called whenever the client is in an error state.
@@ -1224,7 +1224,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client);
  * 
  * @returns MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_sync(struct mqtt_client *client);
+int mqtt_sync(struct mqtt_client *client);
 
 /**
  * @brief Initializes an MQTT client.
@@ -1259,7 +1259,7 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_init(struct mqtt_client *client,
+int mqtt_init(struct mqtt_client *client,
                           mqtt_pal_socket_handle sockfd,
                           uint8_t *sendbuf, size_t sendbufsz,
                           uint8_t *recvbuf, size_t recvbufsz,
@@ -1367,7 +1367,7 @@ void mqtt_reinit(struct mqtt_client* client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_connect(struct mqtt_client *client,
+int mqtt_connect(struct mqtt_client *client,
                              const char* client_id,
                              const char* will_topic,
                              const void* will_message,
@@ -1399,7 +1399,7 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_publish(struct mqtt_client *client,
+int mqtt_publish(struct mqtt_client *client,
                              const char* topic_name,
                              void* application_message,
                              size_t application_message_size,
@@ -1463,7 +1463,7 @@ ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
+int mqtt_subscribe(struct mqtt_client *client,
                                const char* topic_name,
                                int max_qos_level);
 
@@ -1478,7 +1478,7 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
+int mqtt_unsubscribe(struct mqtt_client *client,
                                  const char* topic_name);
 
 /**
@@ -1491,13 +1491,13 @@ enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_ping(struct mqtt_client *client);
+int mqtt_ping(struct mqtt_client *client);
 
 /**
  * @brief Ping the broker without locking/unlocking the mutex. 
  * @see mqtt_ping
  */
-enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
+int __mqtt_ping(struct mqtt_client *client);
 
 /**
  * @brief Terminate the session with the MQTT broker. 
@@ -1511,6 +1511,6 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
+int mqtt_disconnect(struct mqtt_client *client);
 
 #endif
