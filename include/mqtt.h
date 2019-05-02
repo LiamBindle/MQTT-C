@@ -214,9 +214,9 @@ struct mqtt_fixed_header {
  * @see mqtt_error_str
  */
 enum MQTTErrors {
-    MQTT_ERROR_UNKNOWN= (ssize_t) INT_MIN,
+    MQTT_ERROR_UNKNOWN=INT_MIN,
     __ALL_MQTT_ERRORS(GENERATE_ENUM)
-    MQTT_OK = (ssize_t) 1
+    MQTT_OK = 1
 };
 
 /** 
