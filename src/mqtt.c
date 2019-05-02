@@ -1537,7 +1537,7 @@ void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)
     mq->mem_start = buf;
     mq->mem_end = (unsigned char*)buf + bufsz;
     mq->curr = buf;
-    mq->queue_tail = mq->mem_end;
+    mq->queue_tail = (struct mqtt_queued_message *)(mq->mem_end);
     mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
@@ -1565,8 +1565,8 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     
     /* check if everything can be removed */
     if (new_head < mq->queue_tail) {
-        mq->curr = mq->mem_start;
-        mq->queue_tail = mq->mem_end;
+        mq->curr = (uint8_t*)(mq->mem_start);
+        mq->queue_tail = (struct mqtt_queued_message *)(mq->mem_end);
         mq->curr_sz = mqtt_mq_currsz(mq);
         return;
     } else if (new_head == mqtt_mq_get(mq, 0)) {
