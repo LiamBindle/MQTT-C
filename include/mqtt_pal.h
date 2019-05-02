@@ -64,40 +64,36 @@ SOFTWARE.
  */
 
 
-/******************** Below we define the types for your system. *******************************/
-#include <string.h> /* This is for NULL, memcpy, strlen, etc. */
+/* UNIX-like platform support */
+#ifdef __unix__
+    #include <limits.h>
+    #include <string.h>
+    #include <stdarg.h>
+    #include <time.h>
+    #include <arpa/inet.h>
+    #include <pthread.h>
 
-/* [attn:Glenn] replace the lines below with the appropriate integer types on your system. */
-typedef unsigned char   uint8_t;
-typedef unsigned short  uint16_t;
-typedef unsigned int    uint32_t;
-typedef signed long     ssize_t;
+    #define MQTT_PAL_HTONS(s) htons(s)
+    #define MQTT_PAL_NTOHS(s) ntohs(s)
 
-/* [attn:Glenn] If I understand correct, you don't get a "file descriptor" for your sockets (i.e. you don't need to specify some FD in your AT commands).
-                 If you don't have a socket FD, ignore this. This gets passed to the network callbacks (mqtt_pal_sendall and mqtt_pal_recvall) but since 
-                 you don't need it, the fd argument can just be ignored.
- */
-typedef int mqtt_pal_socket_handle;
+    #define MQTT_PAL_TIME() time(NULL)
 
-/* [attn:Glenn] You'll need to replace "0" with a call that gets the current system time in seconds. */
-#define MQTT_PAL_TIME() 0
-/* [attn:Glenn] Replace "int" with the type of your current system time. */
-typedef int mqtt_pal_time_t;
+    typedef time_t mqtt_pal_time_t;
+    typedef pthread_mutex_t mqtt_pal_mutex_t;
 
-/* If you're sure that your host system has network byte order these are okay. */
-#define MQTT_PAL_HTONS(s) ((uint16_t) s)
-#define MQTT_PAL_NTOHS(s) ((uint16_t) s)
+    #define MQTT_PAL_MUTEX_INIT(mtx_ptr) pthread_mutex_init(mtx_ptr, NULL)
+    #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
+    #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
-/* These don't matter. They need to be defined though. */
-typedef int mqtt_pal_mutex_t;
-#define MQTT_PAL_MUTEX_INIT(mtx_ptr)
-#define MQTT_PAL_MUTEX_LOCK(mtx_ptr)
-#define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr)
-
-#define INT_MIN -1000  /* this is just a number that is smaller than the number of MQTT-C errors...so it just needs to be small */
-
-
-/******************** nothing else to do here *******************************/
+    #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
+        #ifdef MQTT_USE_BIO
+            #include <openssl/bio.h>
+            typedef BIO* mqtt_pal_socket_handle;
+        #else
+            typedef int mqtt_pal_socket_handle;
+        #endif
+    #endif
+#endif
 
 /**
  * @brief Sends all the bytes in a buffer.

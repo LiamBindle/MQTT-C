@@ -825,8 +825,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
  */
 ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, 
                                     unsigned int packet_id, 
-                                    const char*,
-                                    uint8_t); /* null terminated */
+                                    ...); /* null terminated */
 
 /** 
  * @brief The maximum number topics that can be subscribed to in a single call to 
@@ -860,7 +859,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz,
  */
 ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, 
                                       unsigned int packet_id, 
-                                      const char*); /* null terminated */
+                                      ...); /* null terminated */
 
 /**
  * @brief Serialize a PINGREQ and put it into \p buf.
