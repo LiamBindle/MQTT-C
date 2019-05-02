@@ -112,22 +112,20 @@ SOFTWARE.
   * MQTT v3.1.1: MQTT Control Packet Types
   * </a>
   */
-  enum MQTTControlPacketType {
-    MQTT_CONTROL_CONNECT=1u,
-    MQTT_CONTROL_CONNACK=2u,
-    MQTT_CONTROL_PUBLISH=3u,
-    MQTT_CONTROL_PUBACK=4u,
-    MQTT_CONTROL_PUBREC=5u,
-    MQTT_CONTROL_PUBREL=6u,
-    MQTT_CONTROL_PUBCOMP=7u,
-    MQTT_CONTROL_SUBSCRIBE=8u,
-    MQTT_CONTROL_SUBACK=9u,
-    MQTT_CONTROL_UNSUBSCRIBE=10u,
-    MQTT_CONTROL_UNSUBACK=11u,
-    MQTT_CONTROL_PINGREQ=12u,
-    MQTT_CONTROL_PINGRESP=13u,
-    MQTT_CONTROL_DISCONNECT=14u
-};
+#define MQTT_CONTROL_CONNECT    1u
+#define MQTT_CONTROL_CONNACK    2u
+#define MQTT_CONTROL_PUBLISH    3u
+#define MQTT_CONTROL_PUBACK     4u
+#define MQTT_CONTROL_PUBREC     5u
+#define MQTT_CONTROL_PUBREL     6u
+#define MQTT_CONTROL_PUBCOMP    7u
+#define MQTT_CONTROL_SUBSCRIBE  8u
+#define MQTT_CONTROL_SUBACK     9u
+#define MQTT_CONTROL_UNSUBSCRIBE 10u
+#define MQTT_CONTROL_UNSUBACK   11u
+#define MQTT_CONTROL_PINGREQ    12u
+#define MQTT_CONTROL_PINGRESP   13u
+#define MQTT_CONTROL_DISCONNECT 14u
 
 /**
  * @brief The fixed header of an MQTT control packet.
@@ -139,7 +137,7 @@ SOFTWARE.
  */
 struct mqtt_fixed_header {
     /** The type of packet. */
-    enum MQTTControlPacketType control_type;
+    uint8_t control_type;
 
     /** The packets control flags.*/
     uint32_t  control_flags: 4;
@@ -158,66 +156,35 @@ struct mqtt_fixed_header {
  */
 #define MQTT_PROTOCOL_LEVEL 0x04
 
-/** 
- * @brief A macro used to declare the enum MQTTErrors and associated 
- *        error messages (the members of the num) at the same time.
- */
-#define __ALL_MQTT_ERRORS(MQTT_ERROR)                    \
-    MQTT_ERROR(MQTT_ERROR_NULLPTR)                       \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)         \
-    MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)            \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)        \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)     \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)    \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)       \
-    MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_CODE)        \
-    MQTT_ERROR(MQTT_ERROR_PUBLISH_FORBIDDEN_QOS)         \
-    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS)     \
-    MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
-    MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
-    MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NOT_CALLED)          \
-    MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
-    MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \
-    MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
-    MQTT_ERROR(MQTT_ERROR_RECV_BUFFER_TOO_SMALL)         \
-    MQTT_ERROR(MQTT_ERROR_ACK_OF_UNKNOWN)                \
-    MQTT_ERROR(MQTT_ERROR_NOT_IMPLEMENTED)               \
-    MQTT_ERROR(MQTT_ERROR_CONNECTION_REFUSED)            \
-    MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
-    MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
-    MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
-    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)
 
-/* todo: add more connection refused errors */
-
-/** 
- * @brief A macro used to generate the enum MQTTErrors from 
- *        \ref __ALL_MQTT_ERRORS
- * @see __ALL_MQTT_ERRORS
-*/
-#define GENERATE_ENUM(ENUM) ENUM,
-
-/** 
- * @brief A macro used to generate the error messages associated with 
- *        MQTTErrors from \ref __ALL_MQTT_ERRORS
- * @see __ALL_MQTT_ERRORS
-*/
-#define GENERATE_STRING(STRING) #STRING,
-
-
-/** 
- * @brief An enumeration of error codes. Error messages can be retrieved by calling \ref mqtt_error_str.
- * @ingroup api
- * 
- * @see mqtt_error_str
- */
-enum MQTTErrors {
-    MQTT_ERROR_UNKNOWN=INT_MIN,
-    __ALL_MQTT_ERRORS(GENERATE_ENUM)
-    MQTT_OK = 1
-};
+#define MQTT_ERROR_UNKNOWN                          -201
+#define MQTT_ERROR_NULLPTR                          -200
+#define MQTT_ERROR_CONTROL_FORBIDDEN_TYPE           -199
+#define MQTT_ERROR_CONTROL_INVALID_FLAGS            -198
+#define MQTT_ERROR_CONTROL_WRONG_TYPE               -197
+#define MQTT_ERROR_CONNECT_NULL_CLIENT_ID           -196
+#define MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE        -195
+#define MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS       -194
+#define MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS          -193
+#define MQTT_ERROR_CONNACK_FORBIDDEN_CODE           -192
+#define MQTT_ERROR_PUBLISH_FORBIDDEN_QOS            -191
+#define MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS        -190
+#define MQTT_ERROR_MALFORMED_RESPONSE               -189
+#define MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS      -188
+#define MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE    -187
+#define MQTT_ERROR_CONNECT_NOT_CALLED               -186
+#define MQTT_ERROR_SEND_BUFFER_IS_FULL              -185
+#define MQTT_ERROR_SOCKET_ERROR                     -184
+#define MQTT_ERROR_MALFORMED_REQUEST                -183
+#define MQTT_ERROR_RECV_BUFFER_TOO_SMALL            -182
+#define MQTT_ERROR_ACK_OF_UNKNOWN                   -181
+#define MQTT_ERROR_NOT_IMPLEMENTED                  -180
+#define MQTT_ERROR_CONNECTION_REFUSED               -179
+#define MQTT_ERROR_SUBSCRIBE_FAILED                 -178
+#define MQTT_ERROR_CONNECTION_CLOSED                -177
+#define MQTT_ERROR_INITIAL_RECONNECT                -176
+#define MQTT_ERROR_INVALID_REMAINING_LENGTH         -175
+#define MQTT_OK 1
 
 /** 
  * @brief Returns an error message for error code, \p error.
@@ -227,7 +194,7 @@ enum MQTTErrors {
  * 
  * @returns The associated error message.
  */
-const char* mqtt_error_str(enum MQTTErrors error);
+const char* mqtt_error_str(int error);
 
 /**
  * @brief Pack a MQTT 16 bit integer, given a native 16 bit integer .
@@ -277,14 +244,12 @@ ssize_t __mqtt_pack_str(uint8_t *buf, const char* str);
  * MQTT v3.1.1: CONNACK return codes.
  * </a> 
  */
-enum MQTTConnackReturnCode {
-    MQTT_CONNACK_ACCEPTED = 0u,
-    MQTT_CONNACK_REFUSED_PROTOCOL_VERSION = 1u,
-    MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED = 2u,
-    MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE = 3u,
-    MQTT_CONNACK_REFUSED_BAD_USER_NAME_OR_PASSWORD = 4u,
-    MQTT_CONNACK_REFUSED_NOT_AUTHORIZED = 5u
-};
+#define MQTT_CONNACK_ACCEPTED                           0u
+#define MQTT_CONNACK_REFUSED_PROTOCOL_VERSION           1u
+#define MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED        2u
+#define MQTT_CONNACK_REFUSED_SERVER_UNAVAILABLE         3u
+#define MQTT_CONNACK_REFUSED_BAD_USER_NAME_OR_PASSWORD  4u
+#define MQTT_CONNACK_REFUSED_NOT_AUTHORIZED             5u
 
 /**
  * @brief A connection response datastructure.
@@ -306,7 +271,7 @@ struct mqtt_response_connack {
      * 
      * @see MQTTConnackReturnCode
      */
-    enum MQTTConnackReturnCode return_code;
+    uint8_t return_code;
 };
 
  /**
@@ -423,12 +388,10 @@ struct mqtt_response_pubcomp {
  * MQTT v3.1.1: SUBACK Return Codes.
  * </a> 
  */
-enum MQTTSubackReturnCodes {
-    MQTT_SUBACK_SUCCESS_MAX_QOS_0 = 0u,
-    MQTT_SUBACK_SUCCESS_MAX_QOS_1 = 1u,
-    MQTT_SUBACK_SUCCESS_MAX_QOS_2 = 2u,
-    MQTT_SUBACK_FAILURE           = 128u
-};
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_0  0u
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_1  1u
+#define MQTT_SUBACK_SUCCESS_MAX_QOS_2  2u
+#define MQTT_SUBACK_FAILURE            128u
 
 /**
  * @brief The response to a subscription request.
@@ -653,17 +616,15 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
  * MQTT v3.1.1: CONNECT Variable Header.
  * </a> 
  */
-enum MQTTConnectFlags {
-    MQTT_CONNECT_RESERVED = 1u,
-    MQTT_CONNECT_CLEAN_SESSION = 2u,
-    MQTT_CONNECT_WILL_FLAG = 4u,
-    MQTT_CONNECT_WILL_QOS_0 = (0u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_1 = (1u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_2 = (2u & 0x03) << 3,
-    MQTT_CONNECT_WILL_RETAIN = 32u,
-    MQTT_CONNECT_PASSWORD = 64u,
-    MQTT_CONNECT_USER_NAME = 128u
-};
+#define MQTT_CONNECT_RESERVED           1u
+#define MQTT_CONNECT_CLEAN_SESSION      2u
+#define MQTT_CONNECT_WILL_FLAG          4u
+#define MQTT_CONNECT_WILL_QOS_0         ((0u & 0x03) << 3)
+#define MQTT_CONNECT_WILL_QOS_1         ((1u & 0x03) << 3)
+#define MQTT_CONNECT_WILL_QOS_2         ((2u & 0x03) << 3)
+#define MQTT_CONNECT_WILL_RETAIN        32u
+#define MQTT_CONNECT_PASSWORD           64u
+#define MQTT_CONNECT_USER_NAME          128u
 
 /**
  * @brief Serialize a connection request into a buffer. 
@@ -721,14 +682,12 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
  * MQTT v3.1.1: PUBLISH - Publish Message.
  * </a>
  */
-enum MQTTPublishFlags {
-    MQTT_PUBLISH_DUP = 8u,
-    MQTT_PUBLISH_QOS_0 = ((0u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_1 = ((1u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_2 = ((2u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_MASK = ((3u << 1) & 0x06),
-    MQTT_PUBLISH_RETAIN = 0x01
-};
+#define MQTT_PUBLISH_DUP        8u
+#define MQTT_PUBLISH_QOS_0      ((0u << 1) & 0x06)
+#define MQTT_PUBLISH_QOS_1      ((1u << 1) & 0x06)
+#define MQTT_PUBLISH_QOS_2      ((2u << 1) & 0x06)
+#define MQTT_PUBLISH_QOS_MASK   ((3u << 1) & 0x06)
+#define MQTT_PUBLISH_RETAIN     0x01
 
 /**
  * @brief Serialize a PUBLISH request and put it in \p buf.
@@ -789,7 +748,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
  *          packet, a negative value if there was a protocol violation.
  */
 ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
-                                 enum MQTTControlPacketType control_type,
+                                 uint8_t control_type,
                                  uint16_t packet_id);
 
 /** 
@@ -899,11 +858,9 @@ ssize_t mqtt_pack_disconnect(uint8_t *buf, size_t bufsz);
  * @brief An enumeration of queued message states. 
  * @ingroup details
  */
-enum MQTTQueuedMessageState {
-    MQTT_QUEUED_UNSENT,
-    MQTT_QUEUED_AWAITING_ACK,
-    MQTT_QUEUED_COMPLETE
-};
+#define MQTT_QUEUED_UNSENT          1
+#define MQTT_QUEUED_AWAITING_ACK    2
+#define MQTT_QUEUED_COMPLETE        3
 
 /**
  * @brief A message in a mqtt_message_queue.
@@ -917,7 +874,7 @@ struct mqtt_queued_message {
     size_t size;
 
     /** @brief The state of the message. */
-    enum MQTTQueuedMessageState state;
+    uint8_t state;
 
     /** 
      * @brief The time at which the message was sent..
@@ -930,7 +887,7 @@ struct mqtt_queued_message {
     /**
      * @brief The control type of the message.
      */
-    enum MQTTControlPacketType control_type;
+    uint8_t control_type;
 
     /** 
      * @brief The packet id of the message.
@@ -1039,7 +996,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
  * @relates mqtt_message_queue
  * @returns The found message. \c NULL if the message was not found.
  */
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id);
+struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq,  uint8_t control_type, uint16_t *packet_id);
 
 /**
  * @brief Returns the mqtt_queued_message at \p index.
@@ -1105,7 +1062,7 @@ struct mqtt_client {
      * @note The error state will be MQTT_ERROR_CONNECT_NOT_CALLED until
      *       you call mqtt_connect.
      */
-    enum MQTTErrors error;
+     int error;
 
     /** 
      * @brief The timeout period in seconds.
@@ -1164,7 +1121,7 @@ struct mqtt_client {
      * This member is always initialized to NULL but it can be manually set at any 
      * time.
      */
-    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+    int (*inspector_callback)(struct mqtt_client*);
 
     /**
      * @brief A callback that is called whenever the client is in an error state.
@@ -1268,7 +1225,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client);
  * 
  * @returns MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_sync(struct mqtt_client *client);
+int mqtt_sync(struct mqtt_client *client);
 
 /**
  * @brief Initializes an MQTT client.
@@ -1303,7 +1260,7 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_init(struct mqtt_client *client,
+int mqtt_init(struct mqtt_client *client,
                           mqtt_pal_socket_handle sockfd,
                           uint8_t *sendbuf, size_t sendbufsz,
                           uint8_t *recvbuf, size_t recvbufsz,
@@ -1411,7 +1368,7 @@ void mqtt_reinit(struct mqtt_client* client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_connect(struct mqtt_client *client,
+int mqtt_connect(struct mqtt_client *client,
                              const char* client_id,
                              const char* will_topic,
                              const void* will_message,
@@ -1443,7 +1400,7 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_publish(struct mqtt_client *client,
+int mqtt_publish(struct mqtt_client *client,
                              const char* topic_name,
                              void* application_message,
                              size_t application_message_size,
@@ -1507,7 +1464,7 @@ ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
+int mqtt_subscribe(struct mqtt_client *client,
                                const char* topic_name,
                                int max_qos_level);
 
@@ -1522,7 +1479,7 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise. 
  */
-enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
+int mqtt_unsubscribe(struct mqtt_client *client,
                                  const char* topic_name);
 
 /**
@@ -1535,13 +1492,13 @@ enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_ping(struct mqtt_client *client);
+int mqtt_ping(struct mqtt_client *client);
 
 /**
  * @brief Ping the broker without locking/unlocking the mutex. 
  * @see mqtt_ping
  */
-enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
+int __mqtt_ping(struct mqtt_client *client);
 
 /**
  * @brief Terminate the session with the MQTT broker. 
@@ -1555,6 +1512,6 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
-enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
+int mqtt_disconnect(struct mqtt_client *client);
 
 #endif

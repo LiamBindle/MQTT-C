@@ -32,9 +32,9 @@ SOFTWARE.
  * @cond Doxygen_Suppress
  */
 
-enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
+int mqtt_sync(struct mqtt_client *client) {
     /* Recover from any errors */
-    enum MQTTErrors err;
+    int err;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
         client->reconnect_callback(client, &client->reconnect_state);
@@ -89,7 +89,7 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     return client->pid_lfsr;
 }
 
-enum MQTTErrors mqtt_init(struct mqtt_client *client,
+int mqtt_init(struct mqtt_client *client,
                mqtt_pal_socket_handle sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
@@ -206,7 +206,7 @@ void mqtt_reinit(struct mqtt_client* client,
     msg = mqtt_mq_register(&client->mq, tmp);                       \
 
 
-enum MQTTErrors mqtt_connect(struct mqtt_client *client,
+int mqtt_connect(struct mqtt_client *client,
                      const char* client_id,
                      const char* will_topic,
                      const void* will_message,
@@ -244,7 +244,7 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-enum MQTTErrors mqtt_publish(struct mqtt_client *client,
+int mqtt_publish(struct mqtt_client *client,
                      const char* topic_name,
                      void* application_message,
                      size_t application_message_size,
@@ -362,7 +362,7 @@ ssize_t __mqtt_pubcomp(struct mqtt_client *client, uint16_t packet_id) {
     return MQTT_OK;
 }
 
-enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
+int mqtt_subscribe(struct mqtt_client *client,
                        const char* topic_name,
                        int max_qos_level)
 {
@@ -391,7 +391,7 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
+int mqtt_unsubscribe(struct mqtt_client *client,
                          const char* topic_name)
 {
     uint16_t packet_id = __mqtt_next_pid(client);
@@ -417,15 +417,15 @@ enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
     return MQTT_OK;
 }
 
-enum MQTTErrors mqtt_ping(struct mqtt_client *client) {
-    enum MQTTErrors rv;
+int mqtt_ping(struct mqtt_client *client) {
+    int rv;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     rv = __mqtt_ping(client);
     MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
     return rv;
 }
 
-enum MQTTErrors __mqtt_ping(struct mqtt_client *client) 
+int __mqtt_ping(struct mqtt_client *client) 
 {
     ssize_t rv;
     struct mqtt_queued_message *msg;
@@ -445,7 +445,7 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client)
     return MQTT_OK;
 }
 
-enum MQTTErrors mqtt_disconnect(struct mqtt_client *client) 
+int mqtt_disconnect(struct mqtt_client *client) 
 {
     ssize_t rv;
     struct mqtt_queued_message *msg;
@@ -1186,7 +1186,7 @@ ssize_t mqtt_unpack_connack_response(struct mqtt_response *mqtt_response, const 
         /* only bit 1 can be set */
         return MQTT_ERROR_CONNACK_FORBIDDEN_CODE;
     } else {
-        response->return_code = (enum MQTTConnackReturnCode) *buf++;
+        response->return_code = (uint8_t) *buf++;
     }
     return buf - start;
 }
@@ -1325,7 +1325,7 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
 
 /* PUBXXX */
 ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz, 
-                                 enum MQTTControlPacketType control_type,
+                                 uint8_t control_type,
                                  uint16_t packet_id) 
 {
     const uint8_t *const start = buf;
@@ -1602,7 +1602,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)
+struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, uint8_t control_type, uint16_t *packet_id)
 {
     struct mqtt_queued_message *curr;
     for(curr = mqtt_mq_get(mq, 0); curr >= mq->queue_tail; --curr) {
@@ -1691,10 +1691,36 @@ ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
 
 static const char *MQTT_ERRORS_STR[] = {
     "MQTT_UNKNOWN_ERROR",
-    __ALL_MQTT_ERRORS(GENERATE_STRING)
+    "MQTT_ERROR_NULLPTR",
+    "MQTT_ERROR_CONTROL_FORBIDDEN_TYPE",           
+    "MQTT_ERROR_CONTROL_INVALID_FLAGS",            
+    "MQTT_ERROR_CONTROL_WRONG_TYPE",               
+    "MQTT_ERROR_CONNECT_NULL_CLIENT_ID",           
+    "MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE",        
+    "MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS",       
+    "MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS",          
+    "MQTT_ERROR_CONNACK_FORBIDDEN_CODE",           
+    "MQTT_ERROR_PUBLISH_FORBIDDEN_QOS",            
+    "MQTT_ERROR_SUBSCRIBE_TOO_MANY_TOPICS",        
+    "MQTT_ERROR_MALFORMED_RESPONSE",               
+    "MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS",      
+    "MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE",    
+    "MQTT_ERROR_CONNECT_NOT_CALLED",               
+    "MQTT_ERROR_SEND_BUFFER_IS_FULL",              
+    "MQTT_ERROR_SOCKET_ERROR",                     
+    "MQTT_ERROR_MALFORMED_REQUEST",                
+    "MQTT_ERROR_RECV_BUFFER_TOO_SMALL",            
+    "MQTT_ERROR_ACK_OF_UNKNOWN",                   
+    "MQTT_ERROR_NOT_IMPLEMENTED",                  
+    "MQTT_ERROR_CONNECTION_REFUSED",               
+    "MQTT_ERROR_SUBSCRIBE_FAILED",                 
+    "MQTT_ERROR_CONNECTION_CLOSED",                
+    "MQTT_ERROR_INITIAL_RECONNECT",                
+    "MQTT_ERROR_INVALID_REMAINING_LENGTH",         
+    "MQTT_OK"
 };
 
-const char* mqtt_error_str(enum MQTTErrors error) {
+const char* mqtt_error_str(int error) {
     int offset = error - MQTT_ERROR_UNKNOWN;
     if (offset >= 0) {
         return MQTT_ERRORS_STR[offset];
