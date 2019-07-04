@@ -555,7 +555,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             msg->state = MQTT_QUEUED_COMPLETE;
             break;
         case MQTT_CONTROL_PUBLISH:
-            inspected = 0x06 & ((msg->start[0]) >> 1); /* qos */
+            inspected = MQTT_PUBLISH_QOS_MASK & ((msg->start[0]) >> 1); /* qos */
             if (inspected == 0) {
                 msg->state = MQTT_QUEUED_COMPLETE;
             } else if (inspected == 1) {
@@ -1231,7 +1231,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     }
 
     /* inspect QoS level */
-    inspected_qos = (publish_flags & 0x06) >> 1; /* mask */
+    inspected_qos = (publish_flags & MQTT_PUBLISH_QOS_MASK) >> 1; /* mask */
 
     /* build the fixed header */
     fixed_header.control_type = MQTT_CONTROL_PUBLISH;
@@ -1293,7 +1293,7 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
 
     /* get flags */
     response->dup_flag = (fixed_header->control_flags & MQTT_PUBLISH_DUP) >> 3;
-    response->qos_level = (fixed_header->control_flags & 0x06) >> 1;
+    response->qos_level = (fixed_header->control_flags & MQTT_PUBLISH_QOS_MASK) >> 1;
     response->retain_flag = fixed_header->control_flags & MQTT_PUBLISH_RETAIN;
 
     /* make sure that remaining length is valid */
