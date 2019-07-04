@@ -560,7 +560,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_COMPLETE;
             } else if (inspected == 1) {
                 msg->state = MQTT_QUEUED_AWAITING_ACK;
-                /*set DUP flag for subsequent sends */ 
+                /*set DUP flag for subsequent sends [Spec MQTT-3.3.1-1] */ 
                 msg->start[0] |= MQTT_PUBLISH_DUP;
             } else {
                 msg->state = MQTT_QUEUED_AWAITING_ACK;
@@ -1244,12 +1244,12 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     remaining_length += application_message_size;
     fixed_header.remaining_length = remaining_length;
 
-    /* force dup to 0 if qos is 0 */
+    /* force dup to 0 if qos is 0 [Spec MQTT-3.3.1-2] */
     if (inspected_qos == 0) {
         publish_flags &= ~MQTT_PUBLISH_DUP;
     }
 
-    /* make sure that qos is not 3 */
+    /* make sure that qos is not 3 [Spec MQTT-3.3.1-4] */
     if (inspected_qos == 3) {
         return MQTT_ERROR_PUBLISH_FORBIDDEN_QOS;
     }
