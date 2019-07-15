@@ -555,7 +555,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             msg->state = MQTT_QUEUED_COMPLETE;
             break;
         case MQTT_CONTROL_PUBLISH:
-            inspected = MQTT_PUBLISH_QOS_MASK & ((msg->start[0]) >> 1); /* qos */
+            inspected = ( MQTT_PUBLISH_QOS_MASK & (msg->start[0]) ) >> 1; /* qos */
             if (inspected == 0) {
                 msg->state = MQTT_QUEUED_COMPLETE;
             } else if (inspected == 1) {
