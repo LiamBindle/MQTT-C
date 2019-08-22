@@ -915,6 +915,7 @@ struct mqtt_queued_message {
     /** @brief The number of bytes in the message. */
     size_t size;
 
+
     /** @brief The state of the message. */
     enum MQTTQueuedMessageState state;
 
@@ -1086,6 +1087,13 @@ struct mqtt_client {
      * @see keep_alive
      */
     int number_of_keep_alives;
+
+    /**
+     * @brief The current sent offset.
+     *
+     * This is used to allow partial send commands.
+     */
+    size_t send_offset;
 
     /** 
      * @brief The timestamp of the last message sent to the buffer.
