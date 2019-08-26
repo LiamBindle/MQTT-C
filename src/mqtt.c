@@ -119,6 +119,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->typical_response_time = -1.0;
     client->publish_response_callback = publish_response_callback;
     client->pid_lfsr = 0;
+    client->send_offset = 0;
 
     client->inspector_callback = NULL;
     client->reconnect_callback = NULL;
@@ -150,6 +151,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0;
     client->publish_response_callback = publish_response_callback;
+    client->send_offset = 0;
 
     client->inspector_callback = NULL;
     client->reconnect_callback = reconnect;
@@ -495,6 +497,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             if (MQTT_PAL_TIME() > msg->time_sent + client->response_timeout) {
                 resend = 1;
                 client->number_of_timeouts += 1;
+                client->send_offset = 0;
             }
         }
 
@@ -518,12 +521,23 @@ ssize_t __mqtt_send(struct mqtt_client *client)
 
         /* we're sending the message */
         {
-          ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start, msg->size, 0);
+          ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start + client->send_offset, msg->size - client->send_offset, 0);
           if (tmp < 0) {
             client->error = tmp;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return tmp;
+          } else {
+            client->send_offset += tmp;
+            if(client->send_offset < msg->size) {
+              /* partial sent. Await additional calls */
+              break;
+            } else {
+              /* whole message has been sent */
+              client->send_offset = 0;
+            }
+
           }
+
         }
 
         /* update timeout watcher */
