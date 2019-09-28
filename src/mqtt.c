@@ -1084,13 +1084,11 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     remaining_length = 10; /* size of variable header */
 
     if (client_id == NULL) {
-        /* client_id is a mandatory parameter */
-        return MQTT_ERROR_CONNECT_NULL_CLIENT_ID;
-    } else {
-        /* mqtt_string length is strlen + 2 */
-        remaining_length += __mqtt_packed_cstrlen(client_id);
+        client_id = "";
     }
-    
+    /* mqtt_string length is strlen + 2 */
+    remaining_length += __mqtt_packed_cstrlen(client_id);
+
     if (will_topic != NULL) {
         uint8_t temp;
         /* there is a will */
