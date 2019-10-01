@@ -922,7 +922,7 @@ struct {
     }
 };
 
-ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_header) {
+static ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_header) {
     uint8_t control_type;
     uint8_t control_flags;
     uint8_t required_flags;
