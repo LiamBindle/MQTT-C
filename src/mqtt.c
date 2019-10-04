@@ -1164,7 +1164,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
         buf += __mqtt_pack_str(buf, will_topic);
-        buf += __mqtt_pack_uint16(buf, will_message_size);
+        buf += __mqtt_pack_uint16(buf, (uint16_t)will_message_size);
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }
@@ -1251,11 +1251,11 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     fixed_header.control_type = MQTT_CONTROL_PUBLISH;
 
     /* calculate remaining length */
-    remaining_length = __mqtt_packed_cstrlen(topic_name);
+    remaining_length = (uint16_t)__mqtt_packed_cstrlen(topic_name);
     if (inspected_qos > 0) {
         remaining_length += 2;
     }
-    remaining_length += application_message_size;
+    remaining_length += (uint16_t)application_message_size;
     fixed_header.remaining_length = remaining_length;
 
     /* force dup to 0 if qos is 0 [Spec MQTT-3.3.1-2] */
@@ -1710,7 +1710,7 @@ uint16_t __mqtt_unpack_uint16(const uint8_t *buf)
 }
 
 ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
-    uint16_t length = strlen(str);
+    uint16_t length = (uint16_t)strlen(str);
     int i = 0;
      /* pack string length */
     buf += __mqtt_pack_uint16(buf, length);

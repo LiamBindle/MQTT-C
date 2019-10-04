@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(MQTT-C)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+
 # Add this include directory for all applications
 include_directories(include)
 
@@ -14,34 +16,45 @@ find_package(Threads REQUIRED)
 # Search for openssl
 find_package(OpenSSL REQUIRED)
 
-# Search the cmocka  unittest library
-find_library(CMOCKA_LIBRARY cmocka)
+find_package(CMocka REQUIRED)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -std=gnu99 -Iinclude -Wno-unused-parameter -Wno-unused-variable -Wno-duplicate-decl-specifier")
+if(NOT MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -std=gnu99 -Iinclude -Wno-unused-parameter -Wno-unused-variable -Wno-duplicate-decl-specifier")
 
-# Simple projects
-add_executable(simple_publisher examples/simple_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(simple_publisher Threads::Threads)
+    # GCC specific posix socket examples
+    foreach(SIMPLE_EXAMPLE IN ITEMS simple_publisher simple_subscriber reconnect_subscriber)
+        add_executable(${SIMPLE_EXAMPLE} examples/${SIMPLE_EXAMPLE}.c ${MQTT_C_SOURCES})
+        target_link_libraries(${SIMPLE_EXAMPLE} Threads::Threads)
+    endforeach()
 
-add_executable(simple_subscriber examples/simple_subscriber.c ${MQTT_C_SOURCES})
-target_link_libraries(simple_subscriber Threads::Threads)
+    # GCC specific BIO socket examples
+    foreach(OPENSSL_EXAMPLE IN ITEMS bio_publisher openssl_publisher)
+        add_executable(${OPENSSL_EXAMPLE} examples/${OPENSSL_EXAMPLE}.c ${MQTT_C_SOURCES})
+        target_link_libraries(${OPENSSL_EXAMPLE} Threads::Threads OpenSSL::SSL)
+        target_compile_definitions(${OPENSSL_EXAMPLE} PUBLIC MQTT_USE_BIO)
+    endforeach()
 
-add_executable(reconnect_subscriber examples/reconnect_subscriber.c ${MQTT_C_SOURCES})
-target_link_libraries(reconnect_subscriber Threads::Threads)
+    # No platform specific libraries are required
+    set(PLATFORM_LIBRARIES )
+else()
+    # Disable CRT warnings on 'unsecure' api, disable some crap in the windows headers
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX -DWIN32_LEAN_AND_MEAN)
 
-# Use BIO sockets
-add_executable(bio_publisher examples/bio_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(bio_publisher Threads::Threads OpenSSL::SSL)
-target_compile_definitions(bio_publisher PUBLIC MQTT_USE_BIO)
+    # Add the Winsock 2 library
+    set(PLATFORM_LIBRARIES ws2_32)
 
-# Encrypt connection using OpenSSL
-add_executable(openssl_publisher examples/openssl_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(openssl_publisher Threads::Threads OpenSSL::SSL)
-target_compile_definitions(openssl_publisher PUBLIC MQTT_USE_BIO)
-
+    # Here is the fun stuff:
+    # By default, the cmocka setup installs the cmocka.dll to ${CMOCKA_ROOT_DIR}\bin\cmocka.dll
+    # However, this directory is not added to the path.
+    # So, to ensure we can run the unittest, we iterate all configurations (they can be switched without cmake)
+    # and copy the cmocka.dll file to their output dir
+    foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
+        configure_file("${CMOCKA_ROOT_DIR}/bin/cmocka.dll" "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_TYPE}/" COPYONLY)
+    endforeach()
+endif()
 
 # Unit-tests
 add_executable(tests tests.c ${MQTT_C_SOURCES})
 target_include_directories(tests PUBLIC ${CMOCKA_INCLUDE_DIR})
-target_link_libraries(tests ${CMOCKA_LIBRARY})
+target_link_libraries(tests ${CMOCKA_LIBRARY} ${PLATFORM_LIBRARIES})
 

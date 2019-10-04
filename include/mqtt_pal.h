@@ -93,6 +93,36 @@ SOFTWARE.
             typedef int mqtt_pal_socket_handle;
         #endif
     #endif
+#elif defined(_MSC_VER)
+    #include <limits.h>
+    #include <windows.h>
+    #include <time.h>
+    #include <stdint.h>
+    #include <winsock2.h>
+
+    typedef SSIZE_T ssize_t;
+    #define MQTT_PAL_HTONS(s) htons(s)
+    #define MQTT_PAL_NTOHS(s) ntohs(s)
+
+    #define MQTT_PAL_TIME() time(NULL)
+
+    typedef time_t mqtt_pal_time_t;
+    typedef CRITICAL_SECTION mqtt_pal_mutex_t;
+
+    #define MQTT_PAL_MUTEX_INIT(mtx_ptr) InitializeCriticalSection(mtx_ptr)
+    #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) EnterCriticalSection(mtx_ptr)
+    #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) LeaveCriticalSection(mtx_ptr)
+
+
+    #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
+        #ifdef MQTT_USE_BIO
+            #include <openssl/bio.h>
+            typedef BIO* mqtt_pal_socket_handle;
+        #else
+            typedef SOCKET mqtt_pal_socket_handle;
+        #endif
+    #endif
+
 #endif
 
 /**

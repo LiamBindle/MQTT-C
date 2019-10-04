@@ -32,8 +32,6 @@ SOFTWARE.
  */
 
 
-#ifdef __unix__
-
 #ifdef MQTT_USE_BIO
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
@@ -71,7 +69,8 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return (ssize_t)(buf - start);
 }
 
-#else
+#elif defined(__unix__)
+
 #include <errno.h>
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
@@ -104,7 +103,46 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return buf - start;
 }
 
-#endif
+#elif defined(_MSC_VER)
+
+#include <errno.h>
+
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    size_t sent = 0;
+    while(sent < len) {
+        ssize_t tmp = send(fd, (char*)buf + sent, len - sent, flags);
+        if (tmp < 1) {
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+        sent += (size_t) tmp;
+    }
+    return sent;
+}
+
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
+    const char *const start = buf;
+    ssize_t rv;
+    do {
+        rv = recv(fd, buf, bufsz, flags);
+        if (rv > 0) {
+            /* successfully read bytes from the socket */
+            buf = (char*)buf + rv;
+            bufsz -= rv;
+        } else if (rv < 0) {
+            int err = WSAGetLastError();
+            if (err != WSAEWOULDBLOCK) {
+                /* an error occurred that wasn't "nothing to read". */
+                return MQTT_ERROR_SOCKET_ERROR;
+            }
+        }
+    } while (rv > 0);
+
+    return (ssize_t)((char*)buf - start);
+}
+
+#else
+
+#error No PAL!
 
 #endif
 
