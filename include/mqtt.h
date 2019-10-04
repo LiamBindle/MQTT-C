@@ -188,7 +188,8 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
-    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)
+    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)      \
+    MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)
 
 /* todo: add more connection refused errors */
 
@@ -686,7 +687,7 @@ enum MQTTConnectFlags {
  * @param[in] password the password to be used to connect to the broker with. Set to \c NULL if
  *                     no password is required.
  * @param[in] connect_flags additional MQTTConnectFlags to be set. The only flags that need to be
- *                          set manually are \c MQTT_CONNECT_CLEAN_SESSION, 
+ *                          set manually are \c MQTT_CONNECT_CLEAN_SESSION,
  *                          \c MQTT_CONNECT_WILL_QOS_X (for \c X &isin; {0, 1, 2}), and 
  *                          \c MQTT_CONNECT_WILL_RETAIN. Set to 0 if no additional flags are 
  *                          required.

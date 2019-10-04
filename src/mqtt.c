@@ -1060,14 +1060,14 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
 }
 
 /* CONNECT */
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
+ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
                                      const char* client_id,
                                      const char* will_topic,
                                      const void* will_message,
                                      size_t will_message_size,
                                      const char* user_name,
                                      const char* password,
-                                     uint8_t connect_flags, 
+                                     uint8_t connect_flags,
                                      uint16_t keep_alive)
 { 
     struct mqtt_fixed_header fixed_header;
@@ -1085,6 +1085,10 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 
     if (client_id == NULL) {
         client_id = "";
+    }
+    /* For an empty client_id, a clean session is required */
+    if (client_id[0] == '\0' && !(connect_flags & MQTT_CONNECT_CLEAN_SESSION)) {
+        return MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED;
     }
     /* mqtt_string length is strlen + 2 */
     remaining_length += __mqtt_packed_cstrlen(client_id);
