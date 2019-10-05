@@ -699,8 +699,13 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 client->typical_response_time = (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* check that connection was successful */
                 if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
-                    client->error = MQTT_ERROR_CONNECTION_REFUSED;
-                    mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
+                    if (response.decoded.connack.return_code == MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED) {
+                        client->error = MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED;
+                        mqtt_recv_ret = MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED;
+                    } else {
+                        client->error = MQTT_ERROR_CONNECTION_REFUSED;
+                        mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
+                    }
                     break;
                 }
                 break;
