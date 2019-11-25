@@ -34,6 +34,9 @@ if(MQTT_C_EXAMPLES)
 
         add_executable(openssl_publisher examples/openssl_publisher.c)
         target_link_libraries(openssl_publisher Threads::Threads mqttc)
+
+        add_executable(bio_reconnect_subscriber examples/bio_reconnect_subscriber.c)
+        target_link_libraries(re_bioconnect_subscriber Threads::Threads mqttc)
     else()
         add_executable(simple_publisher examples/simple_publisher.c)
         target_link_libraries(simple_publisher Threads::Threads mqttc)

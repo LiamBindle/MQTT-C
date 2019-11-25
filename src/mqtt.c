@@ -52,6 +52,11 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
         if (err != MQTT_OK) return err;
     }
 
+    if (!client->socketfd) {
+        client->error = MQTT_ERROR_SOCKET_ERROR;
+        return client->error;
+    }
+
     /* Call receive */
     err = __mqtt_recv(client);
     if (err != MQTT_OK) return err;
