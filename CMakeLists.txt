@@ -12,6 +12,10 @@ add_library(mqttc STATIC
     src/mqtt.c
 )
 target_include_directories(mqttc PUBLIC include)
+target_link_libraries(mqttc PUBLIC 
+    $<$<C_COMPILER_ID:MSVS>:ws2_32>
+)
+
 
 # Configure with OpenSSL support
 if(MQTT_C_WITH_OpenSSL)

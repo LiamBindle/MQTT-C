@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+#if !defined(WIN32)
 #include <sys/socket.h>
 #include <netdb.h>
+#endif
 #include <fcntl.h>
 
 /*
@@ -41,10 +43,17 @@ int open_nb_socket(const char* addr, const char* port) {
     freeaddrinfo(servinfo);
 
     /* make non-blocking */
+#if !defined(WIN32)
     if (sockfd != -1) fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
+#else
+    if (sockfd != INVALID_SOCKET) {
+        int iMode = 1;
+        ioctlsocket(sockfd, FIONBIO, &iMode);
+    }
+#endif
 
     /* return the new socket fd */
-    return sockfd;  
+    return sockfd;
 }
 
 #endif
