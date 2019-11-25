@@ -1,47 +1,65 @@
-cmake_minimum_required(VERSION 3.2)
-project(MQTT-C)
+cmake_minimum_required(VERSION 3.5)
+project(MQTT-C VERSION 1.0.3 LANGUAGES C)
 
-# Add this include directory for all applications
-include_directories(include)
+# MQTT-C build options
+option(MQTT_C_WITH_OpenSSL "Build MQTT-C with OpenSSL support?" OFF)
+option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
+option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 
-# Common source files
-set(MQTT_C_SOURCES src/mqtt.c src/mqtt_pal.c)
+# MQTT-C library
+add_library(mqttc STATIC 
+    src/mqtt_pal.c
+    src/mqtt.c
+)
+target_include_directories(mqttc PUBLIC include)
 
+# Configure with OpenSSL support
+if(MQTT_C_WITH_OpenSSL)
+    find_package(OpenSSL REQUIRED)
+    target_link_libraries(mqttc INTERFACE OpenSSL::SSL)
+    target_compile_definitions(mqttc PUBLIC MQTT_USE_BIO)
+endif()
 
-# Search for threading library
-find_package(Threads REQUIRED)
+# Build examples
+if(MQTT_C_EXAMPLES)
+    find_package(Threads REQUIRED)
 
-# Search for openssl
-find_package(OpenSSL REQUIRED)
+    add_executable(simple_publisher examples/simple_publisher.c)
+    target_link_libraries(simple_publisher Threads::Threads mqttc)
 
-# Search the cmocka  unittest library
-find_library(CMOCKA_LIBRARY cmocka)
+    add_executable(simple_subscriber examples/simple_subscriber.c)
+    target_link_libraries(simple_subscriber Threads::Threads mqttc)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -std=gnu99 -Iinclude -Wno-unused-parameter -Wno-unused-variable -Wno-duplicate-decl-specifier")
+    add_executable(reconnect_subscriber examples/reconnect_subscriber.c)
+    target_link_libraries(reconnect_subscriber Threads::Threads mqttc)
 
-# Simple projects
-add_executable(simple_publisher examples/simple_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(simple_publisher Threads::Threads)
+    if(MQTT_C_WITH_OpenSSL)
+        add_executable(bio_publisher examples/bio_publisher.c)
+        target_link_libraries(bio_publisher Threads::Threads mqttc)
 
-add_executable(simple_subscriber examples/simple_subscriber.c ${MQTT_C_SOURCES})
-target_link_libraries(simple_subscriber Threads::Threads)
+        add_executable(openssl_publisher examples/openssl_publisher.c)
+        target_link_libraries(openssl_publisher Threads::Threads mqttc)
 
-add_executable(reconnect_subscriber examples/reconnect_subscriber.c ${MQTT_C_SOURCES})
-target_link_libraries(reconnect_subscriber Threads::Threads)
+    endif()
+endif()
 
-# Use BIO sockets
-add_executable(bio_publisher examples/bio_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(bio_publisher Threads::Threads OpenSSL::SSL)
-target_compile_definitions(bio_publisher PUBLIC MQTT_USE_BIO)
+# Build tests
+if(MQTT_C_TESTS)    
+    find_path(CMOCKA_INCLUDE_DIR cmocka.h)
+    find_library(CMOCKA_LIBRARY cmocka)
+    if((NOT CMOCKA_INCLUDE_DIR) OR (NOT CMOCKA_LIBRARY))
+        message(FATAL_ERROR "Failed to find cmocka! Add cmocka's install prefix to CMAKE_PREFIX_PATH to resolve this error.")
+    endif()
 
-# Encrypt connection using OpenSSL
-add_executable(openssl_publisher examples/openssl_publisher.c ${MQTT_C_SOURCES})
-target_link_libraries(openssl_publisher Threads::Threads OpenSSL::SSL)
-target_compile_definitions(openssl_publisher PUBLIC MQTT_USE_BIO)
+    add_executable(tests tests.c)
+    target_link_libraries(tests ${CMOCKA_LIBRARY} mqttc)
+    target_include_directories(tests PRIVATE ${CMOCKA_INCLUDE_DIR})
+endif()
 
-
-# Unit-tests
-add_executable(tests tests.c ${MQTT_C_SOURCES})
-target_include_directories(tests PUBLIC ${CMOCKA_INCLUDE_DIR})
-target_link_libraries(tests ${CMOCKA_LIBRARY})
-
+# Install includes and library
+install(TARGETS mqttc 
+    DESTINATION lib
+)
+install(DIRECTORY include
+    DESTINATION include
+)
