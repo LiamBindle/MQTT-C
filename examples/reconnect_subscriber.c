@@ -157,9 +157,13 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
                 reconnect_state->sendbuf, reconnect_state->sendbufsz,
                 reconnect_state->recvbuf, reconnect_state->recvbufsz
     );
-    
+
+    /* Create an anonymous session */
+    const char* client_id = NULL;
+    /* Ensure we have a clean session */
+    uint8_t connect_flags = MQTT_CONNECT_CLEAN_SESSION;
     /* Send connection request to the broker. */
-    mqtt_connect(client, "subscribing_client", NULL, NULL, 0, NULL, NULL, 0, 400);
+    mqtt_connect(client, client_id, NULL, NULL, 0, NULL, NULL, connect_flags, 400);
 
     /* Subscribe to the topic. */
     mqtt_subscribe(client, reconnect_state->topic, 0);

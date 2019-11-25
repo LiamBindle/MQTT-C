@@ -201,6 +201,12 @@ static void TEST__framing__connect(void** state) {
         0, 8, 'u', 's', 'e', 'r', 'n', 'a', 'm', 'e',
         0, 8, 'p', 'a', 's', 's', 'w', 'o', 'r', 'd'
     };
+    const uint8_t correct_bytes_empty_client_id[] = {
+        (MQTT_CONTROL_CONNECT << 4) | 0, 12,
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, MQTT_CONNECT_CLEAN_SESSION,
+        0, 120u, 0, 0
+    };
+
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
 
@@ -221,6 +227,17 @@ static void TEST__framing__connect(void** state) {
 
     /* check that memory is correct */
     assert_true(memcmp(correct_bytes2, buf, sizeof(correct_bytes2)) == 0);
+
+    /* check that the empty client_id is packed correctly */
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), NULL, NULL, NULL, 0, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 120u);
+    assert_true(rv == sizeof(correct_bytes_empty_client_id));
+
+    /* check that memory is correct */
+    assert_true(memcmp(correct_bytes_empty_client_id, buf, sizeof(correct_bytes_empty_client_id)) == 0);
+
+    /* Check that empty client_id is rejected without MQTT_CONNECT_CLEAN_SESSION */
+    rv = mqtt_pack_connection_request(buf, sizeof(buf), NULL, NULL, NULL, 0, NULL, NULL, 0, 120u);
+    assert_int_equal(rv, MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED);
 }
 
 static void TEST__framing__publish(void** state) {

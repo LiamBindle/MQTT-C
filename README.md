@@ -58,6 +58,8 @@ These files are ANSI C (C89) compatible, and should compile with any C compiler.
 
 Then, simply <code>\#include <mqtt.h></code>.
 
+Alternatively, you can build MQTT-C with CMake or the provided Makefile. These are provided for convenience.
+
 ## Documentation
 Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C). Be sure to check out the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) too.
 
@@ -68,18 +70,15 @@ and the other modules contain documentation for MQTT-C developers.
 ## Testing and Building the Tests
 The MQTT-C unit tests use the [cmocka unit testing framework](https://cmocka.org/). 
 Therefore, [cmocka](https://cmocka.org/) *must* be installed on your machine to build and run 
-the unit tests. Additionally, OpenSSL is required for the examples `bio_publisher` and `openssl_publisher`.
-For convenience, a simple `CMakeLists.txt` is included to create project files for the unit tests and examples using cmake. The unit tests and examples can be built as follows (On UNIX-like machines):
+the unit tests. For convenience, a simple `"makefile"` is included to build the unit tests and 
+examples on UNIX-like machines. The unit tests and examples can be built as follows:
 ```bash
-    $ mkdir bin
-    $ cd bin
-    $ cmake ..
     $ make all
 ``` 
 The unit tests and examples will be built in the `"bin/"` directory. The unit tests can be run 
 like so:
 ```bash
-    $ ./tests [address [port]]
+    $ ./bin/tests [address [port]]
 ```
 Note that the \c address and \c port arguments are both optional to specify the location of the
 MQTT broker that is to be used for the tests. If no \c address is given then the 
