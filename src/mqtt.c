@@ -1576,12 +1576,15 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 
 /* MESSAGE QUEUE */
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
-{
-    mq->mem_start = buf;
-    mq->mem_end = (unsigned char*)buf + bufsz;
-    mq->curr = buf;
-    mq->queue_tail = mq->mem_end;
-    mq->curr_sz = mqtt_mq_currsz(mq);
+{  
+    if(buf != NULL)
+    {
+        mq->mem_start = buf;
+        mq->mem_end = (unsigned char*)buf + bufsz;
+        mq->curr = buf;
+        mq->queue_tail = mq->mem_end;
+        mq->curr_sz = mqtt_mq_currsz(mq);
+    }
 }
 
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)
