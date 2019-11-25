@@ -58,6 +58,8 @@ These files are ANSI C (C89) compatible, and should compile with any C compiler.
 
 Then, simply <code>\#include <mqtt.h></code>.
 
+Alternatively, you can build MQTT-C with CMake or the provided Makefile. These are provided for convenience.
+
 ## Documentation
 Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C). Be sure to check out the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) too.
 
