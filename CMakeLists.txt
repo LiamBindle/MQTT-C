@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(MQTT-C VERSION 1.0.3 LANGUAGES C)
 
 # MQTT-C build options
-option(MQTT_C_WITH_OpenSSL "Build MQTT-C with OpenSSL support?" OFF)
+option(MQTT_C_OpenSSL_SUPPORT "Build MQTT-C with OpenSSL support?" OFF)
 option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
 option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 
@@ -18,7 +18,7 @@ target_link_libraries(mqttc PUBLIC
 
 
 # Configure with OpenSSL support
-if(MQTT_C_WITH_OpenSSL)
+if(MQTT_C_OpenSSL_SUPPORT)
     find_package(OpenSSL REQUIRED)
     target_link_libraries(mqttc INTERFACE OpenSSL::SSL)
     target_compile_definitions(mqttc PUBLIC MQTT_USE_BIO)
@@ -28,22 +28,21 @@ endif()
 if(MQTT_C_EXAMPLES)
     find_package(Threads REQUIRED)
 
-    add_executable(simple_publisher examples/simple_publisher.c)
-    target_link_libraries(simple_publisher Threads::Threads mqttc)
-
-    add_executable(simple_subscriber examples/simple_subscriber.c)
-    target_link_libraries(simple_subscriber Threads::Threads mqttc)
-
-    add_executable(reconnect_subscriber examples/reconnect_subscriber.c)
-    target_link_libraries(reconnect_subscriber Threads::Threads mqttc)
-
-    if(MQTT_C_WITH_OpenSSL)
+    if(MQTT_C_OpenSSL_SUPPORT)
         add_executable(bio_publisher examples/bio_publisher.c)
         target_link_libraries(bio_publisher Threads::Threads mqttc)
 
         add_executable(openssl_publisher examples/openssl_publisher.c)
         target_link_libraries(openssl_publisher Threads::Threads mqttc)
+    else()
+        add_executable(simple_publisher examples/simple_publisher.c)
+        target_link_libraries(simple_publisher Threads::Threads mqttc)
 
+        add_executable(simple_subscriber examples/simple_subscriber.c)
+        target_link_libraries(simple_subscriber Threads::Threads mqttc)
+
+        add_executable(reconnect_subscriber examples/reconnect_subscriber.c)
+        target_link_libraries(reconnect_subscriber Threads::Threads mqttc)
     endif()
 endif()
 
