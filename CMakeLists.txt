@@ -16,6 +16,7 @@ target_link_libraries(mqttc PUBLIC
     $<$<C_COMPILER_ID:MSVS>:ws2_32>
 )
 
+
 # Configure with OpenSSL support
 if(MQTT_C_WITH_OpenSSL)
     find_package(OpenSSL REQUIRED)
