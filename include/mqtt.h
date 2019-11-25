@@ -167,7 +167,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_CONTROL_FORBIDDEN_TYPE)        \
     MQTT_ERROR(MQTT_ERROR_CONTROL_INVALID_FLAGS)         \
     MQTT_ERROR(MQTT_ERROR_CONTROL_WRONG_TYPE)            \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_CLIENT_ID)        \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED)     \
     MQTT_ERROR(MQTT_ERROR_CONNECT_NULL_WILL_MESSAGE)     \
     MQTT_ERROR(MQTT_ERROR_CONNECT_FORBIDDEN_WILL_QOS)    \
     MQTT_ERROR(MQTT_ERROR_CONNACK_FORBIDDEN_FLAGS)       \
@@ -188,7 +188,8 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_SUBSCRIBE_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
-    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)
+    MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)      \
+    MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)
 
 /* todo: add more connection refused errors */
 
@@ -671,8 +672,8 @@ enum MQTTConnectFlags {
  * 
  * @param[out] buf the buffer to pack the connection request packet into.
  * @param[in] bufsz the number of bytes left in \p buf.
- * @param[in] client_id the ID that identifies the local client. \p client_id is a required 
- *                      parameter.
+ * @param[in] client_id the ID that identifies the local client. \p client_id can be NULL or an empty
+ *                      string for Anonymous clients.
  * @param[in] will_topic the topic under which the local client's will message will be published.
  *                       Set to \c NULL for no will message. If \p will_topic is not \c NULL a
  *                       \p will_message must also be provided.
@@ -686,7 +687,7 @@ enum MQTTConnectFlags {
  * @param[in] password the password to be used to connect to the broker with. Set to \c NULL if
  *                     no password is required.
  * @param[in] connect_flags additional MQTTConnectFlags to be set. The only flags that need to be
- *                          set manually are \c MQTT_CONNECT_CLEAN_SESSION, 
+ *                          set manually are \c MQTT_CONNECT_CLEAN_SESSION,
  *                          \c MQTT_CONNECT_WILL_QOS_X (for \c X &isin; {0, 1, 2}), and 
  *                          \c MQTT_CONNECT_WILL_RETAIN. Set to 0 if no additional flags are 
  *                          required.
@@ -1399,7 +1400,7 @@ void mqtt_reinit(struct mqtt_client* client,
  * @pre mqtt_init must have been called.
  * 
  * @param[in,out] client The MQTT client.
- * @param[in] client_id The unique name identifying the client.
+ * @param[in] client_id The unique name identifying the client. (or NULL)
  * @param[in] will_topic The topic name of client's \p will_message. If no will message is 
  *            desired set to \c NULL.
  * @param[in] will_message The application message (data) to be published in the event the 
