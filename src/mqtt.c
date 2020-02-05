@@ -1244,7 +1244,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     const uint8_t *const start = buf;
     ssize_t rv;
     struct mqtt_fixed_header fixed_header;
-    uint16_t remaining_length;
+    uint32_t remaining_length;
     uint8_t inspected_qos;
 
     /* check for null pointers */
