@@ -612,13 +612,14 @@ ssize_t __mqtt_send(struct mqtt_client *client)
     return MQTT_OK;
 }
 
-ssize_t __mqtt_recv(struct mqtt_client *client) 
+ssize_t __mqtt_recv(struct mqtt_client *client)
 {
     struct mqtt_response response;
+    ssize_t mqtt_recv_ret = MQTT_OK;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
 
-    /* read until there is nothing left to read */
-    while(1) {
+    /* read until there is nothing left to read, or there was an error */
+    while(mqtt_recv_ret == MQTT_OK) {
         /* read in as many bytes as possible */
         ssize_t rv, consumed;
         struct mqtt_queued_message *msg = NULL;
@@ -690,17 +691,22 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_CONNECT, NULL);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* initialize typical response time */
                 client->typical_response_time = (double) (MQTT_PAL_TIME() - msg->time_sent);
                 /* check that connection was successful */
                 if (response.decoded.connack.return_code != MQTT_CONNACK_ACCEPTED) {
-                    client->error = MQTT_ERROR_CONNECTION_REFUSED;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_CONNECTION_REFUSED;
+                    if (response.decoded.connack.return_code == MQTT_CONNACK_REFUSED_IDENTIFIER_REJECTED) {
+                        client->error = MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED;
+                        mqtt_recv_ret = MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED;
+                    } else {
+                        client->error = MQTT_ERROR_CONNECTION_REFUSED;
+                        mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
+                    }
+                    break;
                 }
                 break;
             case MQTT_CONTROL_PUBLISH:
@@ -709,8 +715,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                     rv = __mqtt_puback(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
                         client->error = rv;
-                        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                        return rv;
+                        mqtt_recv_ret = rv;
+                        break;
                     }
                 } else if (response.decoded.publish.qos_level == 2) {
                     /* check if this is a duplicate */
@@ -721,8 +727,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                     rv = __mqtt_pubrec(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
                         client->error = rv;
-                        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                        return rv;
+                        mqtt_recv_ret = rv;
+                        break;
                     }
                 }
                 /* call publish callback */
@@ -733,8 +739,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.puback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -749,8 +755,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBLISH, &response.decoded.pubrec.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -759,8 +765,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 rv = __mqtt_pubrel(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
                     client->error = rv;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return rv;
+                    mqtt_recv_ret = rv;
+                    break;
                 }
                 break;
             case MQTT_CONTROL_PUBREL:
@@ -768,8 +774,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREC, &response.decoded.pubrel.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -778,8 +784,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 rv = __mqtt_pubcomp(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
                     client->error = rv;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return rv;
+                    mqtt_recv_ret = rv;
+                    break;
                 }
                 break;
             case MQTT_CONTROL_PUBCOMP:
@@ -787,8 +793,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PUBREL, &response.decoded.pubcomp.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -799,8 +805,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_SUBSCRIBE, &response.decoded.suback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -808,8 +814,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 /* check that subscription was successful (not currently only one subscribe at a time) */
                 if (response.decoded.suback.return_codes[0] == MQTT_SUBACK_FAILURE) {
                     client->error = MQTT_ERROR_SUBSCRIBE_FAILED;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_SUBSCRIBE_FAILED;
+                    mqtt_recv_ret = MQTT_ERROR_SUBSCRIBE_FAILED;
+                    break;
                 }
                 break;
             case MQTT_CONTROL_UNSUBACK:
@@ -817,8 +823,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_UNSUBSCRIBE, &response.decoded.unsuback.packet_id);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -829,8 +835,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg = mqtt_mq_find(&client->mq, MQTT_CONTROL_PINGREQ, NULL);
                 if (msg == NULL) {
                     client->error = MQTT_ERROR_ACK_OF_UNKNOWN;
-                    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                    return MQTT_ERROR_ACK_OF_UNKNOWN;
+                    mqtt_recv_ret = MQTT_ERROR_ACK_OF_UNKNOWN;
+                    break;
                 }
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
@@ -838,8 +844,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 break;
             default:
                 client->error = MQTT_ERROR_MALFORMED_RESPONSE;
-                MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-                return MQTT_ERROR_MALFORMED_RESPONSE;
+                mqtt_recv_ret = MQTT_ERROR_MALFORMED_RESPONSE;
+                break;
         }
         {
           /* we've handled the response, now clean the buffer */
@@ -852,9 +858,9 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
         }
     }
 
-    /* never hit (always return once there's nothing left. */
+    /* In case there was some error handling the (well formed) message, we end up here */
     MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-    return MQTT_OK;
+    return mqtt_recv_ret;
 }
 
 /* FIXED HEADER */
@@ -922,7 +928,7 @@ struct {
     }
 };
 
-ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_header) {
+static ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_header) {
     uint8_t control_type;
     uint8_t control_flags;
     uint8_t required_flags;
@@ -1060,14 +1066,14 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
 }
 
 /* CONNECT */
-ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz, 
+ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
                                      const char* client_id,
                                      const char* will_topic,
                                      const void* will_message,
                                      size_t will_message_size,
                                      const char* user_name,
                                      const char* password,
-                                     uint8_t connect_flags, 
+                                     uint8_t connect_flags,
                                      uint16_t keep_alive)
 { 
     struct mqtt_fixed_header fixed_header;
@@ -1084,13 +1090,15 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     remaining_length = 10; /* size of variable header */
 
     if (client_id == NULL) {
-        /* client_id is a mandatory parameter */
-        return MQTT_ERROR_CONNECT_NULL_CLIENT_ID;
-    } else {
-        /* mqtt_string length is strlen + 2 */
-        remaining_length += __mqtt_packed_cstrlen(client_id);
+        client_id = "";
     }
-    
+    /* For an empty client_id, a clean session is required */
+    if (client_id[0] == '\0' && !(connect_flags & MQTT_CONNECT_CLEAN_SESSION)) {
+        return MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED;
+    }
+    /* mqtt_string length is strlen + 2 */
+    remaining_length += __mqtt_packed_cstrlen(client_id);
+
     if (will_topic != NULL) {
         uint8_t temp;
         /* there is a will */
@@ -1164,7 +1172,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     buf += __mqtt_pack_str(buf, client_id);
     if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
         buf += __mqtt_pack_str(buf, will_topic);
-        buf += __mqtt_pack_uint16(buf, will_message_size);
+        buf += __mqtt_pack_uint16(buf, (uint16_t)will_message_size);
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }
@@ -1251,11 +1259,11 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     fixed_header.control_type = MQTT_CONTROL_PUBLISH;
 
     /* calculate remaining length */
-    remaining_length = __mqtt_packed_cstrlen(topic_name);
+    remaining_length = (uint16_t)__mqtt_packed_cstrlen(topic_name);
     if (inspected_qos > 0) {
         remaining_length += 2;
     }
-    remaining_length += application_message_size;
+    remaining_length += (uint16_t)application_message_size;
     fixed_header.remaining_length = remaining_length;
 
     /* force dup to 0 if qos is 0 [Spec MQTT-3.3.1-2] */
@@ -1568,12 +1576,15 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 
 /* MESSAGE QUEUE */
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
-{
-    mq->mem_start = buf;
-    mq->mem_end = (unsigned char*)buf + bufsz;
-    mq->curr = buf;
-    mq->queue_tail = mq->mem_end;
-    mq->curr_sz = mqtt_mq_currsz(mq);
+{  
+    if(buf != NULL)
+    {
+        mq->mem_start = buf;
+        mq->mem_end = (unsigned char*)buf + bufsz;
+        mq->curr = buf;
+        mq->queue_tail = mq->mem_end;
+        mq->curr_sz = mqtt_mq_currsz(mq);
+    }
 }
 
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)
@@ -1710,7 +1721,7 @@ uint16_t __mqtt_unpack_uint16(const uint8_t *buf)
 }
 
 ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
-    uint16_t length = strlen(str);
+    uint16_t length = (uint16_t)strlen(str);
     int i = 0;
      /* pack string length */
     buf += __mqtt_pack_uint16(buf, length);

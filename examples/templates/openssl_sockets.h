@@ -28,8 +28,11 @@ void open_nb_socket(BIO** bio, SSL_CTX** ssl_ctx, const char* addr, const char* 
 
     /* wait for connect with 10 second timeout */
     int start_time = time(NULL);
-    while(BIO_do_connect(*bio) <= 0 && (int)time(NULL) - start_time < 10);
-    if (BIO_do_connect(*bio) <= 0) {
+    int do_connect_rv = BIO_do_connect(*bio);
+    while(do_connect_rv <= 0 && BIO_should_retry(*bio) && (int)time(NULL) - start_time < 10) {
+        do_connect_rv = BIO_do_connect(*bio);
+    }
+    if (do_connect_rv <= 0) {
         printf("error: %s\n", ERR_reason_error_string(ERR_get_error()));
         BIO_free_all(*bio);
         SSL_CTX_free(*ssl_ctx);
