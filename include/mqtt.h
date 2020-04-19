@@ -29,7 +29,13 @@ SOFTWARE.
 extern "C" {
 #endif
 
+#ifdef MQTTC_PAL_FILE
+#define MQTTC_STR2(x) #x
+#define MQTTC_STR(x) MQTTC_STR2(x)
+#include MQTTC_STR(MQTTC_PAL_FILE)
+#else
 #include <mqtt_pal.h>
+#endif /* MQTT_PAL_FILE */
 
 /**
  * @file
