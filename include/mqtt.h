@@ -29,6 +29,12 @@ SOFTWARE.
 extern "C" {
 #endif
 
+// Users can override mqtt_pal.h with their own configuration by defining
+// MQTTC_PAL_FILE as a header file to include (-DMQTTC_PAL_FILE=my_mqtt_pal.h).
+//
+// If MQTTC_PAL_FILE is used, none of the default utils will be emitted and must be
+// provided by the config file. To start, I would suggest copying mqtt_pal.h
+// and modifying as needed.
 #ifdef MQTTC_PAL_FILE
 #define MQTTC_STR2(x) #x
 #define MQTTC_STR(x) MQTTC_STR2(x)
