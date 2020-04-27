@@ -65,7 +65,7 @@ SOFTWARE.
 
 
 /* UNIX-like platform support */
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
     #include <limits.h>
     #include <string.h>
     #include <stdarg.h>
