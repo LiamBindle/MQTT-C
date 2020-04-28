@@ -86,7 +86,10 @@ SOFTWARE.
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
     #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
-        #ifdef MQTT_USE_BIO
+        #ifdef MQTT_USE_MBEDTLS
+            struct mbedtls_ssl_context;
+            typedef struct mbedtls_ssl_context *mqtt_pal_socket_handle;
+        #elif defined(MQTT_USE_BIO)
             #include <openssl/bio.h>
             typedef BIO* mqtt_pal_socket_handle;
         #else

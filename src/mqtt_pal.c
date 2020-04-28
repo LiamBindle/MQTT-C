@@ -32,7 +32,51 @@ SOFTWARE.
  */
 
 
-#ifdef MQTT_USE_BIO
+#ifdef MQTT_USE_MBEDTLS
+#include <mbedtls/ssl.h>
+
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    size_t sent = 0;
+    while(sent < len) {
+        int rv = mbedtls_ssl_write(fd, buf + sent, len - sent);
+        if (rv < 0) {
+            if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
+                rv == MBEDTLS_ERR_SSL_WANT_WRITE ||
+                rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
+                rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS) {
+                /* should call mbedtls_ssl_writer later again */
+                break;
+            }
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+        sent += (size_t) rv;
+    }
+    return sent;
+}
+
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
+    const void *const start = buf;
+    int rv;
+    do {
+        rv = mbedtls_ssl_read(fd, buf, bufsz);
+        if (rv < 0) {
+            if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
+                rv == MBEDTLS_ERR_SSL_WANT_WRITE ||
+                rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
+                rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS) {
+                /* should call mbedtls_ssl_read later again */
+                break;
+            }
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+        buf = (char*)buf + rv;
+        bufsz -= rv;
+    } while (rv > 0);
+
+    return buf - start;
+}
+
+#elif defined(MQTT_USE_BIO)
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
