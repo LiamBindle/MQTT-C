@@ -16,10 +16,10 @@ bin/reconnect_%: examples/reconnect_%.c $(MQTT_C_SOURCES)
 	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 bin/bio_%: examples/bio_%.c $(MQTT_C_SOURCES)
-	$(CC) $(CFLAGS) -D MQTT_USE_BIO $^ -lpthread `pkg-config --libs openssl` -o $@
+	$(CC) $(CFLAGS) `pkg-config --cflags openssl` -D MQTT_USE_BIO $^ -lpthread `pkg-config --libs openssl` -o $@
 
 bin/openssl_%: examples/openssl_%.c $(MQTT_C_SOURCES)
-	$(CC) $(CFLAGS) -D MQTT_USE_BIO $^ -lpthread `pkg-config --libs openssl` -o $@
+	$(CC) $(CFLAGS) `pkg-config --cflags openssl` -D MQTT_USE_BIO $^ -lpthread `pkg-config --libs openssl` -o $@
 
 $(BINDIR):
 	mkdir -p $(BINDIR)

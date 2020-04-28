@@ -69,7 +69,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return (ssize_t)(buf - start);
 }
 
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__APPLE__)
 
 #include <errno.h>
 
