@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(MQTT-C VERSION 1.1.0 LANGUAGES C)
+project(MQTT-C VERSION 1.1.2 LANGUAGES C)
 
 # MQTT-C build options
 option(MQTT_C_OpenSSL_SUPPORT "Build MQTT-C with OpenSSL support?" OFF)
