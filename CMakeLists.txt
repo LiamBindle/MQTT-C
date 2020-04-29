@@ -77,6 +77,5 @@ endif()
 install(TARGETS mqttc 
     DESTINATION lib
 )
-install(DIRECTORY include
-    DESTINATION include
-)
+install(DIRECTORY include/
+    DESTINATION include)
