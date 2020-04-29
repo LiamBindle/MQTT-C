@@ -41,9 +41,14 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
         int rv = mbedtls_ssl_write(fd, buf + sent, len - sent);
         if (rv < 0) {
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
-                rv == MBEDTLS_ERR_SSL_WANT_WRITE ||
-                rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
-                rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS) {
+                rv == MBEDTLS_ERR_SSL_WANT_WRITE
+#if defined(MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS)
+                || rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS
+#endif
+#if defined(MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS)
+                || rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
+#endif
+                ) {
                 /* should call mbedtls_ssl_writer later again */
                 break;
             }
@@ -61,9 +66,14 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
         rv = mbedtls_ssl_read(fd, buf, bufsz);
         if (rv < 0) {
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
-                rv == MBEDTLS_ERR_SSL_WANT_WRITE ||
-                rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
-                rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS) {
+                rv == MBEDTLS_ERR_SSL_WANT_WRITE
+#if defined(MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS)
+                || rv == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS
+#endif
+#if defined(MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS)
+                || rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
+#endif
+                ) {
                 /* should call mbedtls_ssl_read later again */
                 break;
             }
