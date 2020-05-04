@@ -4,12 +4,27 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <mbedtls/error.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/ssl.h>
+
+#if !defined(MBEDTLS_NET_POLL_READ)
+/* compat for older mbedtls */
+#define	MBEDTLS_NET_POLL_READ	1
+#define	MBEDTLS_NET_POLL_WRITE	1
+
+int
+mbedtls_net_poll(mbedtls_net_context * ctx, uint32_t rw, uint32_t timeout)
+{
+	/* XXX this is not ideal but good enough for an example */
+	usleep(300);
+	return 1;
+}
+#endif
 
 struct mbedtls_context {
     mbedtls_net_context net_ctx;
