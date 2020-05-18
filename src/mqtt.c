@@ -108,7 +108,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
 
     client->recv_buffer.mem_start = recvbuf;
-    client->recv_buffer.mem_size = recvbufsz;
+    client->recv_buffer.mem_size = recvbufsz - 1;
     client->recv_buffer.curr = client->recv_buffer.mem_start;
     client->recv_buffer.curr_sz = client->recv_buffer.mem_size;
 
@@ -169,7 +169,7 @@ void mqtt_reinit(struct mqtt_client* client,
     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
 
     client->recv_buffer.mem_start = recvbuf;
-    client->recv_buffer.mem_size = recvbufsz;
+    client->recv_buffer.mem_size = recvbufsz - 1;
     client->recv_buffer.curr = client->recv_buffer.mem_start;
     client->recv_buffer.curr_sz = client->recv_buffer.mem_size;
 }
@@ -630,8 +630,9 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             client->error = rv;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return rv;
-        } else {
+        } else if (rv > 0) {
             client->recv_buffer.curr += rv;
+            *client->recv_buffer.curr = 0;
             client->recv_buffer.curr_sz -= rv;
         }
 
