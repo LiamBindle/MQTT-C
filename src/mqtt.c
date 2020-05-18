@@ -36,7 +36,9 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     /* Recover from any errors */
     enum MQTTErrors err;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
+    if (client->error != MQTT_OK &&
+        client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL &&
+        client->reconnect_callback != NULL) {
         client->reconnect_callback(client, &client->reconnect_state);
         /* unlocked during CONNECT */
     } else {
@@ -63,6 +65,10 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
     int pid_exists = 0;
+    if (client->error < 0 && client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL)
+    {
+        return -1;
+    }
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
     }
@@ -183,7 +189,8 @@ void mqtt_reinit(struct mqtt_client* client,
  *      3) Upon successful pack, registers the new message.
  */
 #define MQTT_CLIENT_TRY_PACK(tmp, msg, client, pack_call, release)  \
-    if (client->error < 0) {                                        \
+    if (client->error < 0 &&                                        \
+        client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL) {         \
         if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);         \
         return client->error;                                       \
     }                                                               \
@@ -277,6 +284,7 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
     msg->packet_id = packet_id;
 
     MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+    client->error = MQTT_OK;
     return MQTT_OK;
 }
 
