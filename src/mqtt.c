@@ -1259,11 +1259,11 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     fixed_header.control_type = MQTT_CONTROL_PUBLISH;
 
     /* calculate remaining length */
-    remaining_length = (uint16_t)__mqtt_packed_cstrlen(topic_name);
+    remaining_length = (uint32_t)__mqtt_packed_cstrlen(topic_name);
     if (inspected_qos > 0) {
         remaining_length += 2;
     }
-    remaining_length += (uint16_t)application_message_size;
+    remaining_length += (uint32_t)application_message_size;
     fixed_header.remaining_length = remaining_length;
 
     /* force dup to 0 if qos is 0 [Spec MQTT-3.3.1-2] */
