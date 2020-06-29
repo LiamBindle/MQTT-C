@@ -4,6 +4,7 @@ project(MQTT-C VERSION 1.1.2 LANGUAGES C)
 # MQTT-C build options
 option(MQTT_C_OpenSSL_SUPPORT "Build MQTT-C with OpenSSL support?" OFF)
 option(MQTT_C_MbedTLS_SUPPORT "Build MQTT-C with mbed TLS support?" OFF)
+option(MQTT_C_BearSSL_SUPPORT "Build MQTT-C with Bear SSL support?" OFF)
 option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
 option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 
@@ -19,6 +20,34 @@ target_link_libraries(mqttc PUBLIC
     $<$<C_COMPILER_ID:MSVS>:ws2_32>
 )
 
+if(MQTT_C_BearSSL_SUPPORT)
+    set(bearssl_root "$ENV{BEARSSL_ROOT}")
+
+    if("${bearssl_root}" STREQUAL "")
+        MESSAGE(FATAL_ERROR "BEARSSL_ROOT not found in environment")
+    endif()
+
+    set(bearssl_include "${bearssl_root}/include")
+    find_file(bearinc NAMES bearssl.h PATHS "${bearssl_include}")
+
+    if ("${bearinc}" STREQUAL "bearinc-NOTFOUND")
+        MESSAGE(FATAL_ERROR "BEARSSL_ROOT does not contain include/bearssl.h")
+    endif()
+
+    set(bearssl_lib "${bearssl_root}/lib")
+    find_library(bearlib NAMES libbearssl.a bearssl.lib PATHS "{bearssl_lib}")
+
+    if("${bearlib}" STREQUAL "bearlib-NOTFOUND")
+        MESSAGE(FATAL_ERROR "BEARSSL_ROOT does not contain lib with bearssl library")
+    endif()
+
+    get_filename_component(bearinc "${bearinc}" DIRECTORY)
+    get_filename_component(bearlib2 "${bearlib}" DIRECTORY)
+
+    target_include_directories(mqttc PUBLIC bearsslinc)
+    target_link_libraries(mqttc INTERFACE "${bearlib}")
+    target_compile_definitions(mqttc PUBLIC MQTT_USE_BEARSSL)
+endif()
 
 # Configure with OpenSSL support
 if(MQTT_C_OpenSSL_SUPPORT)
@@ -48,6 +77,9 @@ if(MQTT_C_EXAMPLES)
     elseif(MQTT_C_MbedTLS_SUPPORT)
         add_executable(mbedtls_publisher examples/mbedtls_publisher.c)
         target_link_libraries(mbedtls_publisher Threads::Threads mqttc ${MBEDX509_LIBRARY} ${MBEDCRYPTO_LIBRARY})
+    elseif(MQTT_C_BearSSL_SUPPORT)
+        add_executable(bearssl_publisher examples/bearssl_publisher.c)
+        target_link_libraries(bearssl_publisher mqttc bearssl)
     else()
         add_executable(simple_publisher examples/simple_publisher.c)
         target_link_libraries(simple_publisher Threads::Threads mqttc)
