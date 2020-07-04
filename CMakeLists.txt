@@ -23,10 +23,6 @@ target_link_libraries(mqttc PUBLIC
 if(MQTT_C_BearSSL_SUPPORT)
     set(bearssl_root "$ENV{BEARSSL_ROOT}")
 
-    # if("${bearssl_root}" STREQUAL "")
-    #     MESSAGE(FATAL_ERROR "BEARSSL_ROOT not found in environment")
-    # endif()
-
     set(bearssl_include "${bearssl_root}/include")
     find_file(bearinc NAMES bearssl.h PATHS "${bearssl_include}")
 
