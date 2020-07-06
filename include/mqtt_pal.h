@@ -92,6 +92,21 @@ SOFTWARE.
         #elif defined(MQTT_USE_BIO)
             #include <openssl/bio.h>
             typedef BIO* mqtt_pal_socket_handle;
+        #elif defined(MQTT_USE_BEARSSL)
+            #include <bearssl.h>
+
+            typedef struct _bearssl_context {
+                br_ssl_client_context sc;
+                br_x509_minimal_context xc;
+                br_sslio_context ioc;
+                size_t ta_count;
+                br_x509_trust_anchor *anchOut;
+                int fd;
+                int (*low_read)(void *read_context, unsigned char *buf, size_t len);
+                int (*low_write)(void *write_context, const unsigned char *buf, size_t len);
+            } bearssl_context;
+
+            typedef bearssl_context* mqtt_pal_socket_handle;
         #else
             typedef int mqtt_pal_socket_handle;
         #endif
