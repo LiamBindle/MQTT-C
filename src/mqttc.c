@@ -27,7 +27,7 @@ SOFTWARE.
 /** 
  * @file 
  * @brief Implements the functionality of MQTT-C.
- * @note The only files that are included are mqttc.h and mqtt_pal.h.
+ * @note The only files that are included are mqttc.h and mqttc_pal.h.
  * 
  * @cond Doxygen_Suppress
  */
