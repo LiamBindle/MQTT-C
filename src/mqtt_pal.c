@@ -106,7 +106,10 @@ static int do_rec_data(mqtt_pal_socket_handle fd, unsigned int status) {
         buffer = br_ssl_engine_sendrec_buf(&fd->sc.eng, &length);
 
         if (length > 0) {
-            rc = fd->low_write(&fd->fd, buffer, length);
+            if ((rc = fd->low_write(&fd->fd, buffer, length)) < 0) {
+                return MQTT_ERROR_SOCKET_ERROR;
+            }
+
             br_ssl_engine_sendrec_ack(&fd->sc.eng, rc);
         }
     }
@@ -114,7 +117,10 @@ static int do_rec_data(mqtt_pal_socket_handle fd, unsigned int status) {
         buffer = br_ssl_engine_recvrec_buf(&fd->sc.eng, &length);
 
         if (length > 0) {
-            rc = fd->low_read(&fd->fd, buffer, length);
+            if ((rc = fd->low_read(&fd->fd, buffer, length)) < 0) {
+                return MQTT_ERROR_SOCKET_ERROR;
+            }
+            
             br_ssl_engine_recvrec_ack(&fd->sc.eng, rc);
         }
     }
@@ -140,6 +146,10 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
         }
 
         status = br_ssl_engine_current_state(&fd->sc.eng);
+
+        if ((status & BR_SSL_CLOSED) != 0) {
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
 
         if ((status & (BR_SSL_RECVREC | BR_SSL_SENDREC)) != 0) {
             rc = do_rec_data(fd, status);

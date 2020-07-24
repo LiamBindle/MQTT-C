@@ -757,7 +757,7 @@ enum MQTTPublishFlags {
 ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
                                   const char* topic_name,
                                   uint16_t packet_id,
-                                  void* application_message,
+                                  const void* application_message,
                                   size_t application_message_size,
                                   uint8_t publish_flags);
 
@@ -1453,7 +1453,7 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
  */
 enum MQTTErrors mqtt_publish(struct mqtt_client *client,
                              const char* topic_name,
-                             void* application_message,
+                             const void* application_message,
                              size_t application_message_size,
                              uint8_t publish_flags);
 
