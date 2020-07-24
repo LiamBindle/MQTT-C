@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <mqtt.h>
+#include <mqttc.h>
 #include "templates/posix_sockets.h"
 
 

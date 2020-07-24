@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <mqtt.h>
+#include <mqttc.h>
 #include "templates/openssl_sockets.h"
 
 

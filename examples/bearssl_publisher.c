@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <stdbool.h>
 
-#include <mqtt.h>
+#include <mqttc.h>
 
 #include "templates/bearssl_sockets.h"
 
