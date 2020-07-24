@@ -53,7 +53,7 @@ And we can publish to a topic like so:
 Those are the basics! From here the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) and [API documentation](https://liambindle.ca/MQTT-C/group__api.html) are good places to get started.
 
 ## Building
-There are **only two source files** that need to be built, `mqtt.c` and `mqtt_pal.c`.
+There are **only two source files** that need to be built, `mqttc.c` and `mqttc_pal.c`.
 These files are ANSI C (C89) compatible, and should compile with any C compiler.
 
 Then, simply <code>\#include <mqtt.h></code>.
@@ -86,7 +86,7 @@ MQTT broker that is to be used for the tests. If no \c address is given then the
 port 1883 will be used.
 
 ## Portability
-MQTT-C provides a transparent platform abstraction layer (PAL) in `mqtt_pal.h` and `mqtt_pal.c`.
+MQTT-C provides a transparent platform abstraction layer (PAL) in `mqttc_pal.h` and `mqttc_pal.c`.
 These files declare and implement the types and calls that MQTT-C requires. Refer to 
 @ref pal for the complete documentation of the PAL.
 
