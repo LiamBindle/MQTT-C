@@ -27,7 +27,7 @@
 #endif
 
 
-#include <mqtt.h>
+#include <mqttc.h>
 #include "examples/templates/posix_sockets.h"
 
 void make_socket_blocking(int socket)

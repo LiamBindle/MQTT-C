@@ -29,13 +29,13 @@ SOFTWARE.
  * @file
  * @brief Includes/supports the types/calls required by the MQTT-C client.
  * 
- * @note This is the \em only file included in mqtt.h, and mqtt.c. It is therefore 
+ * @note This is the \em only file included in mqttc.h, and mqttc.c. It is therefore 
  *       responsible for including/supporting all the required types and calls. 
  * 
  * @defgroup pal Platform abstraction layer
  * @brief Documentation of the types and calls required to port MQTT-C to a new platform.
  * 
- * mqtt_pal.h is the \em only header file included in mqtt.c. Therefore, to port MQTT-C to a 
+ * mqtt_pal.h is the \em only header file included in mqttc.c. Therefore, to port MQTT-C to a 
  * new platform the following types, functions, constants, and macros must be defined in 
  * mqtt_pal.h:
  *  - Types:
