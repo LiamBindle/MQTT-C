@@ -12,7 +12,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # MQTT-C library
 add_library(mqttc STATIC
-    src/mqtt_pal.c
+    src/mqttc_pal.c
     src/mqttc.c
 )
 target_include_directories(mqttc PUBLIC include)

@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wextra -Wall -std=gnu99 -Iinclude -Wno-unused-parameter -Wno-unused-variable -Wno-duplicate-decl-specifier
 
-MQTT_C_SOURCES = src/mqttc.c src/mqtt_pal.c
+MQTT_C_SOURCES = src/mqttc.c src/mqttc_pal.c
 MQTT_C_EXAMPLES = bin/simple_publisher bin/simple_subscriber bin/reconnect_subscriber bin/bio_publisher bin/openssl_publisher
 MQTT_C_UNITTESTS = bin/tests
 BINDIR = bin
