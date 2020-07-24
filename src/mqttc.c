@@ -22,12 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <mqtt.h>
+#include <mqttc.h>
 
 /** 
  * @file 
  * @brief Implements the functionality of MQTT-C.
- * @note The only files that are included are mqtt.h and mqtt_pal.h.
+ * @note The only files that are included are mqttc.h and mqtt_pal.h.
  * 
  * @cond Doxygen_Suppress
  */
