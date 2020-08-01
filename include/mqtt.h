@@ -1579,8 +1579,6 @@ enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
 * 
  * @param[in,out] client The MQTT client.
  * 
- * @note To re-establish the session, mqtt_connect must be called.
- * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
 enum MQTTErrors mqtt_reconnect(struct mqtt_client *client);
