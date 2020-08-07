@@ -1309,6 +1309,22 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * 
  * @attention Only initialize an MQTT client once (i.e. don't call \ref mqtt_init or 
  *            \ref mqtt_init_reconnect more than once per client).
+ * @attention \p sendbuf internally mapped to client's message-to-send queue that actively uses
+ *            pointer access. In the case of unaligned \p sendbuf, that may lead to
+ *            Segmentation/Hard/Memory Faults on systems that do not support unaligned pointer
+ *            access (e.g. ARMv6, ARMv7-M). To avoid that, you may use the following technique:
+ *            \code{.c}
+ *            // example for ARMv7-M that requires pointers to be word aligned (4 byte boundary)
+ *            static unsigned char mqtt_tx_buffer[MAX_TX_BUFFER_SIZE] __attribute__((aligned(4)));
+ *            static unsigned char mqtt_rx_buffer[MAX_RX_BUFFER_SIZE];
+ *            // ...
+ *            int main(void) {
+ *                // ...
+ *                mqtt_init(p_client, p_client->socketfd, mqtt_tx_buffer, sizeof mqtt_tx_buffer, mqtt_rx_buffer,
+ *                          sizeof mqtt_rx_buffer, message_callback);
+ *                // ...
+ *            }
+ *            \endcode
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
