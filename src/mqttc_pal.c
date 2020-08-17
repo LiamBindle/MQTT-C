@@ -132,7 +132,7 @@ static int do_rec_data(mqtt_pal_socket_handle fd, unsigned int status) {
 }
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
-    int rc;
+    int rc = MQTT_OK;
     uint8_t *buffer;
     size_t length;
     size_t remaining_bytes = len;
@@ -178,7 +178,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
 }
 
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
-    int rc;
+    int rc = MQTT_OK;
     uint8_t *buffer;
     size_t length;
     size_t remaining_bytes = bufsz;

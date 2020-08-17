@@ -25,6 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <mqttc_pal.h>
 
 /**
@@ -177,7 +181,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_MALFORMED_RESPONSE)            \
     MQTT_ERROR(MQTT_ERROR_UNSUBSCRIBE_TOO_MANY_TOPICS)   \
     MQTT_ERROR(MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE) \
-    MQTT_ERROR(MQTT_ERROR_CONNECT_NOT_CALLED)          \
+    MQTT_ERROR(MQTT_ERROR_CONNECT_NOT_CALLED)            \
     MQTT_ERROR(MQTT_ERROR_SEND_BUFFER_IS_FULL)           \
     MQTT_ERROR(MQTT_ERROR_SOCKET_ERROR)                  \
     MQTT_ERROR(MQTT_ERROR_MALFORMED_REQUEST)             \
@@ -189,7 +193,8 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_CONNECTION_CLOSED)             \
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
     MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)      \
-    MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)
+    MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)     \
+    MQTT_ERROR(MQTT_ERROR_RECONNECTING)
 
 /* todo: add more connection refused errors */
 
@@ -1308,6 +1313,22 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * 
  * @attention Only initialize an MQTT client once (i.e. don't call \ref mqtt_init or 
  *            \ref mqtt_init_reconnect more than once per client).
+ * @attention \p sendbuf internally mapped to client's message-to-send queue that actively uses
+ *            pointer access. In the case of unaligned \p sendbuf, that may lead to
+ *            Segmentation/Hard/Memory Faults on systems that do not support unaligned pointer
+ *            access (e.g. ARMv6, ARMv7-M). To avoid that, you may use the following technique:
+ *            \code{.c}
+ *            // example for ARMv7-M that requires pointers to be word aligned (4 byte boundary)
+ *            static unsigned char mqtt_tx_buffer[MAX_TX_BUFFER_SIZE] __attribute__((aligned(4)));
+ *            static unsigned char mqtt_rx_buffer[MAX_RX_BUFFER_SIZE];
+ *            // ...
+ *            int main(void) {
+ *                // ...
+ *                mqtt_init(p_client, p_client->socketfd, mqtt_tx_buffer, sizeof mqtt_tx_buffer, mqtt_rx_buffer,
+ *                          sizeof mqtt_rx_buffer, message_callback);
+ *                // ...
+ *            }
+ *            \endcode
  * 
  * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
  */
@@ -1565,4 +1586,25 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client);
  */
 enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
 
-#endif /* __MQTTC_H__ */
+/**
+ * @brief Terminate the session with the MQTT broker and prepare to
+ * reconnect. Client code should call \ref mqtt_sync immediately 
+ * after this call to prevent message loss.
+ * @ingroup api
+ * 
+ * @note The user must provide a reconnect callback function for this to 
+ * work as expected. See \r mqtt_client_reconnect.
+ * 
+ * @pre mqtt_connect must have been called
+* 
+ * @param[in,out] client The MQTT client.
+ * 
+ * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
+ */
+enum MQTTErrors mqtt_reconnect(struct mqtt_client *client);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

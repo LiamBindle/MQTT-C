@@ -25,6 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file
  * @brief Includes/supports the types/calls required by the MQTT-C client.
@@ -168,5 +172,10 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
  * @returns The number of bytes received if successful, an \ref MQTTErrors otherwise.
  */
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

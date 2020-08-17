@@ -35,11 +35,17 @@ SOFTWARE.
 enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     /* Recover from any errors */
     enum MQTTErrors err;
+    int reconnecting = 0;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    if (client->error != MQTT_OK && client->reconnect_callback != NULL) {
+    if (client->error != MQTT_ERROR_RECONNECTING && client->error != MQTT_OK && client->reconnect_callback != NULL) {
         client->reconnect_callback(client, &client->reconnect_state);
         /* unlocked during CONNECT */
     } else {
+        /* mqtt_reconnect will have queued the disconnect packet - that needs to be sent and then call reconnect */
+        if (client->error == MQTT_ERROR_RECONNECTING) {
+            reconnecting = 1;
+            client->error = MQTT_OK;
+        }
         MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
     }
 
@@ -58,6 +64,13 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
 
     /* Call send */
     err = __mqtt_send(client);
+
+    /* mqtt_reconnect will essentially be a disconnect if there is no callback */
+    if (reconnecting && client->reconnect_callback != NULL) {
+        MQTT_PAL_MUTEX_LOCK(&client->mutex);
+        client->reconnect_callback(client, &client->reconnect_state);
+    }
+
     return err;
 }
 
@@ -447,6 +460,18 @@ enum MQTTErrors __mqtt_ping(struct mqtt_client *client)
 
     
     return MQTT_OK;
+}
+
+enum MQTTErrors mqtt_reconnect(struct mqtt_client *client)
+{
+    enum MQTTErrors err = mqtt_disconnect(client);
+
+    if (err == MQTT_OK) {
+        MQTT_PAL_MUTEX_LOCK(&client->mutex);
+        client->error = MQTT_ERROR_RECONNECTING;
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+    }
+    return err;
 }
 
 enum MQTTErrors mqtt_disconnect(struct mqtt_client *client) 
