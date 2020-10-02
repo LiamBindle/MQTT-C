@@ -11,13 +11,13 @@ option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # MQTT-C library
-add_library(mqttc STATIC 
+add_library(mqttc STATIC
     src/mqtt_pal.c
     src/mqtt.c
 )
 target_include_directories(mqttc PUBLIC include)
 target_link_libraries(mqttc PUBLIC 
-    $<$<C_COMPILER_ID:MSVS>:ws2_32>
+    $<$<C_COMPILER_ID:MSVC>:ws2_32>
 )
 
 if(MQTT_C_BearSSL_SUPPORT)
@@ -89,7 +89,7 @@ if(MQTT_C_EXAMPLES)
 endif()
 
 # Build tests
-if(MQTT_C_TESTS)    
+if(MQTT_C_TESTS)
     find_path(CMOCKA_INCLUDE_DIR cmocka.h)
     find_library(CMOCKA_LIBRARY cmocka)
     if((NOT CMOCKA_INCLUDE_DIR) OR (NOT CMOCKA_LIBRARY))
