@@ -3,7 +3,7 @@
  * @file
  * A simple program to that publishes the current time whenever ENTER is pressed. 
  */
-#include <unistd.h>
+#include <process.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -26,12 +26,12 @@ void publish_callback(void** unused, struct mqtt_response_publish *published);
  *       \ref __mqtt_send every so often. I've picked 100 ms meaning that 
  *       client ingress/egress traffic will be handled every 100 ms.
  */
-void* client_refresher(void* client);
+void client_refresher(void* client);
 
 /**
  * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit. 
  */
-void exit_example(int status, BIO* sockfd, pthread_t *client_daemon);
+void exit_example(int status, BIO* sockfd);
 
 /**
  * A simple program to that publishes the current time whenever ENTER is pressed. 
@@ -72,7 +72,7 @@ int main(int argc, const char *argv[])
     BIO* sockfd = open_nb_socket(addr, port);
 
     if (sockfd == NULL) {
-        exit_example(EXIT_FAILURE, sockfd, NULL);
+        exit_example(EXIT_FAILURE, sockfd);
     }
 
     /* setup a client */
@@ -85,14 +85,13 @@ int main(int argc, const char *argv[])
     /* check that we don't have any errors */
     if (client.error != MQTT_OK) {
         fprintf(stderr, "error: %s\n", mqtt_error_str(client.error));
-        exit_example(EXIT_FAILURE, sockfd, NULL);
+        exit_example(EXIT_FAILURE, sockfd);
     }
 
     /* start a thread to refresh the client (handle egress and ingree client traffic) */
-    pthread_t client_daemon;
-    if(pthread_create(&client_daemon, NULL, client_refresher, &client)) {
+    if(_beginthread(client_refresher, 0, &client) == -1) {
         fprintf(stderr, "Failed to start client daemon.\n");
-        exit_example(EXIT_FAILURE, sockfd, NULL);
+        exit_example(EXIT_FAILURE, sockfd);
 
     }
 
@@ -118,23 +117,22 @@ int main(int argc, const char *argv[])
 
         /* check for errors */
         if (client.error != MQTT_OK) {
-            fprintf(stderr, "error: %s\n", mqtt_error_str(client.error));
-            exit_example(EXIT_FAILURE, sockfd, &client_daemon);
+            fprintf(stderr, "\nerror: %s\n", mqtt_error_str(client.error));
+            exit_example(EXIT_FAILURE, sockfd);
         }
     }   
 
     /* disconnect */
     printf("\n%s disconnecting from %s\n", argv[0], addr);
-    sleep(1);
+    Sleep(1000);
 
     /* exit */ 
-    exit_example(EXIT_SUCCESS, sockfd, &client_daemon);
+    exit_example(EXIT_SUCCESS, sockfd);
 }
 
-void exit_example(int status, BIO* sockfd, pthread_t *client_daemon)
+void exit_example(int status, BIO* sockfd)
 {
     if (sockfd != NULL) BIO_free_all(sockfd);
-    if (client_daemon != NULL) pthread_cancel(*client_daemon);
     exit(status);
 }
 
@@ -145,12 +143,11 @@ void publish_callback(void** unused, struct mqtt_response_publish *published)
     /* not used in this example */
 }
 
-void* client_refresher(void* client)
+void client_refresher(void* client)
 {
-    while(1) 
+    while(1)
     {
         mqtt_sync((struct mqtt_client*) client);
-        usleep(100000U);
+        Sleep(100);
     }
-    return NULL;
 }
