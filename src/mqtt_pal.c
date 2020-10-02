@@ -223,7 +223,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
     size_t sent = 0;
     while(sent < len) {
-        int tmp = BIO_write(fd, buf + sent, len - sent);
+        int tmp = BIO_write(fd, (const char*)buf + sent, len - sent);
         if (tmp > 0) {
             sent += (size_t) tmp;
         } else if (tmp <= 0 && !BIO_should_retry(fd)) {
@@ -235,13 +235,14 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
 }
 
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
-    const void *const start = buf;
+    const char* const start = buf;
+    char* bufptr = buf;
     int rv;
     do {
-        rv = BIO_read(fd, buf, bufsz);
+        rv = BIO_read(fd, bufptr, bufsz);
         if (rv > 0) {
             /* successfully read bytes from the socket */
-            buf += rv;
+            bufptr += rv;
             bufsz -= rv;
         } else if (!BIO_should_retry(fd)) {
             /* an error occurred that wasn't "nothing to read". */
@@ -249,7 +250,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
         }
     } while (!BIO_should_read(fd));
 
-    return (ssize_t)(buf - start);
+    return (ssize_t)(bufptr - start);
 }
 
 #elif defined(__unix__) || defined(__APPLE__)
