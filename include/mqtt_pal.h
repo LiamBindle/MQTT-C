@@ -117,10 +117,10 @@ extern "C" {
     #endif
 #elif defined(_MSC_VER)
     #include <limits.h>
+    #include <winsock2.h>
     #include <windows.h>
     #include <time.h>
     #include <stdint.h>
-    #include <winsock2.h>
 
     typedef SSIZE_T ssize_t;
     #define MQTT_PAL_HTONS(s) htons(s)
