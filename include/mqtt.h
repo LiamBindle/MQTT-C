@@ -1216,7 +1216,7 @@ struct mqtt_client {
         /** @brief The size of the receive buffer's memory. */
         size_t mem_size;
 
-        /** @brief A pointer to the next writtable location in the receive buffer. */
+        /** @brief A pointer to the next writable location in the receive buffer. */
         uint8_t *curr;
 
         /** @brief The number of bytes that are still writable at curr. */
