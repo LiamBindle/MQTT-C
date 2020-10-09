@@ -49,7 +49,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
                 || rv == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS
 #endif
                 ) {
-                /* should call mbedtls_ssl_writer later again */
+                /* should call mbedtls_ssl_write later again */
                 break;
             }
             return MQTT_ERROR_SOCKET_ERROR;
