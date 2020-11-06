@@ -35,7 +35,11 @@ int open_nb_socket(const char* addr, const char* port) {
 
         /* connect to server */
         rv = connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
-        if(rv == -1) continue;
+        if(rv == -1) {
+          close(sockfd);
+          sockfd = -1;
+          continue;
+        }
         break;
     }  
 
