@@ -262,9 +262,12 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
     while(sent < len) {
         ssize_t tmp = send(fd, buf + sent, len - sent, flags);
         if (tmp < 1) {
-            return MQTT_ERROR_SOCKET_ERROR;
+            if (errno != EAGAIN) {
+              return MQTT_ERROR_SOCKET_ERROR;
+            }
+        } else {
+            sent += (size_t) tmp;
         }
-        sent += (size_t) tmp;
     }
     return sent;
 }
