@@ -46,12 +46,6 @@ int open_nb_socket(const char* addr, const char* port) {
     /* free servinfo */
     freeaddrinfo(servinfo);
 
-    /* did connect fail? */
-    if (!p) {
-        close(sockfd);
-        sockfd = -1;
-    }
-
     /* make non-blocking */
 #if !defined(WIN32)
     if (sockfd != -1) fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
