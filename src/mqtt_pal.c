@@ -86,6 +86,44 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return buf - start;
 }
 
+#elif defined(MQTT_USE_WOLFSSL)
+#include <wolfssl/ssl.h>
+
+ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    size_t sent = 0;
+    while (sent < len) {
+        int tmp = wolfSSL_write(fd, buf + sent, (int)(len - sent));
+        if (tmp <= 0) {
+            tmp = wolfSSL_get_error(fd, tmp);
+            if (tmp == WOLFSSL_ERROR_WANT_READ || tmp == WOLFSSL_ERROR_WANT_WRITE) {
+                break;
+            }
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+        sent += (size_t)tmp;
+    }
+    return (ssize_t)sent;
+}
+
+ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
+    const void* const start = buf;
+    int tmp;
+    do {
+        tmp = wolfSSL_read(fd, buf, (int)bufsz);
+        if (tmp <= 0) {
+            tmp = wolfSSL_get_error(fd, tmp);
+            if (tmp == WOLFSSL_ERROR_WANT_READ || tmp == WOLFSSL_ERROR_WANT_WRITE) {
+                break;
+            }
+            return MQTT_ERROR_SOCKET_ERROR;
+        }
+        buf = (char*)buf + tmp;
+        bufsz -= tmp;
+    } while (tmp > 0);
+
+    return (ssize_t)(buf - start);
+}
+
 #elif defined(MQTT_USE_BEARSSL)
 #include <bearssl.h>
 #include <memory.h>

@@ -93,6 +93,9 @@ extern "C" {
         #ifdef MQTT_USE_MBEDTLS
             struct mbedtls_ssl_context;
             typedef struct mbedtls_ssl_context *mqtt_pal_socket_handle;
+        #elif defined(MQTT_USE_WOLFSSL)
+            #include <wolfssl/ssl.h>
+            typedef WOLFSSL* mqtt_pal_socket_handle;
         #elif defined(MQTT_USE_BIO)
             #include <openssl/bio.h>
             typedef BIO* mqtt_pal_socket_handle;
