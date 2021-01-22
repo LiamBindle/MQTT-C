@@ -64,6 +64,19 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     int rv;
     do {
         rv = mbedtls_ssl_read(fd, buf, bufsz);
+        if (rv == 0) {
+            /*
+             * Note: mbedtls_ssl_read returns 0 when the underlying
+             * transport was closed without CloseNotify.
+             */
+            if (buf == start) {
+                /*
+                 * Raise an error to trigger a reconnect.
+                 */
+                return MQTT_ERROR_SOCKET_ERROR;
+            }
+            break;
+        }
         if (rv < 0) {
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
                 rv == MBEDTLS_ERR_SSL_WANT_WRITE
