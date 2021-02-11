@@ -23,6 +23,9 @@ SOFTWARE.
 */
 
 #include <mqtt.h>
+#include <pthread.h>
+#include <stdio.h>
+
 
 /** 
  * @file 
@@ -113,7 +116,12 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     }
 
     /* initialize mutex */
-    MQTT_PAL_MUTEX_INIT(&client->mutex);
+
+    pthread_mutexattr_t Attr;
+    pthread_mutexattr_init(&Attr);
+    int rc = pthread_mutexattr_settype(&Attr, PTHREAD_MUTEX_RECURSIVE);
+
+    MQTT_PAL_MUTEX_INIT(&client->mutex, &Attr);
     MQTT_PAL_MUTEX_LOCK(&client->mutex); /* unlocked during CONNECT */
 
     client->socketfd = sockfd;
@@ -147,7 +155,12 @@ void mqtt_init_reconnect(struct mqtt_client *client,
                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
 {
     /* initialize mutex */
-    MQTT_PAL_MUTEX_INIT(&client->mutex);
+    pthread_mutexattr_t Attr;
+    pthread_mutexattr_init(&Attr);
+    int rc = pthread_mutexattr_settype(&Attr, PTHREAD_MUTEX_RECURSIVE);
+
+
+    MQTT_PAL_MUTEX_INIT(&client->mutex, &Attr);
 
     client->socketfd = (mqtt_pal_socket_handle) -1;
 
@@ -270,7 +283,6 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
     uint16_t packet_id;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     packet_id = __mqtt_next_pid(client);
-
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
