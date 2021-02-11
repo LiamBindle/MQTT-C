@@ -24,8 +24,6 @@ SOFTWARE.
 
 #include <mqtt.h>
 #include <pthread.h>
-#include <stdio.h>
-
 
 /** 
  * @file 
