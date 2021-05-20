@@ -92,13 +92,25 @@ extern "C" {
     #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
         #ifdef MQTT_USE_MBEDTLS
             struct mbedtls_ssl_context;
-            typedef struct mbedtls_ssl_context *mqtt_pal_socket_handle;
+            typedef struct mbedtls_ssl_context *mqtt_pal_mbedtls_socket_handle;
+            #define MQTT_PAL_ENABLE_MBEDTLS
+            #define mqtt_pal_socket_handle mqtt_pal_mbedtls_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_mbedtls_sendall
+            #define mqtt_pal_recvall mqtt_pal_mbedtls_recvall
         #elif defined(MQTT_USE_WOLFSSL)
             #include <wolfssl/ssl.h>
-            typedef WOLFSSL* mqtt_pal_socket_handle;
+            typedef WOLFSSL* mqtt_pal_wolfssl_socket_handle;
+            #define MQTT_PAL_ENABLE_WOLFSSL
+            #define mqtt_pal_socket_handle mqtt_pal_wolfssl_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_wolfssl_sendall
+            #define mqtt_pal_recvall mqtt_pal_wolfssl_recvall
         #elif defined(MQTT_USE_BIO)
             #include <openssl/bio.h>
-            typedef BIO* mqtt_pal_socket_handle;
+            typedef BIO* mqtt_pal_bio_socket_handle;
+            #define MQTT_PAL_ENABLE_BIO
+            #define mqtt_pal_socket_handle mqtt_pal_bio_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_bio_sendall
+            #define mqtt_pal_recvall mqtt_pal_bio_recvall
         #elif defined(MQTT_USE_BEARSSL)
             #include <bearssl.h>
 
@@ -113,9 +125,17 @@ extern "C" {
                 int (*low_write)(void *write_context, const unsigned char *buf, size_t len);
             } bearssl_context;
 
-            typedef bearssl_context* mqtt_pal_socket_handle;
+            typedef bearssl_context* mqtt_pal_bearssl_socket_handle;
+            #define MQTT_PAL_ENABLE_BEARSSL
+            #define mqtt_pal_socket_handle mqtt_pal_bearssl_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_bearssl_sendall
+            #define mqtt_pal_recvall mqtt_pal_bearssl_recvall
         #else
-            typedef int mqtt_pal_socket_handle;
+            typedef int mqtt_pal_tcp_socket_handle;
+            #define MQTT_PAL_ENABLE_TCP
+            #define mqtt_pal_socket_handle mqtt_pal_tcp_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_tcp_sendall
+            #define mqtt_pal_recvall mqtt_pal_tcp_recvall
         #endif
     #endif
 #elif defined(_MSC_VER)
@@ -142,13 +162,47 @@ extern "C" {
     #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
         #ifdef MQTT_USE_BIO
             #include <openssl/bio.h>
-            typedef BIO* mqtt_pal_socket_handle;
+            typedef BIO* mqtt_pal_bio_socket_handle;
+            #define MQTT_PAL_ENABLE_BIO
+            #define mqtt_pal_socket_handle mqtt_pal_bio_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_bio_sendall
+            #define mqtt_pal_recvall mqtt_pal_bio_recvall
         #else
-            typedef SOCKET mqtt_pal_socket_handle;
+            typedef SOCKET mqtt_pal_tcp_socket_handle;
+            #define MQTT_PAL_ENABLE_TCP
+            #define mqtt_pal_socket_handle mqtt_pal_tcp_socket_handle
+            #define mqtt_pal_sendall mqtt_pal_tcp_sendall
+            #define mqtt_pal_recvall mqtt_pal_tcp_recvall
         #endif
     #endif
 
 #endif
+
+#ifdef MQTT_PAL_ENABLE_MBEDTLS
+ssize_t mqtt_pal_mbedtls_sendall(mqtt_pal_mbedtls_socket_handle fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_mbedtls_recvall(mqtt_pal_mbedtls_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
+
+#ifdef MQTT_PAL_ENABLE_WOLFSSL
+ssize_t mqtt_pal_wolfssl_sendall(mqtt_pal_wolfssl_socket_handle fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_wolfssl_recvall(mqtt_pal_wolfssl_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
+
+#ifdef MQTT_PAL_ENABLE_BIO
+ssize_t mqtt_pal_bio_sendall(mqtt_pal_bio_socket_handle fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_bio_recvall(mqtt_pal_bio_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
+
+#ifdef MQTT_PAL_ENABLE_BEARSSL
+ssize_t mqtt_pal_bearssl_sendall(mqtt_pal_bearssl_socket_handle fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_bearssl_recvall(mqtt_pal_bearssl_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
+
+#ifdef MQTT_PAL_ENABLE_TCP
+ssize_t mqtt_pal_tcp_sendall(mqtt_pal_tcp_socket_handle fd, const void* buf, size_t len, int flags);
+ssize_t mqtt_pal_tcp_recvall(mqtt_pal_tcp_socket_handle fd, void* buf, size_t bufsz, int flags);
+#endif
+
 
 /**
  * @brief Sends all the bytes in a buffer.
