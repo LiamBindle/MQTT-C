@@ -29,3 +29,6 @@ $(MQTT_C_UNITTESTS): tests.c $(MQTT_C_SOURCES)
 
 clean:
 	rm -rf $(BINDIR)
+
+check: all
+	./$(MQTT_C_UNITTESTS)
