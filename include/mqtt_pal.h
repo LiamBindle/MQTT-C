@@ -85,7 +85,13 @@ extern "C" {
     typedef time_t mqtt_pal_time_t;
     typedef pthread_mutex_t mqtt_pal_mutex_t;
 
-    #define MQTT_PAL_MUTEX_INIT(mtx_ptr) pthread_mutex_init(mtx_ptr, NULL)
+    #define MQTT_PAL_MUTEX_INIT(mtx_ptr) { \
+        pthread_mutexattr_t attr; \
+        pthread_mutexattr_init(&attr); \
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); \
+        pthread_mutex_init(mtx_ptr, &attr); \
+    }
+    //#define MQTT_PAL_MUTEX_INIT(mtx_ptr) pthread_mutex_init(mtx_ptr, NULL)
     #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
