@@ -94,7 +94,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
         }
         buf = (char*)buf + rv;
         bufsz -= rv;
-    } while (rv > 0);
+    } while (rv > 0 && bufsz > 0);
 
     return buf - start;
 }
@@ -132,7 +132,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
         }
         buf = (char*)buf + tmp;
         bufsz -= tmp;
-    } while (tmp > 0);
+    } while (tmp > 0 && bufsz > 0);
 
     return (ssize_t)(buf - start);
 }
@@ -299,7 +299,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
             /* an error occurred that wasn't "nothing to read". */
             return MQTT_ERROR_SOCKET_ERROR;
         }
-    } while (!BIO_should_read(fd));
+    } while (!BIO_should_read(fd) && bufsz > 0);
 
     return (ssize_t)(bufptr - start);
 }
@@ -332,11 +332,11 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
             /* successfully read bytes from the socket */
             buf += rv;
             bufsz -= rv;
-        } else if (rv <= 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+        } else if (rv == 0 || (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK)) {
             /* an error occurred that wasn't "nothing to read". */
             return MQTT_ERROR_SOCKET_ERROR;
         }
-    } while (rv > 0);
+    } while (rv > 0 && bufsz > 0);
 
     return buf - start;
 }
@@ -373,7 +373,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
                 return MQTT_ERROR_SOCKET_ERROR;
             }
         }
-    } while (rv > 0);
+    } while (rv > 0 && bufsz > 0);
 
     return (ssize_t)((char*)buf - start);
 }
