@@ -44,7 +44,7 @@ int _mqtt_pal_dummy;
 
 #else /* defined(MQTT_USE_CUSTOM_SOCKET_HANDLE) */
 
-#ifdef MQTT_USE_MBEDTLS
+#if defined(MQTT_USE_MBEDTLS)
 #include <mbedtls/ssl.h>
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {

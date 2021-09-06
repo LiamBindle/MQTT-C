@@ -1,4 +1,4 @@
-#ifndef __MBEDTLS_SOCKET_TEMPLATE_H__
+#if !defined(__MBEDTLS_SOCKET_TEMPLATE_H__)
 #define __MBEDTLS_SOCKET_TEMPLATE_H__
 
 #include <inttypes.h>

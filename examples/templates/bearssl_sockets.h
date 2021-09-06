@@ -1,4 +1,4 @@
-#ifndef __BEARSSL_SOCKET_TEMPLATE_H__
+#if !defined(__BEARSSL_SOCKET_TEMPLATE_H__)
 #define __BEARSSL_SOCKET_TEMPLATE_H__
 
 #include <sys/socket.h>

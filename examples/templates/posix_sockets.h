@@ -1,4 +1,4 @@
-#ifndef __POSIX_SOCKET_TEMPLATE_H__
+#if !defined(__POSIX_SOCKET_TEMPLATE_H__)
 #define __POSIX_SOCKET_TEMPLATE_H__
 
 #include <stdio.h>
