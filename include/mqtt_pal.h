@@ -1,4 +1,4 @@
-#ifndef __MQTT_PAL_H__
+#if !defined(__MQTT_PAL_H__)
 #define __MQTT_PAL_H__
 
 /*
@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -89,8 +89,8 @@ extern "C" {
     #define MQTT_PAL_MUTEX_LOCK(mtx_ptr) pthread_mutex_lock(mtx_ptr)
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) pthread_mutex_unlock(mtx_ptr)
 
-    #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
-        #ifdef MQTT_USE_MBEDTLS
+    #if !defined(MQTT_USE_CUSTOM_SOCKET_HANDLE)
+        #if defined(MQTT_USE_MBEDTLS)
             struct mbedtls_ssl_context;
             typedef struct mbedtls_ssl_context *mqtt_pal_socket_handle;
         #elif defined(MQTT_USE_WOLFSSL)
@@ -139,8 +139,8 @@ extern "C" {
     #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr) LeaveCriticalSection(mtx_ptr)
 
 
-    #ifndef MQTT_USE_CUSTOM_SOCKET_HANDLE
-        #ifdef MQTT_USE_BIO
+    #if !defined(MQTT_USE_CUSTOM_SOCKET_HANDLE)
+        #if defined(MQTT_USE_BIO)
             #include <openssl/bio.h>
             typedef BIO* mqtt_pal_socket_handle;
         #else
@@ -176,7 +176,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
  */
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 

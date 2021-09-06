@@ -1,4 +1,4 @@
-#ifndef __OPENSSL_SOCKET_TEMPLATE_H__
+#if !defined(__OPENSSL_SOCKET_TEMPLATE_H__)
 #define __OPENSSL_SOCKET_TEMPLATE_H__
 
 #include <openssl/bio.h>

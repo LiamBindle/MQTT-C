@@ -1,4 +1,4 @@
-#ifndef __MQTT_H__
+#if !defined(__MQTT_H__)
 #define __MQTT_H__
 
 /*
@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -35,7 +35,7 @@ extern "C" {
 // If MQTTC_PAL_FILE is used, none of the default utils will be emitted and must be
 // provided by the config file. To start, I would suggest copying mqtt_pal.h
 // and modifying as needed.
-#ifdef MQTTC_PAL_FILE
+#if defined(MQTTC_PAL_FILE)
 #define MQTTC_STR2(x) #x
 #define MQTTC_STR(x) MQTTC_STR2(x)
 #include MQTTC_STR(MQTTC_PAL_FILE)
@@ -1615,7 +1615,7 @@ enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
  */
 enum MQTTErrors mqtt_reconnect(struct mqtt_client *client);
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 
