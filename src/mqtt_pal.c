@@ -31,6 +31,18 @@ SOFTWARE.
  * @cond Doxygen_Suppress
  */
 
+#if defined(MQTT_USE_CUSTOM_SOCKET_HANDLE)
+
+/*
+ * In case of MQTT_USE_CUSTOM_SOCKET_HANDLE, a pal implemantation is
+ * provided by the user.
+ */
+
+/* Note: Some toolchains complain on an object without symbols */
+
+int _mqtt_pal_dummy;
+
+#else /* defined(MQTT_USE_CUSTOM_SOCKET_HANDLE) */
 
 #ifdef MQTT_USE_MBEDTLS
 #include <mbedtls/ssl.h>
@@ -383,5 +395,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
 #error No PAL!
 
 #endif
+
+#endif /* defined(MQTT_USE_CUSTOM_SOCKET_HANDLE) */
 
 /** @endcond */
