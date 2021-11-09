@@ -24,9 +24,9 @@ SOFTWARE.
 
 #include <mqtt.h>
 
-/**
- * @file
- * @brief Implements @ref mqtt_pal_sendall and @ref mqtt_pal_recvall and
+/** 
+ * @file 
+ * @brief Implements @ref mqtt_pal_sendall and @ref mqtt_pal_recvall and 
  *        any platform-specific helpers you'd like.
  * @cond Doxygen_Suppress
  */
@@ -183,7 +183,7 @@ static int do_rec_data(mqtt_pal_socket_handle fd, unsigned int status) {
             if ((rc = fd->low_read(&fd->fd, buffer, length)) < 0) {
                 return MQTT_ERROR_SOCKET_ERROR;
             }
-
+            
             br_ssl_engine_recvrec_ack(&fd->sc.eng, rc);
         }
     }
@@ -293,7 +293,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
             return MQTT_ERROR_SOCKET_ERROR;
         }
     }
-
+    
     return sent;
 }
 
@@ -353,7 +353,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return buf - start;
 }
 
-#elif defined(_MSC_VER) || defined(WIN32)
+#elif defined(_MSC_VER)
 
 #include <errno.h>
 
