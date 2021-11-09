@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include <mqtt.h>
 #include "templates/openssl_sockets.h"
