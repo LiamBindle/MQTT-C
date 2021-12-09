@@ -1,7 +1,7 @@
 
 /**
  * @file
- * A simple program to that publishes the current time whenever ENTER is pressed. 
+ * A simple program to that publishes the current time whenever ENTER is pressed.
  */
 #include <process.h>
 #include <stdlib.h>
@@ -13,30 +13,30 @@
 
 /**
  * @brief The function that would be called whenever a PUBLISH is received.
- * 
- * @note This function is not used in this example. 
+ *
+ * @note This function is not used in this example.
  */
 void publish_callback(void** unused, struct mqtt_response_publish *published);
 
 /**
- * @brief The client's refresher. This function triggers back-end routines to 
+ * @brief The client's refresher. This function triggers back-end routines to
  *        handle ingress/egress traffic to the broker.
- * 
- * @note All this function needs to do is call \ref __mqtt_recv and 
- *       \ref __mqtt_send every so often. I've picked 100 ms meaning that 
+ *
+ * @note All this function needs to do is call \ref __mqtt_recv and
+ *       \ref __mqtt_send every so often. I've picked 100 ms meaning that
  *       client ingress/egress traffic will be handled every 100 ms.
  */
 void client_refresher(void* client);
 
 /**
- * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit. 
+ * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit.
  */
 void exit_example(int status, BIO* sockfd);
 
 /**
- * A simple program to that publishes the current time whenever ENTER is pressed. 
+ * A simple program to that publishes the current time whenever ENTER is pressed.
  */
-int main(int argc, const char *argv[]) 
+int main(int argc, const char *argv[])
 {
     const char* addr;
     const char* port;
@@ -120,13 +120,13 @@ int main(int argc, const char *argv[])
             fprintf(stderr, "\nerror: %s\n", mqtt_error_str(client.error));
             exit_example(EXIT_FAILURE, sockfd);
         }
-    }   
+    }
 
     /* disconnect */
     printf("\n%s disconnecting from %s\n", argv[0], addr);
     Sleep(1000);
 
-    /* exit */ 
+    /* exit */
     exit_example(EXIT_SUCCESS, sockfd);
 }
 
@@ -138,7 +138,7 @@ void exit_example(int status, BIO* sockfd)
 
 
 
-void publish_callback(void** unused, struct mqtt_response_publish *published) 
+void publish_callback(void** unused, struct mqtt_response_publish *published)
 {
     /* not used in this example */
 }
