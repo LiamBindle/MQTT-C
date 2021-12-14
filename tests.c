@@ -612,7 +612,10 @@ static void TEST__utility__pid_lfsr(void **unused) {
     assert_true(period == 65535u);
 }
 
-void publish_callback(void** state, struct mqtt_response_publish *publish) {
+void publish_callback(struct mqtt_client* client, enum MQTTCallbackEvent event, union MQTTCallbackData* data, void** user_state) {
+    (void) client;
+    (void) event;
+    (void) data;
     /*char *name = (char*) malloc(publish->topic_name_size + 1);
     memcpy(name, publish->topic_name, publish->topic_name_size);
     name[publish->topic_name_size] = '\0';
@@ -621,7 +624,7 @@ void publish_callback(void** state, struct mqtt_response_publish *publish) {
            (const char*) (publish->application_message)
     );
     free(name);*/
-    **(int**)state += 1;
+    **(int**)user_state += 1;
 }
 
 static void TEST__api__connect_ping_disconnect(void **unused) {
@@ -679,7 +682,7 @@ static void TEST__api__publish_subscribe__single(void **unused) {
 
     sockfd = open_nb_socket(addr, port);
     mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
-    receiver.publish_response_callback_state = &state;
+    receiver.user_callback_state = &state;
 
     /* connect both */
     assert_true(mqtt_connect(&sender, "liam-123", NULL, NULL, 0, NULL, NULL, 0, 30) > 0);
@@ -742,7 +745,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
 
     sockfd = open_nb_socket(addr, port);
     mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
-    receiver.publish_response_callback_state = &state;
+    receiver.user_callback_state = &state;
 
     /* connect both */
     if ((rv = mqtt_connect(&sender, "liam-123", NULL, NULL, 0, NULL, NULL, MQTT_CONNECT_CLEAN_SESSION, 30)) <= 0) {

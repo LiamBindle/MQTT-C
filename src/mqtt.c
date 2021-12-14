@@ -37,8 +37,8 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     enum MQTTErrors err;
     int reconnecting = 0;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    if (client->error != MQTT_ERROR_RECONNECTING && client->error != MQTT_OK && client->reconnect_callback != NULL) {
-        client->reconnect_callback(client, &client->reconnect_state);
+    if (client->error != MQTT_ERROR_RECONNECTING && client->error != MQTT_OK && client->user_callback != NULL) {
+        client->user_callback(client, MQTT_EVENT_RECONNECT, NULL, &client->user_callback_state);
         /* unlocked during CONNECT */
     } else {
         /* mqtt_reconnect will have queued the disconnect packet - that needs to be sent and then call reconnect */
@@ -55,20 +55,30 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
         MQTT_PAL_MUTEX_LOCK(&client->mutex);
         err = client->inspector_callback(client);
         MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
-        if (err != MQTT_OK) return err;
+        if (err != MQTT_OK) goto ERR;
     }
 
     /* Call receive */
-    err = (enum MQTTErrors)__mqtt_recv(client);
-    if (err != MQTT_OK) return err;
+	err = (enum MQTTErrors)__mqtt_recv(client);
+    if (err != MQTT_OK) goto ERR;
 
     /* Call send */
     err = (enum MQTTErrors)__mqtt_send(client);
 
     /* mqtt_reconnect will essentially be a disconnect if there is no callback */
-    if (reconnecting && client->reconnect_callback != NULL) {
+    if (reconnecting && client->user_callback != NULL) {
         MQTT_PAL_MUTEX_LOCK(&client->mutex);
-        client->reconnect_callback(client, &client->reconnect_state);
+        client->user_callback(client, MQTT_EVENT_RECONNECT, NULL, &client->user_callback_state);
+    }
+
+    ERR:
+
+    if (err != MQTT_ERROR_RECONNECTING && err != MQTT_ERROR_CONNECT_CLIENT_ID_REFUSED &&
+        err != MQTT_ERROR_CONNECTION_REFUSED && err != MQTT_OK &&
+        client->user_callback != NULL) {
+        /* call timeout callback */
+        union MQTTCallbackData data = {.error = &err};
+        client->user_callback(client, MQTT_EVENT_ERROR, &data, &client->user_callback_state);
     }
 
     return err;
@@ -106,7 +116,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
                mqtt_pal_socket_handle sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
-               void (*publish_response_callback)(void** state,struct mqtt_response_publish *publish))
+               void (*callback)(struct mqtt_client* client, enum MQTTCallbackEvent event, union MQTTCallbackData* data, void** user_state))
 {
     if (client == NULL || sendbuf == NULL || recvbuf == NULL) {
         return MQTT_ERROR_NULLPTR;
@@ -130,21 +140,19 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->number_of_timeouts = 0;
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0;
-    client->publish_response_callback = publish_response_callback;
     client->pid_lfsr = 0;
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
-    client->reconnect_callback = NULL;
-    client->reconnect_state = NULL;
+    client->user_callback_state = NULL;
+    client->user_callback = callback;
 
     return MQTT_OK;
 }
 
 void mqtt_init_reconnect(struct mqtt_client *client,
-                         void (*reconnect)(struct mqtt_client *, void**),
-                         void *reconnect_state,
-                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
+                         void *callback_state,
+                         void (*callback)(struct mqtt_client* client, enum MQTTCallbackEvent event, union MQTTCallbackData* data, void** user_state))
 {
     /* initialize mutex */
     MQTT_PAL_MUTEX_INIT(&client->mutex);
@@ -163,12 +171,11 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->number_of_timeouts = 0;
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0;
-    client->publish_response_callback = publish_response_callback;
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
-    client->reconnect_callback = reconnect;
-    client->reconnect_state = reconnect_state;
+    client->user_callback_state = callback_state;
+    client->user_callback = callback;
 }
 
 void mqtt_reinit(struct mqtt_client* client,
@@ -523,6 +530,12 @@ ssize_t __mqtt_send(struct mqtt_client *client)
                 resend = 1;
                 client->number_of_timeouts += 1;
                 client->send_offset = 0;
+
+                if (client->user_callback != NULL) {
+                    /* call timeout callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_PUBLISH_TIMEOUT, &data, &client->user_callback_state);
+                }
             }
         }
 
@@ -590,13 +603,25 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         switch (msg->control_type) {
         case MQTT_CONTROL_PUBACK:
         case MQTT_CONTROL_PUBCOMP:
+            msg->state = MQTT_QUEUED_COMPLETE;
+            break;
         case MQTT_CONTROL_DISCONNECT:
             msg->state = MQTT_QUEUED_COMPLETE;
+            if (client->user_callback != NULL) {
+                /* call disconnect callback */
+                union MQTTCallbackData data = {.queued_msg = msg};
+                client->user_callback(client, MQTT_EVENT_DISCONNECTED, &data, &client->user_callback_state);
+            }
             break;
         case MQTT_CONTROL_PUBLISH:
             inspected = ( MQTT_PUBLISH_QOS_MASK & (msg->start[0]) ) >> 1; /* qos */
             if (inspected == 0) {
                 msg->state = MQTT_QUEUED_COMPLETE;
+                if (client->user_callback != NULL) {
+                    /* call publish callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_PUBLISH, &data, &client->user_callback_state);
+                }
             } else if (inspected == 1) {
                 msg->state = MQTT_QUEUED_AWAITING_ACK;
                 /*set DUP flag for subsequent sends [Spec MQTT-3.3.1-1] */
@@ -731,7 +756,17 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         client->error = MQTT_ERROR_CONNECTION_REFUSED;
                         mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
                     }
+                    if (client->user_callback != NULL) {
+                        /* call connection refused callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                        client->user_callback(client, MQTT_EVENT_CONNECTION_REFUSED, &data, &client->user_callback_state);
+                    }
                     break;
+                }
+                if (client->user_callback != NULL) {
+                    /* call connected callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_CONNECTED, &data, &client->user_callback_state);
                 }
                 break;
             case MQTT_CONTROL_PUBLISH:
@@ -756,8 +791,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         break;
                     }
                 }
-                /* call publish callback */
-                client->publish_response_callback(&client->publish_response_callback_state, &response.decoded.publish);
+                if (client->user_callback != NULL) {
+                    /* call receive callback */
+                    union MQTTCallbackData data = {.received_msg = &response.decoded.publish};
+                    client->user_callback(client, MQTT_EVENT_RECEIVE, &data, &client->user_callback_state);
+                }
                 break;
             case MQTT_CONTROL_PUBACK:
                 /* release associated PUBLISH */
@@ -770,6 +808,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
+                if (client->user_callback != NULL) {
+                    /* call publish callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_PUBLISH, &data, &client->user_callback_state);
+                }
                 break;
             case MQTT_CONTROL_PUBREC:
                 /* check if this is a duplicate */
@@ -792,6 +835,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                     client->error = (enum MQTTErrors)rv;
                     mqtt_recv_ret = rv;
                     break;
+                }
+                if (client->user_callback != NULL) {
+                    /* call publish callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_PUBLISH, &data, &client->user_callback_state);
                 }
                 break;
             case MQTT_CONTROL_PUBREL:
@@ -842,6 +890,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                     mqtt_recv_ret = MQTT_ERROR_SUBSCRIBE_FAILED;
                     break;
                 }
+                if (client->user_callback != NULL) {
+                    /* call subscribed callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_SUBSCRIBE, &data, &client->user_callback_state);
+                }
                 break;
             case MQTT_CONTROL_UNSUBACK:
                 /* release associated UNSUBSCRIBE */
@@ -854,6 +907,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
+                if (client->user_callback != NULL) {
+                    /* call unsubscribed callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_UNSUBSCRIBE, &data, &client->user_callback_state);
+                }
                 break;
             case MQTT_CONTROL_PINGRESP:
                 /* release associated PINGREQ */
@@ -866,6 +924,11 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875 * (client->typical_response_time) + 0.125 * (double) (MQTT_PAL_TIME() - msg->time_sent);
+                if (client->user_callback != NULL) {
+                    /* call ping callback */
+                    union MQTTCallbackData data = {.queued_msg = msg};
+                    client->user_callback(client, MQTT_EVENT_PING, &data, &client->user_callback_state);
+                }
                 break;
             default:
                 client->error = MQTT_ERROR_MALFORMED_RESPONSE;
