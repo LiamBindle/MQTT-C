@@ -206,6 +206,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
     MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)      \
     MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)     \
+    MQTT_ERROR(MQTT_ERROR_RECONNECT_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_RECONNECTING)
 
 /* todo: add more connection refused errors */

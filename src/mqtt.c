@@ -39,7 +39,15 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     if (client->error != MQTT_ERROR_RECONNECTING && client->error != MQTT_OK && client->user_callback != NULL) {
         client->user_callback(client, MQTT_EVENT_RECONNECT, NULL, &client->user_callback_state);
-        /* unlocked during CONNECT */
+        if (client->error != MQTT_OK) {
+            client->error = MQTT_ERROR_RECONNECT_FAILED;
+
+            /* normally unlocked during CONNECT */
+            MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+        }
+
+        err = client->error;
+        if (err != MQTT_OK) goto ERR;
     } else {
         /* mqtt_reconnect will have queued the disconnect packet - that needs to be sent and then call reconnect */
         if (client->error == MQTT_ERROR_RECONNECTING) {
