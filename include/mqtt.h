@@ -1090,18 +1090,35 @@ struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQT
  * @ingroup details
  */
 enum MQTTCallbackEvent {
-    MQTT_EVENT_RECONNECT,
-    MQTT_EVENT_CONNECTION_REFUSED,
-    MQTT_EVENT_CONNECTED,
-    MQTT_EVENT_DISCONNECTED,
-    MQTT_EVENT_RECEIVE,
-    MQTT_EVENT_PUBLISH,
-    MQTT_EVENT_SUBSCRIBE,
-    MQTT_EVENT_UNSUBSCRIBE,
-    MQTT_EVENT_PING,
-    MQTT_EVENT_PUBLISH_TIMEOUT,
-    MQTT_EVENT_ERROR
+    MQTT_EVENT_RECONNECT = (1 << 0), // bit 0
+    MQTT_EVENT_CONNECTION_REFUSED = (1 << 1), // bit 1
+    MQTT_EVENT_CONNECTED = (1 << 2), // bit 2
+    MQTT_EVENT_DISCONNECTED = (1 << 3), // bit 3
+    MQTT_EVENT_RECEIVED = (1 << 4), // bit 4
+    MQTT_EVENT_PUBLISHED = (1 << 5), // bit 5
+    MQTT_EVENT_SUBSCRIBED = (1 << 6), // bit 6
+    MQTT_EVENT_UNSUBSCRIBED = (1 << 7), // bit 7
+    MQTT_EVENT_PING = (1 << 8), // bit 8
+    MQTT_EVENT_PUBLISH_TIMEOUT = (1 << 9), // bit 9
+    MQTT_EVENT_ERROR = (1 << 10),  // bit 10
 };
+
+//TODO: brief
+/**
+ * @brief
+ *
+ */
+#define MQTT_EVENT_MASK (MQTT_EVENT_RECONNECT | \
+                         MQTT_EVENT_CONNECTION_REFUSED | \
+                         MQTT_EVENT_CONNECTED | \
+                         MQTT_EVENT_DISCONNECTED | \
+                         MQTT_EVENT_RECEIVED | \
+                         MQTT_EVENT_PUBLISHED | \
+                         MQTT_EVENT_SUBSCRIBED | \
+                         MQTT_EVENT_UNSUBSCRIBED | \
+                         MQTT_EVENT_PING | \
+                         MQTT_EVENT_PUBLISH_TIMEOUT | \
+                         MQTT_EVENT_ERROR)
 
 /**
  * @brief union to serve as proxy to multiple datatypes on one pointer.
@@ -1189,7 +1206,7 @@ struct mqtt_client {
      *
      *      Any topics that you have subscribed to will be returned from the broker as
      *  mqtt_response_publish messages. All the publishes received from the broker will
-     *  be passed to this function on a MQTT_EVENT_RECEIVE.
+     *  be passed to this function on a MQTT_EVENT_RECEIVED.
      *
      * - reconnect is called whenever the client enters an error state
      *   that requires reinitialization.
@@ -1207,7 +1224,7 @@ struct mqtt_client {
      *
      * - publish is called whenver a message WE published is successful, ie acknowledged
      *
-     *  MQTT_EVENT_PUBLISH is called when
+     *  MQTT_EVENT_PUBLISHED is called when
      *  on QoS == 0: when the message is sent
      *  on QoS == 1: when the message is acknowledged by the broker
      *  on QoS == 2: when the message is acknowledged by the broker
@@ -1217,8 +1234,8 @@ struct mqtt_client {
      *
      * - (un)subscribe is called when a (un)subscription is ackowledged
      *
-     * MQTT_EVENT_SUBSCRIBE on sub
-     * MQTT_EVENT_UNSUBSCRIBE on unsub
+     * MQTT_EVENT_SUBSCRIBED on sub
+     * MQTT_EVENT_UNSUBSCRIBED on unsub
      *
      * - ping is called when we get a ping response
      *
@@ -1258,6 +1275,14 @@ struct mqtt_client {
      * time.
      */
     enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+
+    /**
+     * @brief Event enable flag
+     *
+     * this is a bit field of the events, where each bit represents an event which is enabled when set to 1
+     * the bit positions correspond to \ref enum MQTTCallbackEvent
+     */
+    uint16_t event_enable;
 
     /**
      * @brief The buffer where ingress data is temporarily stored.
@@ -1348,6 +1373,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client);
  */
 enum MQTTErrors mqtt_sync(struct mqtt_client *client);
 
+//TODO: doc new fields
 /**
  * @brief Initializes an MQTT client.
  * @ingroup api
@@ -1400,8 +1426,11 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
                           mqtt_pal_socket_handle sockfd,
                           uint8_t *sendbuf, size_t sendbufsz,
                           uint8_t *recvbuf, size_t recvbufsz,
+                          uint16_t event_flags,
+                          void *callback_state,
                           void (*callback)(struct mqtt_client* client, enum MQTTCallbackEvent event, union MQTTCallbackData* data, void** user_state));
 
+//TODO: doc new fields
 /**
  * @brief Briefly initializes an MQTT client, expecting full init in a reconnect event.
  * @ingroup api
@@ -1440,6 +1469,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
  *
  */
 void mqtt_init_reconnect(struct mqtt_client *client,
+                         uint16_t event_flags,
                          void *callback_state,
                          void (*callback)(struct mqtt_client* client, enum MQTTCallbackEvent event, union MQTTCallbackData* data, void** user_state));
 
@@ -1509,6 +1539,24 @@ enum MQTTErrors mqtt_connect(struct mqtt_client *client,
 /*
     todo: will_message should be a void*
 */
+
+//TODO: docs
+/**
+ * @brief
+ *
+ * @param event_flags
+ * @return enum MQTTErrors
+ */
+void mqtt_event_enable(struct mqtt_client *client, uint16_t event_flags);
+
+//TODO: docs
+/**
+ * @brief
+ *
+ * @param event_flags
+ * @return enum MQTTErrors
+ */
+void mqtt_event_disable(struct mqtt_client *client, uint16_t event_flags);
 
 /**
  * @brief Publish an application message.
