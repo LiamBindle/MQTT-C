@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include <mqtt.h>
 #include "templates/bio_sockets.h"

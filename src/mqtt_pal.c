@@ -353,7 +353,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     return buf - start;
 }
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(WIN32)
 
 #include <errno.h>
 

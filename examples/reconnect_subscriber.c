@@ -6,16 +6,17 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include <mqtt.h>
 #include "templates/posix_sockets.h"
 
 /**
- * @brief A structure that I will use to keep track of some data needed 
+ * @brief A structure that I will use to keep track of some data needed
  *        to setup the connection to the broker.
- * 
+ *
  * An instance of this struct will be created in my \c main(). Then, whenever
- * \ref reconnect_client is called, this instance will be passed. 
+ * \ref reconnect_client is called, this instance will be passed.
  */
 struct reconnect_state_t {
     const char* hostname;
@@ -29,8 +30,8 @@ struct reconnect_state_t {
 
 
 /**
- * @brief My reconnect callback. It will reestablish the connection whenever 
- *        an error occurs. 
+ * @brief My reconnect callback. It will reestablish the connection whenever
+ *        an error occurs.
  */
 void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
 
@@ -40,22 +41,22 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
 void publish_callback(void** unused, struct mqtt_response_publish *published);
 
 /**
- * @brief The client's refresher. This function triggers back-end routines to 
+ * @brief The client's refresher. This function triggers back-end routines to
  *        handle ingress/egress traffic to the broker.
- * 
- * @note All this function needs to do is call \ref __mqtt_recv and 
- *       \ref __mqtt_send every so often. I've picked 100 ms meaning that 
+ *
+ * @note All this function needs to do is call \ref __mqtt_recv and
+ *       \ref __mqtt_send every so often. I've picked 100 ms meaning that
  *       client ingress/egress traffic will be handled every 100 ms.
  */
 void* client_refresher(void* client);
 
 /**
- * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit. 
+ * @brief Safelty closes the \p sockfd and cancels the \p client_daemon before \c exit.
  */
 void exit_example(int status, int sockfd, pthread_t *client_daemon);
 
 
-int main(int argc, const char *argv[]) 
+int main(int argc, const char *argv[])
 {
     const char* addr;
     const char* port;
@@ -97,8 +98,8 @@ int main(int argc, const char *argv[])
     /* setup a client */
     struct mqtt_client client;
 
-    mqtt_init_reconnect(&client, 
-                        reconnect_client, &reconnect_state, 
+    mqtt_init_reconnect(&client,
+                        reconnect_client, &reconnect_state,
                         publish_callback
     );
 
@@ -114,18 +115,18 @@ int main(int argc, const char *argv[])
     printf("%s listening for '%s' messages.\n", argv[0], topic);
     printf("Press ENTER to inject an error.\n");
     printf("Press CTRL-D to exit.\n\n");
-    
+
     /* block */
     while(fgetc(stdin) != EOF) {
         printf("Injecting error: \"MQTT_ERROR_SOCKET_ERROR\"\n");
         client.error = MQTT_ERROR_SOCKET_ERROR;
-    } 
-    
+    }
+
     /* disconnect */
     printf("\n%s disconnecting from %s\n", argv[0], addr);
     sleep(1);
 
-    /* exit */ 
+    /* exit */
     exit_example(EXIT_SUCCESS, client.socketfd, &client_daemon);
 }
 
@@ -140,7 +141,7 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
 
     /* Perform error handling here. */
     if (client->error != MQTT_ERROR_INITIAL_RECONNECT) {
-        printf("reconnect_client: called while client was in error state \"%s\"\n", 
+        printf("reconnect_client: called while client was in error state \"%s\"\n",
                mqtt_error_str(client->error)
         );
     }
@@ -153,7 +154,7 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
     }
 
     /* Reinitialize the client. */
-    mqtt_reinit(client, sockfd, 
+    mqtt_reinit(client, sockfd,
                 reconnect_state->sendbuf, reconnect_state->sendbufsz,
                 reconnect_state->recvbuf, reconnect_state->recvbufsz
     );
@@ -176,7 +177,7 @@ void exit_example(int status, int sockfd, pthread_t *client_daemon)
     exit(status);
 }
 
-void publish_callback(void** unused, struct mqtt_response_publish *published) 
+void publish_callback(void** unused, struct mqtt_response_publish *published)
 {
     /* note that published->topic_name is NOT null-terminated (here we'll change it to a c-string) */
     char* topic_name = (char*) malloc(published->topic_name_size + 1);
@@ -190,7 +191,7 @@ void publish_callback(void** unused, struct mqtt_response_publish *published)
 
 void* client_refresher(void* client)
 {
-    while(1) 
+    while(1)
     {
         mqtt_sync((struct mqtt_client*) client);
         usleep(100000U);
