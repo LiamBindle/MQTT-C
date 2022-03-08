@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include <mqtt.h>
 #include "templates/openssl_sockets.h"
@@ -41,6 +42,8 @@ int main(int argc, const char *argv[])
     const char* port;
     const char* topic;
     const char* ca_file;
+    const char* cert_path;
+    const char* key_path;
 
     /* Load OpenSSL */
     SSL_load_error_strings();
@@ -79,8 +82,22 @@ int main(int argc, const char *argv[])
         topic = "datetime";
     }
 
+    /* get client cert */
+    if (argc > 5) {
+        cert_path = argv[5];
+    } else {
+        cert_path = NULL;
+    }
+
+    /* get client key */
+    if (argc > 6) {
+        key_path = argv[6];
+    } else {
+        key_path = NULL;
+    }
+
     /* open the non-blocking TCP socket (connecting to the broker) */
-    open_nb_socket(&sockfd, &ssl_ctx, addr, port, ca_file, NULL);
+    open_nb_socket(&sockfd, &ssl_ctx, addr, port, ca_file, NULL, cert_path, key_path);
 
     if (sockfd == NULL) {
         exit_example(EXIT_FAILURE, sockfd, NULL);

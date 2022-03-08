@@ -6,6 +6,8 @@
 #if !defined(WIN32)
 #include <sys/socket.h>
 #include <netdb.h>
+#else
+#include <ws2tcpip.h>
 #endif
 #if defined(__VMS)
 #include <ioctl.h>

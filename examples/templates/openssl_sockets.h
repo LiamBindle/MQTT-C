@@ -8,14 +8,37 @@
 /*
     A template for opening a non-blocking OpenSSL connection.
 */
-void open_nb_socket(BIO** bio, SSL_CTX** ssl_ctx, const char* addr, const char* port, const char* ca_file, const char* ca_path) {
+void open_nb_socket(BIO**       bio,
+                    SSL_CTX**   ssl_ctx,
+                    const char* addr,
+                    const char* port,
+                    const char* ca_file,
+                    const char* ca_path,
+                    const char* cert_path,
+                    const char* key_path)
+{
     *ssl_ctx = SSL_CTX_new(SSLv23_client_method());
     SSL* ssl;
 
     /* load certificate */
     if (!SSL_CTX_load_verify_locations(*ssl_ctx, ca_file, ca_path)) {
-        printf("error: failed to load certificate\n");
+        printf("error: failed to load ca certificate\n");
         exit(1);
+    }
+
+    if (cert_path && key_path)
+    {
+        if (!SSL_CTX_use_certificate_file(*ssl_ctx, "/home/will/mqtt-certs/client.crt", SSL_FILETYPE_PEM))
+        {
+            printf("error: failed to load client certificate\n");
+            exit(1);
+        }
+
+        if (!SSL_CTX_use_PrivateKey_file(*ssl_ctx, "/home/will/mqtt-certs/client.key", SSL_FILETYPE_PEM))
+        {
+            printf("error: failed to load client key\n");
+            exit(1);
+        }
     }
 
     /* open BIO socket */

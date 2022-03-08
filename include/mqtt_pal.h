@@ -118,7 +118,7 @@ extern "C" {
             typedef int mqtt_pal_socket_handle;
         #endif
     #endif
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(WIN32)
     #include <limits.h>
     #include <winsock2.h>
     #include <windows.h>
@@ -160,6 +160,13 @@ extern "C" {
  * @param[in] flags Flags which are passed to the underlying socket.
  * 
  * @returns The number of bytes sent if successful, an \ref MQTTErrors otherwise.
+ *
+ * Note about the error handling:
+ * - On an error, if some bytes have been processed already,
+ *   this function should return the number of bytes successfully
+ *   processed. (partial success)
+ * - Otherwise, if the error is an equivalent of EAGAIN, return 0.
+ * - Otherwise, return MQTT_ERROR_SOCKET_ERROR.
  */
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags);
 
@@ -173,6 +180,13 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
  * @param[in] flags Flags which are passed to the underlying socket.
  * 
  * @returns The number of bytes received if successful, an \ref MQTTErrors otherwise.
+ *
+ * Note about the error handling:
+ * - On an error, if some bytes have been processed already,
+ *   this function should return the number of bytes successfully
+ *   processed. (partial success)
+ * - Otherwise, if the error is an equivalent of EAGAIN, return 0.
+ * - Otherwise, return MQTT_ERROR_SOCKET_ERROR.
  */
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags);
 

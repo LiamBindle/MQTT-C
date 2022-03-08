@@ -48,6 +48,7 @@ int _mqtt_pal_dummy;
 #include <mbedtls/ssl.h>
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    enum MQTTErrors error = 0;
     size_t sent = 0;
     while(sent < len) {
         int rv = mbedtls_ssl_write(fd, buf + sent, len - sent);
@@ -64,15 +65,26 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
                 /* should call mbedtls_ssl_write later again */
                 break;
             }
-            return MQTT_ERROR_SOCKET_ERROR;
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
         }
+        /*
+         * Note: rv can be 0 here eg. when mbedtls just flushed
+         * the previous incomplete record.
+         *
+         * Note: we never send an empty TLS record.
+         */
         sent += (size_t) rv;
+    }
+    if (sent == 0) {
+        return error;
     }
     return sent;
 }
 
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
     const void *const start = buf;
+    enum MQTTErrors error = 0;
     int rv;
     do {
         rv = mbedtls_ssl_read(fd, buf, bufsz);
@@ -80,13 +92,10 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
             /*
              * Note: mbedtls_ssl_read returns 0 when the underlying
              * transport was closed without CloseNotify.
+             *
+             * Raise an error to trigger a reconnect.
              */
-            if (buf == start) {
-                /*
-                 * Raise an error to trigger a reconnect.
-                 */
-                return MQTT_ERROR_SOCKET_ERROR;
-            }
+            error = MQTT_ERROR_SOCKET_ERROR;
             break;
         }
         if (rv < 0) {
@@ -102,12 +111,16 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
                 /* should call mbedtls_ssl_read later again */
                 break;
             }
-            return MQTT_ERROR_SOCKET_ERROR;
+            /* Note: MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY is handled here. */
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
         }
         buf = (char*)buf + rv;
         bufsz -= rv;
-    } while (rv > 0 && bufsz > 0);
-
+    } while (bufsz > 0);
+    if (buf == start) {
+        return error;
+    }
     return buf - start;
 }
 
@@ -321,39 +334,65 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
 #include <errno.h>
 
 ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len, int flags) {
+    enum MQTTErrors error = 0;
     size_t sent = 0;
     while(sent < len) {
-        ssize_t tmp = send(fd, buf + sent, len - sent, flags);
-        if (tmp < 1) {
-            if (errno != EAGAIN) {
-              return MQTT_ERROR_SOCKET_ERROR;
+        ssize_t rv = send(fd, buf + sent, len - sent, flags);
+        if (rv < 0) {
+            if (errno == EAGAIN) {
+                /* should call send later again */
+                break;
             }
-        } else {
-            sent += (size_t) tmp;
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
         }
+        if (rv == 0) {
+            /* is this possible? maybe OS bug. */
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
+        }
+        sent += (size_t) rv;
+    }
+    if (sent == 0) {
+        return error;
     }
     return sent;
 }
 
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
     const void *const start = buf;
+    enum MQTTErrors error = 0;
     ssize_t rv;
     do {
         rv = recv(fd, buf, bufsz, flags);
-        if (rv > 0) {
-            /* successfully read bytes from the socket */
-            buf += rv;
-            bufsz -= rv;
-        } else if (rv == 0 || (rv < 0 && errno != EAGAIN && errno != EWOULDBLOCK)) {
-            /* an error occurred that wasn't "nothing to read". */
-            return MQTT_ERROR_SOCKET_ERROR;
+        if (rv == 0) {
+            /*
+             * recv returns 0 when the socket is (half) closed by the peer.
+             *
+             * Raise an error to trigger a reconnect.
+             */
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
         }
-    } while (rv > 0 && bufsz > 0);
-
+        if (rv < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* should call recv later again */
+                break;
+            }
+            /* an error occurred that wasn't "nothing to read". */
+            error = MQTT_ERROR_SOCKET_ERROR;
+            break;
+        }
+        buf = (char*)buf + rv;
+        bufsz -= rv;
+    } while (bufsz > 0);
+    if (buf == start) {
+        return error;
+    }
     return buf - start;
 }
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(WIN32)
 
 #include <errno.h>
 
