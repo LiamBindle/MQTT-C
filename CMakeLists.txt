@@ -49,6 +49,7 @@ endif()
 if(MQTT_C_OpenSSL_SUPPORT)
     find_package(OpenSSL REQUIRED)
     target_link_libraries(mqttc INTERFACE OpenSSL::SSL)
+    target_include_directories(mqttc PUBLIC ${OPENSSL_INCLUDE_DIR})
     target_compile_definitions(mqttc PUBLIC MQTT_USE_BIO)
 endif()
 
