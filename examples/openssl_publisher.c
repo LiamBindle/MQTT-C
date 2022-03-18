@@ -42,8 +42,8 @@ int main(int argc, const char *argv[])
     const char* port;
     const char* topic;
     const char* ca_file;
-    const char* cert_path;
-    const char* key_path;
+    const char* cert_file;
+    const char* key_file;
 
     /* Load OpenSSL */
     SSL_load_error_strings();
@@ -84,20 +84,20 @@ int main(int argc, const char *argv[])
 
     /* get client cert */
     if (argc > 5) {
-        cert_path = argv[5];
+        cert_file = argv[5];
     } else {
-        cert_path = NULL;
+        cert_file = NULL;
     }
 
     /* get client key */
     if (argc > 6) {
-        key_path = argv[6];
+        key_file = argv[6];
     } else {
-        key_path = NULL;
+        key_file = NULL;
     }
 
     /* open the non-blocking TCP socket (connecting to the broker) */
-    open_nb_socket(&sockfd, &ssl_ctx, addr, port, ca_file, NULL, cert_path, key_path);
+    open_nb_socket(&sockfd, &ssl_ctx, addr, port, ca_file, NULL, cert_file, key_file);
 
     if (sockfd == NULL) {
         exit_example(EXIT_FAILURE, sockfd, NULL);

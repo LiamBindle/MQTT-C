@@ -14,8 +14,8 @@ void open_nb_socket(BIO**       bio,
                     const char* port,
                     const char* ca_file,
                     const char* ca_path,
-                    const char* cert_path,
-                    const char* key_path)
+                    const char* cert_file,
+                    const char* key_file)
 {
     *ssl_ctx = SSL_CTX_new(SSLv23_client_method());
     SSL* ssl;
@@ -26,15 +26,15 @@ void open_nb_socket(BIO**       bio,
         exit(1);
     }
 
-    if (cert_path && key_path)
+    if (cert_file && key_file)
     {
-        if (!SSL_CTX_use_certificate_file(*ssl_ctx, "/home/will/mqtt-certs/client.crt", SSL_FILETYPE_PEM))
+        if (!SSL_CTX_use_certificate_file(*ssl_ctx, cert_file, SSL_FILETYPE_PEM))
         {
             printf("error: failed to load client certificate\n");
             exit(1);
         }
 
-        if (!SSL_CTX_use_PrivateKey_file(*ssl_ctx, "/home/will/mqtt-certs/client.key", SSL_FILETYPE_PEM))
+        if (!SSL_CTX_use_PrivateKey_file(*ssl_ctx, key_file, SSL_FILETYPE_PEM))
         {
             printf("error: failed to load client key\n");
             exit(1);
