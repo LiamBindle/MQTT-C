@@ -59,11 +59,11 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
     }
 
     /* Call receive */
-    err = __mqtt_recv(client);
+    err = (enum MQTTErrors)__mqtt_recv(client);
     if (err != MQTT_OK) return err;
 
     /* Call send */
-    err = __mqtt_send(client);
+    err = (enum MQTTErrors)__mqtt_send(client);
 
     /* mqtt_reconnect will essentially be a disconnect if there is no callback */
     if (reconnecting && client->reconnect_callback != NULL) {
@@ -202,23 +202,23 @@ void mqtt_reinit(struct mqtt_client* client,
     }                                                               \
     tmp = pack_call;                                                \
     if (tmp < 0) {                                                  \
-        client->error = tmp;                                        \
+        client->error = (enum MQTTErrors)tmp;                                        \
         if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);         \
-        return tmp;                                                 \
+        return (enum MQTTErrors)tmp;                                                 \
     } else if (tmp == 0) {                                          \
         mqtt_mq_clean(&client->mq);                                 \
         tmp = pack_call;                                            \
         if (tmp < 0) {                                              \
-            client->error = tmp;                                    \
+            client->error = (enum MQTTErrors)tmp;                                    \
             if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);     \
-            return tmp;                                             \
+            return (enum MQTTErrors)tmp;                                             \
         } else if(tmp == 0) {                                       \
             client->error = MQTT_ERROR_SEND_BUFFER_IS_FULL;         \
             if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);     \
-            return MQTT_ERROR_SEND_BUFFER_IS_FULL;                  \
+            return (enum MQTTErrors)MQTT_ERROR_SEND_BUFFER_IS_FULL;                  \
         }                                                           \
     }                                                               \
-    msg = mqtt_mq_register(&client->mq, tmp);                       \
+    msg = mqtt_mq_register(&client->mq, (size_t)tmp);                       \
 
 
 enum MQTTErrors mqtt_connect(struct mqtt_client *client,
@@ -548,11 +548,11 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         {
           ssize_t tmp = mqtt_pal_sendall(client->socketfd, msg->start + client->send_offset, msg->size - client->send_offset, 0);
           if (tmp < 0) {
-            client->error = tmp;
+            client->error = (enum MQTTErrors)tmp;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return tmp;
           } else {
-            client->send_offset += tmp;
+            client->send_offset += (unsigned long)tmp;
             if(client->send_offset < msg->size) {
               /* partial sent. Await additional calls */
               break;
@@ -626,7 +626,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
         if (MQTT_PAL_TIME() > keep_alive_timeout) {
           ssize_t rv = __mqtt_ping(client);
           if (rv != MQTT_OK) {
-            client->error = rv;
+            client->error = (enum MQTTErrors)rv;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return rv;
           }
@@ -652,19 +652,19 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
         rv = mqtt_pal_recvall(client->socketfd, client->recv_buffer.curr, client->recv_buffer.curr_sz, 0);
         if (rv < 0) {
             /* an error occurred */
-            client->error = rv;
+            client->error = (enum MQTTErrors)rv;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return rv;
         } else {
             client->recv_buffer.curr += rv;
-            client->recv_buffer.curr_sz -= rv;
+            client->recv_buffer.curr_sz -= (unsigned long)rv;
         }
 
         /* attempt to parse */
-        consumed = mqtt_unpack_response(&response, client->recv_buffer.mem_start, client->recv_buffer.curr - client->recv_buffer.mem_start);
+        consumed = mqtt_unpack_response(&response, client->recv_buffer.mem_start, (size_t) (client->recv_buffer.curr - client->recv_buffer.mem_start));
 
         if (consumed < 0) {
-            client->error = consumed;
+            client->error = (enum MQTTErrors)consumed;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return consumed;
         } else if (consumed == 0) {
@@ -739,7 +739,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 if (response.decoded.publish.qos_level == 1) {
                     rv = __mqtt_puback(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
-                        client->error = rv;
+                        client->error = (enum MQTTErrors)rv;
                         mqtt_recv_ret = rv;
                         break;
                     }
@@ -751,7 +751,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
 
                     rv = __mqtt_pubrec(client, response.decoded.publish.packet_id);
                     if (rv != MQTT_OK) {
-                        client->error = rv;
+                        client->error = (enum MQTTErrors)rv;
                         mqtt_recv_ret = rv;
                         break;
                     }
@@ -789,7 +789,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 /* stage PUBREL */
                 rv = __mqtt_pubrel(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
-                    client->error = rv;
+                    client->error = (enum MQTTErrors)rv;
                     mqtt_recv_ret = rv;
                     break;
                 }
@@ -808,7 +808,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 /* stage PUBCOMP */
                 rv = __mqtt_pubcomp(client, response.decoded.pubrec.packet_id);
                 if (rv != MQTT_OK) {
-                    client->error = rv;
+                    client->error = (enum MQTTErrors)rv;
                     mqtt_recv_ret = rv;
                     break;
                 }
@@ -876,10 +876,10 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
           /* we've handled the response, now clean the buffer */
           void* dest = (unsigned char*)client->recv_buffer.mem_start;
           void* src  = (unsigned char*)client->recv_buffer.mem_start + consumed;
-          size_t n = client->recv_buffer.curr - client->recv_buffer.mem_start - consumed;
+          size_t n = (size_t) (client->recv_buffer.curr - client->recv_buffer.mem_start - consumed);
           memmove(dest, src, n);
           client->recv_buffer.curr -= consumed;
-          client->recv_buffer.curr_sz += consumed;
+          client->recv_buffer.curr_sz += (unsigned long)consumed;
         }
     }
 
@@ -892,65 +892,67 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
 
 #define MQTT_BITFIELD_RULE_VIOLOATION(bitfield, rule_value, rule_mask) ((bitfield ^ rule_value) & rule_mask)
 
-struct {
+struct mqtt_fixed_header_rules_s{
     const uint8_t control_type_is_valid[16];
     const uint8_t required_flags[16];
     const uint8_t mask_required_flags[16];
-} mqtt_fixed_header_rules = {
-    {   /* boolean value, true if type is valid */
-        0x00, /* MQTT_CONTROL_RESERVED */
-        0x01, /* MQTT_CONTROL_CONNECT */
-        0x01, /* MQTT_CONTROL_CONNACK */
-        0x01, /* MQTT_CONTROL_PUBLISH */
-        0x01, /* MQTT_CONTROL_PUBACK */
-        0x01, /* MQTT_CONTROL_PUBREC */
-        0x01, /* MQTT_CONTROL_PUBREL */
-        0x01, /* MQTT_CONTROL_PUBCOMP */
-        0x01, /* MQTT_CONTROL_SUBSCRIBE */
-        0x01, /* MQTT_CONTROL_SUBACK */
-        0x01, /* MQTT_CONTROL_UNSUBSCRIBE */
-        0x01, /* MQTT_CONTROL_UNSUBACK */
-        0x01, /* MQTT_CONTROL_PINGREQ */
-        0x01, /* MQTT_CONTROL_PINGRESP */
-        0x01, /* MQTT_CONTROL_DISCONNECT */
-        0x00  /* MQTT_CONTROL_RESERVED */
-    },
-    {   /* flags that must be set for the associated control type */
-        0x00, /* MQTT_CONTROL_RESERVED */
-        0x00, /* MQTT_CONTROL_CONNECT */
-        0x00, /* MQTT_CONTROL_CONNACK */
-        0x00, /* MQTT_CONTROL_PUBLISH */
-        0x00, /* MQTT_CONTROL_PUBACK */
-        0x00, /* MQTT_CONTROL_PUBREC */
-        0x02, /* MQTT_CONTROL_PUBREL */
-        0x00, /* MQTT_CONTROL_PUBCOMP */
-        0x02, /* MQTT_CONTROL_SUBSCRIBE */
-        0x00, /* MQTT_CONTROL_SUBACK */
-        0x02, /* MQTT_CONTROL_UNSUBSCRIBE */
-        0x00, /* MQTT_CONTROL_UNSUBACK */
-        0x00, /* MQTT_CONTROL_PINGREQ */
-        0x00, /* MQTT_CONTROL_PINGRESP */
-        0x00, /* MQTT_CONTROL_DISCONNECT */
-        0x00  /* MQTT_CONTROL_RESERVED */
-    },
-    {   /* mask of flags that must be specific values for the associated control type*/
-        0x00, /* MQTT_CONTROL_RESERVED */
-        0x0F, /* MQTT_CONTROL_CONNECT */
-        0x0F, /* MQTT_CONTROL_CONNACK */
-        0x00, /* MQTT_CONTROL_PUBLISH */
-        0x0F, /* MQTT_CONTROL_PUBACK */
-        0x0F, /* MQTT_CONTROL_PUBREC */
-        0x0F, /* MQTT_CONTROL_PUBREL */
-        0x0F, /* MQTT_CONTROL_PUBCOMP */
-        0x0F, /* MQTT_CONTROL_SUBSCRIBE */
-        0x0F, /* MQTT_CONTROL_SUBACK */
-        0x0F, /* MQTT_CONTROL_UNSUBSCRIBE */
-        0x0F, /* MQTT_CONTROL_UNSUBACK */
-        0x0F, /* MQTT_CONTROL_PINGREQ */
-        0x0F, /* MQTT_CONTROL_PINGRESP */
-        0x0F, /* MQTT_CONTROL_DISCONNECT */
-        0x00  /* MQTT_CONTROL_RESERVED */
-    }
+} ;
+
+struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
+        {   /* boolean value, true if type is valid */
+                0x00, /* MQTT_CONTROL_RESERVED */
+                0x01, /* MQTT_CONTROL_CONNECT */
+                0x01, /* MQTT_CONTROL_CONNACK */
+                0x01, /* MQTT_CONTROL_PUBLISH */
+                0x01, /* MQTT_CONTROL_PUBACK */
+                0x01, /* MQTT_CONTROL_PUBREC */
+                0x01, /* MQTT_CONTROL_PUBREL */
+                0x01, /* MQTT_CONTROL_PUBCOMP */
+                0x01, /* MQTT_CONTROL_SUBSCRIBE */
+                0x01, /* MQTT_CONTROL_SUBACK */
+                0x01, /* MQTT_CONTROL_UNSUBSCRIBE */
+                0x01, /* MQTT_CONTROL_UNSUBACK */
+                0x01, /* MQTT_CONTROL_PINGREQ */
+                0x01, /* MQTT_CONTROL_PINGRESP */
+                0x01, /* MQTT_CONTROL_DISCONNECT */
+                0x00  /* MQTT_CONTROL_RESERVED */
+        },
+        {   /* flags that must be set for the associated control type */
+                0x00, /* MQTT_CONTROL_RESERVED */
+                0x00, /* MQTT_CONTROL_CONNECT */
+                0x00, /* MQTT_CONTROL_CONNACK */
+                0x00, /* MQTT_CONTROL_PUBLISH */
+                0x00, /* MQTT_CONTROL_PUBACK */
+                0x00, /* MQTT_CONTROL_PUBREC */
+                0x02, /* MQTT_CONTROL_PUBREL */
+                0x00, /* MQTT_CONTROL_PUBCOMP */
+                0x02, /* MQTT_CONTROL_SUBSCRIBE */
+                0x00, /* MQTT_CONTROL_SUBACK */
+                0x02, /* MQTT_CONTROL_UNSUBSCRIBE */
+                0x00, /* MQTT_CONTROL_UNSUBACK */
+                0x00, /* MQTT_CONTROL_PINGREQ */
+                0x00, /* MQTT_CONTROL_PINGRESP */
+                0x00, /* MQTT_CONTROL_DISCONNECT */
+                0x00  /* MQTT_CONTROL_RESERVED */
+        },
+        {   /* mask of flags that must be specific values for the associated control type*/
+                0x00, /* MQTT_CONTROL_RESERVED */
+                0x0F, /* MQTT_CONTROL_CONNECT */
+                0x0F, /* MQTT_CONTROL_CONNACK */
+                0x00, /* MQTT_CONTROL_PUBLISH */
+                0x0F, /* MQTT_CONTROL_PUBACK */
+                0x0F, /* MQTT_CONTROL_PUBREC */
+                0x0F, /* MQTT_CONTROL_PUBREL */
+                0x0F, /* MQTT_CONTROL_PUBCOMP */
+                0x0F, /* MQTT_CONTROL_SUBSCRIBE */
+                0x0F, /* MQTT_CONTROL_SUBACK */
+                0x0F, /* MQTT_CONTROL_UNSUBSCRIBE */
+                0x0F, /* MQTT_CONTROL_UNSUBACK */
+                0x0F, /* MQTT_CONTROL_PINGREQ */
+                0x0F, /* MQTT_CONTROL_PINGRESP */
+                0x0F, /* MQTT_CONTROL_DISCONNECT */
+                0x00  /* MQTT_CONTROL_RESERVED */
+        }
 };
 
 static ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *fixed_header) {
@@ -960,7 +962,7 @@ static ssize_t mqtt_fixed_header_rule_violation(const struct mqtt_fixed_header *
     uint8_t mask_required_flags;
 
     /* get value and rules */
-    control_type = fixed_header->control_type;
+    control_type = (uint8_t)fixed_header->control_type;
     control_flags = fixed_header->control_flags;
     required_flags = mqtt_fixed_header_rules.required_flags[control_type];
     mask_required_flags = mqtt_fixed_header_rules.mask_required_flags[control_type];
@@ -994,8 +996,8 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *
     if (bufsz == 0) return 0;
 
     /* parse control type and flags */
-    fixed_header->control_type  = *buf >> 4;
-    fixed_header->control_flags = *buf & 0x0F;
+    fixed_header->control_type  = (enum MQTTControlPacketType) (*buf >> 4);
+    fixed_header->control_flags = (uint8_t) (*buf & 0x0F);
 
     /* parse remaining size */
     fixed_header->remaining_length = 0;
@@ -1013,7 +1015,7 @@ ssize_t mqtt_unpack_fixed_header(struct mqtt_response *response, const uint8_t *
         if (bufsz == 0) return 0;
 
         /* parse next byte*/
-        fixed_header->remaining_length += (*buf & 0x7F) << lshift;
+        fixed_header->remaining_length += (uint32_t) ((*buf & 0x7F) << lshift);
         lshift += 7;
     } while(*buf & 0x80); /* while continue bit is set */ 
 
@@ -1056,8 +1058,8 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
     if (bufsz == 0) return 0;
 
     /* pack control type and flags */
-    *buf =  (((uint8_t) fixed_header->control_type) << 4) & 0xF0;
-    *buf |= ((uint8_t) fixed_header->control_flags)       & 0x0F;
+    *buf = (uint8_t)((((uint8_t) fixed_header->control_type) << 4)      & 0xF0);
+    *buf = (uint8_t)(*buf | (((uint8_t) fixed_header->control_flags)    & 0x0F));
 
     remaining_length = fixed_header->remaining_length;
 
@@ -1111,7 +1113,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
     fixed_header.control_flags = 0x00;
 
     /* calculate remaining length and build connect_flags at the same time */
-    connect_flags = connect_flags & ~MQTT_CONNECT_RESERVED;
+    connect_flags = (uint8_t) (connect_flags & ~MQTT_CONNECT_RESERVED);
     remaining_length = 10; /* size of variable header */
 
     if (client_id == NULL) {
@@ -1144,9 +1146,9 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         }
     } else {
         /* there is no will so set all will flags to zero */
-        connect_flags &= ~MQTT_CONNECT_WILL_FLAG;
-        connect_flags &= ~0x18;
-        connect_flags &= ~MQTT_CONNECT_WILL_RETAIN;
+        connect_flags &= (uint8_t)~MQTT_CONNECT_WILL_FLAG;
+        connect_flags &= (uint8_t)~0x18;
+        connect_flags &= (uint8_t)~MQTT_CONNECT_WILL_RETAIN;
     }
 
     if (user_name != NULL) {
@@ -1154,7 +1156,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         connect_flags |= MQTT_CONNECT_USER_NAME;
         remaining_length += __mqtt_packed_cstrlen(user_name);
     } else {
-        connect_flags &= ~MQTT_CONNECT_USER_NAME;
+        connect_flags &= (uint8_t)~MQTT_CONNECT_USER_NAME;
     }
 
     if (password != NULL) {
@@ -1162,11 +1164,11 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         connect_flags |= MQTT_CONNECT_PASSWORD;
         remaining_length += __mqtt_packed_cstrlen(password);
     } else {
-        connect_flags &= ~MQTT_CONNECT_PASSWORD;
+        connect_flags &= (uint8_t)~MQTT_CONNECT_PASSWORD;
     }
 
     /* fixed header length is now calculated*/
-    fixed_header.remaining_length = remaining_length;
+    fixed_header.remaining_length = (uint32_t)remaining_length;
 
     /* pack fixed header and perform error checks */
     rv = mqtt_pack_fixed_header(buf, bufsz, &fixed_header);
@@ -1175,7 +1177,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
         return rv;
     }
     buf += rv;
-    bufsz -= rv;
+    bufsz -= (size_t)rv;
 
     /* check that the buffer has enough space to fit the remaining length */
     if (bufsz < fixed_header.remaining_length) {
@@ -1293,14 +1295,14 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
 
     /* force dup to 0 if qos is 0 [Spec MQTT-3.3.1-2] */
     if (inspected_qos == 0) {
-        publish_flags &= ~MQTT_PUBLISH_DUP;
+        publish_flags &= (uint8_t)~MQTT_PUBLISH_DUP;
     }
 
     /* make sure that qos is not 3 [Spec MQTT-3.3.1-4] */
     if (inspected_qos == 3) {
         return MQTT_ERROR_PUBLISH_FORBIDDEN_QOS;
     }
-    fixed_header.control_flags = publish_flags;
+    fixed_header.control_flags = publish_flags & 0x7;
 
     /* pack fixed header */
     rv = mqtt_pack_fixed_header(buf, bufsz, &fixed_header);
@@ -1309,7 +1311,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
         return rv;
     }
     buf += rv;
-    bufsz -= rv;
+    bufsz -= (size_t)rv;
 
     /* check that buffer is big enough */
     if (bufsz < remaining_length) {
@@ -1397,7 +1399,7 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
         return rv;
     }
     buf += rv;
-    bufsz -= rv;
+    bufsz -= (size_t)rv;
 
     if (bufsz < fixed_header.remaining_length) {
         return 0;
@@ -1503,7 +1505,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
         return rv;
     }
     buf += rv;
-    bufsz -= rv;
+    bufsz -= (unsigned long)rv;
 
     /* check that the buffer has enough space */
     if (bufsz < fixed_header.remaining_length) {
@@ -1512,7 +1514,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
     
     
     /* pack variable header */
-    buf += __mqtt_pack_uint16(buf, packet_id);
+    buf += __mqtt_pack_uint16(buf, (uint16_t)packet_id);
 
 
     /* pack payload */
@@ -1582,7 +1584,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
         return rv;
     }
     buf += rv;
-    bufsz -= rv;
+    bufsz -= (unsigned long)rv;
 
     /* check that the buffer has enough space */
     if (bufsz < fixed_header.remaining_length) {
@@ -1590,7 +1592,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
     }
 
     /* pack variable header */
-    buf += __mqtt_pack_uint16(buf, packet_id);
+    buf += __mqtt_pack_uint16(buf, (uint16_t)packet_id);
 
 
     /* pack payload */
@@ -1607,10 +1609,10 @@ void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)
     if(buf != NULL)
     {
         mq->mem_start = buf;
-        mq->mem_end = (unsigned char*)buf + bufsz;
-        mq->curr = buf;
-        mq->queue_tail = mq->mem_end;
-        mq->curr_sz = mqtt_mq_currsz(mq);
+        mq->mem_end = (uint8_t *)buf + bufsz;
+        mq->curr = (uint8_t *)buf;
+        mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
+        mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
     }
 }
 
@@ -1624,7 +1626,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
 
     /* move curr and recalculate curr_sz */
     mq->curr += nbytes;
-    mq->curr_sz = mqtt_mq_currsz(mq);
+    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
 
     return mq->queue_tail;
 }
@@ -1638,9 +1640,9 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     
     /* check if everything can be removed */
     if (new_head < mq->queue_tail) {
-        mq->curr = mq->mem_start;
-        mq->queue_tail = mq->mem_end;
-        mq->curr_sz = mqtt_mq_currsz(mq);
+        mq->curr = (uint8_t *)mq->mem_start;
+        mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
+        mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
         return;
     } else if (new_head == mqtt_mq_get(mq, 0)) {
         /* do nothing */
@@ -1649,8 +1651,8 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
 
     /* move buffered data */
     {
-        size_t n = mq->curr - new_head->start;
-        size_t removing = new_head->start - (uint8_t*) mq->mem_start;
+        size_t n = (size_t) (mq->curr - new_head->start);
+        size_t removing = (size_t) (new_head->start - (uint8_t*) mq->mem_start);
         memmove(mq->mem_start, new_head->start, n);
         mq->curr = (unsigned char*)mq->mem_start + n;
       
@@ -1658,7 +1660,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
         /* move queue */
         {
             ssize_t new_tail_idx = new_head - mq->queue_tail;
-            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (new_tail_idx + 1));
+            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (size_t) ((new_tail_idx + 1)));
             mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
           
             {
@@ -1672,7 +1674,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     }
 
     /* get curr_sz */
-    mq->curr_sz = mqtt_mq_currsz(mq);
+    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
 }
 
 struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)
@@ -1755,7 +1757,7 @@ ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
 
     /* pack string */
     for(; i < length; ++i) {
-        *(buf++) = str[i];
+        *(buf++) = (uint8_t)str[i];
     }
     
     /* return number of bytes consumed */
