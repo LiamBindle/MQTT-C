@@ -9,6 +9,7 @@ option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
 option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # MQTT-C library
 add_library(mqttc STATIC
