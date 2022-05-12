@@ -55,6 +55,11 @@ void cert_verify_failed(uint32_t rv) {
 void open_nb_socket(struct mbedtls_context *ctx,
                     const char *hostname,
                     const char *port,
+                    const char *ca_file);
+
+void open_nb_socket(struct mbedtls_context *ctx,
+                    const char *hostname,
+                    const char *port,
                     const char *ca_file) {
     const unsigned char *additional = (const unsigned char *)"MQTT-C";
     size_t additional_len = 6;

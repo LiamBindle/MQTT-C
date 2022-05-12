@@ -17,6 +17,8 @@
 /*
     A template for opening a non-blocking POSIX socket.
 */
+int open_nb_socket(const char* addr, const char* port);
+
 int open_nb_socket(const char* addr, const char* port) {
     struct addrinfo hints = {0};
 
