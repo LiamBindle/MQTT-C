@@ -51,7 +51,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
     enum MQTTErrors error = 0;
     size_t sent = 0;
     while(sent < len) {
-        int rv = mbedtls_ssl_write(fd, buf + sent, len - sent);
+        int rv = mbedtls_ssl_write(fd, (const unsigned char*)buf + sent, len - sent);
         if (rv < 0) {
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
                 rv == MBEDTLS_ERR_SSL_WANT_WRITE
@@ -79,7 +79,7 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
     if (sent == 0) {
         return error;
     }
-    return sent;
+    return (ssize_t)sent;
 }
 
 ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int flags) {
@@ -87,7 +87,7 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
     enum MQTTErrors error = 0;
     int rv;
     do {
-        rv = mbedtls_ssl_read(fd, buf, bufsz);
+        rv = mbedtls_ssl_read(fd, (unsigned char*)buf, bufsz);
         if (rv == 0) {
             /*
              * Note: mbedtls_ssl_read returns 0 when the underlying
@@ -116,12 +116,12 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
             break;
         }
         buf = (char*)buf + rv;
-        bufsz -= rv;
+        bufsz -= (unsigned long)rv;
     } while (bufsz > 0);
     if (buf == start) {
         return error;
     }
-    return buf - start;
+    return (const char *)buf - (const char*)start;
 }
 
 #elif defined(MQTT_USE_WOLFSSL)

@@ -35,6 +35,14 @@ struct mbedtls_context {
     mbedtls_ctr_drbg_context ctr_drbg;
 };
 
+void failed(const char *fn, int rv);
+void cert_verify_failed(uint32_t rv);
+void open_nb_socket(struct mbedtls_context *ctx,
+                    const char *hostname,
+                    const char *port,
+                    const char *ca_file);
+
+
 void failed(const char *fn, int rv) {
     char buf[100];
     mbedtls_strerror(rv, buf, sizeof(buf));
@@ -52,11 +60,6 @@ void cert_verify_failed(uint32_t rv) {
 /*
     A template for opening a non-blocking mbed TLS connection.
 */
-void open_nb_socket(struct mbedtls_context *ctx,
-                    const char *hostname,
-                    const char *port,
-                    const char *ca_file);
-
 void open_nb_socket(struct mbedtls_context *ctx,
                     const char *hostname,
                     const char *port,
@@ -129,7 +132,7 @@ void open_nb_socket(struct mbedtls_context *ctx,
         } else {
             break;
         }
-        rv = mbedtls_net_poll(net_ctx, want, -1);
+        rv = mbedtls_net_poll(net_ctx, want, (uint32_t)-1);
         if (rv < 0) {
             failed("mbedtls_net_poll", rv);
         }
@@ -140,7 +143,7 @@ void open_nb_socket(struct mbedtls_context *ctx,
     uint32_t result = mbedtls_ssl_get_verify_result(ssl_ctx);
     if (result != 0) {
         if (result == (uint32_t)-1) {
-            failed("mbedtls_ssl_get_verify_result", result);
+            failed("mbedtls_ssl_get_verify_result", (int)result);
         } else {
             cert_verify_failed(result);
         }
