@@ -6,6 +6,7 @@ option(MQTT_C_OpenSSL_SUPPORT "Build MQTT-C with OpenSSL support?" OFF)
 option(MQTT_C_MbedTLS_SUPPORT "Build MQTT-C with mbed TLS support?" OFF)
 option(MQTT_C_BearSSL_SUPPORT "Build MQTT-C with Bear SSL support?" OFF)
 option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
+option(MQTT_C_INSTALL_EXAMPLES "Install MQTT-C examples?" OFF)
 option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
 
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -74,25 +75,41 @@ if(MQTT_C_EXAMPLES)
             add_executable(bio_publisher examples/bio_publisher.c)
             add_executable(openssl_publisher examples/openssl_publisher.c)
         endif()
-
+		if(MQTT_C_INSTALL_EXAMPLES)
+			install(TARGETS bio_publisher openssl_publisher)
+		endif()
         target_link_libraries(bio_publisher Threads::Threads mqttc)
         target_link_libraries(openssl_publisher Threads::Threads mqttc)
-    elseif(MQTT_C_MbedTLS_SUPPORT)
+
+	elseif(MQTT_C_MbedTLS_SUPPORT)
         add_executable(mbedtls_publisher examples/mbedtls_publisher.c)
         target_link_libraries(mbedtls_publisher Threads::Threads mqttc ${MBEDX509_LIBRARY} ${MBEDCRYPTO_LIBRARY})
+		if(MQTT_C_INSTALL_EXAMPLES)
+			install(TARGETS mbedtls_publisher)
+		endif()
+
     elseif(MQTT_C_BearSSL_SUPPORT)
         add_executable(bearssl_publisher examples/bearssl_publisher.c)
         target_link_libraries(bearssl_publisher mqttc bearssl)
+		if(MQTT_C_INSTALL_EXAMPLES)
+			install(TARGETS bearssl_publisher)
+		endif()
     else()
         add_executable(simple_publisher examples/simple_publisher.c)
         target_link_libraries(simple_publisher Threads::Threads mqttc)
-
-        add_executable(simple_subscriber examples/simple_subscriber.c)
-        target_link_libraries(simple_subscriber Threads::Threads mqttc)
-
-        add_executable(reconnect_subscriber examples/reconnect_subscriber.c)
-        target_link_libraries(reconnect_subscriber Threads::Threads mqttc)
+		if(MQTT_C_INSTALL_EXAMPLES)
+			install(TARGETS simple_publisher)
+		endif()
     endif()
+
+	# Always install subscriber targets
+    add_executable(simple_subscriber examples/simple_subscriber.c)
+    target_link_libraries(simple_subscriber Threads::Threads mqttc)
+    add_executable(reconnect_subscriber examples/reconnect_subscriber.c)
+    target_link_libraries(reconnect_subscriber Threads::Threads mqttc)
+	if(MQTT_C_INSTALL_EXAMPLES)
+		install(TARGETS simple_subscriber reconnect_subscriber)
+	endif()
 endif()
 
 # Build tests
@@ -108,9 +125,21 @@ if(MQTT_C_TESTS)
     target_include_directories(tests PRIVATE ${CMOCKA_INCLUDE_DIR})
 endif()
 
+# Handle multi-lib linux systems correctly and allow custom installation locations.
+if(UNIX)
+	include(GNUInstallDirs)
+	mark_as_advanced(CLEAR
+		CMAKE_INSTALL_BINDIR
+		CMAKE_INSTALL_LIBDIR
+		CMAKE_INSTALL_INCLUDEDIR)
+else()
+	set(CMAKE_INSTALL_LIBDIR "lib")
+	set(CMAKE_INSTALL_INCLUDEDIR "include")
+endif()
+
 # Install includes and library
 install(TARGETS mqttc 
-    DESTINATION lib
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 install(DIRECTORY include/
-    DESTINATION include)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
