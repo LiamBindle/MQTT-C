@@ -35,7 +35,7 @@ static int sock_read(void *ctx, unsigned char *buf, size_t len) {
             break;
         }
 	}
-    
+
     return (int)rlen;
 }
 
@@ -44,7 +44,7 @@ static int sock_read(void *ctx, unsigned char *buf, size_t len) {
  */
 static int sock_write(void *ctx, const unsigned char *buf, size_t len) {
     ssize_t wlen;
-    
+
     for (;;) {
 
 		wlen = write(*(int *)ctx, buf, len);
