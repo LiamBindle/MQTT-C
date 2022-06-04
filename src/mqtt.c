@@ -901,12 +901,12 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
 #define MQTT_BITFIELD_RULE_VIOLOATION(bitfield, rule_value, rule_mask) ((bitfield ^ rule_value) & rule_mask)
 
 struct mqtt_fixed_header_rules_s{
-    const uint8_t control_type_is_valid[16];
-    const uint8_t required_flags[16];
-    const uint8_t mask_required_flags[16];
+    uint8_t control_type_is_valid[16];
+    uint8_t required_flags[16];
+    uint8_t mask_required_flags[16];
 } ;
 
-static struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
+static const struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
         {   /* boolean value, true if type is valid */
                 0x00, /* MQTT_CONTROL_RESERVED */
                 0x01, /* MQTT_CONTROL_CONNECT */
@@ -1772,7 +1772,7 @@ ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
     return length + 2;
 }
 
-static const char *MQTT_ERRORS_STR[] = {
+static const char * const MQTT_ERRORS_STR[] = {
     "MQTT_UNKNOWN_ERROR",
     __ALL_MQTT_ERRORS(GENERATE_STRING)
 };
