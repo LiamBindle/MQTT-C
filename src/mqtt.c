@@ -1205,16 +1205,16 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 
     /* pack the payload */
     buf += __mqtt_pack_str(buf, client_id);
-    if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
+    if (will_topic != NULL) {
         buf += __mqtt_pack_str(buf, will_topic);
         buf += __mqtt_pack_uint16(buf, (uint16_t)will_message_size);
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }
-    if (connect_flags & MQTT_CONNECT_USER_NAME) {
+    if (user_name != NULL) {
         buf += __mqtt_pack_str(buf, user_name);
     }
-    if (connect_flags & MQTT_CONNECT_PASSWORD) {
+    if (password != NULL) {
         buf += __mqtt_pack_str(buf, password);
     }
 
