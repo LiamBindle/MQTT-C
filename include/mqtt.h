@@ -1151,7 +1151,7 @@ struct mqtt_client {
      * 
      * @note This is tracked using a exponential-averaging.
      */
-    double typical_response_time;
+    float typical_response_time;
 
     /**
      * @brief The callback that is called whenever a publish is received from the broker.
