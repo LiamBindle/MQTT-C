@@ -159,7 +159,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
 
     client->socketfd = (mqtt_pal_socket_handle) -1;
 
-    mqtt_mq_init(&client->mq, NULL, 0);
+    mqtt_mq_init(&client->mq, NULL, 0uL);
 
     client->recv_buffer.mem_start = NULL;
     client->recv_buffer.mem_size = 0;
@@ -1746,14 +1746,14 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
 ssize_t __mqtt_pack_uint16(uint8_t *buf, uint16_t integer)
 {
   uint16_t integer_htons = MQTT_PAL_HTONS(integer);
-  memcpy(buf, &integer_htons, 2);
+  memcpy(buf, &integer_htons, 2uL);
   return 2;
 }
 
 uint16_t __mqtt_unpack_uint16(const uint8_t *buf)
 {
   uint16_t integer_htons;
-  memcpy(&integer_htons, buf, 2);
+  memcpy(&integer_htons, buf, 2uL);
   return MQTT_PAL_NTOHS(integer_htons);
 }
 
