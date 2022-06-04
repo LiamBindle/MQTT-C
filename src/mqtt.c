@@ -1481,7 +1481,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
 
     /* parse all subscriptions */
     va_start(args, packet_id);
-    while(1) {
+    for(;;) {
         topic[num_subs] = va_arg(args, const char*);
         if (topic[num_subs] == NULL) {
             /* end of list */
@@ -1562,7 +1562,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 
     /* parse all subscriptions */
     va_start(args, packet_id);
-    while(1) {
+    for(;;) {
         topic[num_subs] = va_arg(args, const char*);
         if (topic[num_subs] == NULL) {
             /* end of list */
