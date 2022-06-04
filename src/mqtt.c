@@ -906,7 +906,7 @@ struct mqtt_fixed_header_rules_s{
     const uint8_t mask_required_flags[16];
 } ;
 
-struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
+static struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
         {   /* boolean value, true if type is valid */
                 0x00, /* MQTT_CONTROL_RESERVED */
                 0x01, /* MQTT_CONTROL_CONNECT */
