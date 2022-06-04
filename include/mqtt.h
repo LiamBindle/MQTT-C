@@ -1058,7 +1058,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
  * @relates mqtt_message_queue
  * @returns The found message. \c NULL if the message was not found.
  */
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id);
+struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, const uint16_t *packet_id);
 
 /**
  * @brief Returns the mqtt_queued_message at \p index.

@@ -1685,7 +1685,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
 }
 
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)
+struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, const uint16_t *packet_id)
 {
     struct mqtt_queued_message *curr;
     for(curr = mqtt_mq_get(mq, 0); curr >= mq->queue_tail; --curr) {
