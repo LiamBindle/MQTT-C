@@ -8,6 +8,7 @@ option(MQTT_C_BearSSL_SUPPORT "Build MQTT-C with Bear SSL support?" OFF)
 option(MQTT_C_EXAMPLES "Build MQTT-C examples?" ON)
 option(MQTT_C_INSTALL_EXAMPLES "Install MQTT-C examples?" OFF)
 option(MQTT_C_TESTS "Build MQTT-C tests?" OFF)
+option(MQTT_C_FUZZ "Build MQTT-C Fuzzer?" OFF)
 
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -123,6 +124,22 @@ if(MQTT_C_TESTS)
     add_executable(tests tests.c)
     target_link_libraries(tests ${CMOCKA_LIBRARY} mqttc)
     target_include_directories(tests PRIVATE ${CMOCKA_INCLUDE_DIR})
+endif()
+
+# Build Fuzzer
+if(MQTT_C_FUZZ)
+    if (NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        message(FATAL_ERROR "Need clang for libFuzzer support")
+    endif()
+
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer,address")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=fuzzer,address")
+
+    add_executable(fuzzer fuzzer.c)
+
+    target_include_directories(fuzzer PUBLIC mqttc)
+    target_link_directories(fuzzer PUBLIC mqttc)
+    target_link_libraries(fuzzer mqttc)
 endif()
 
 # Handle multi-lib linux systems correctly and allow custom installation locations.

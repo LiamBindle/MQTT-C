@@ -83,6 +83,12 @@ MQTT broker that is to be used for the tests. If no \c address is given then the
 [Mosquitto MQTT Test Server](https://test.mosquitto.org/) will be used. If no \c port is given, 
 port 1883 will be used.
 
+## Fuzzer
+```bash
+    cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DMQTT_C_FUZZ=ON -DMQTT_C_EXAMPLES=OFF ../
+    ./fuzzer
+```
+
 ## Portability
 MQTT-C provides a transparent platform abstraction layer (PAL) in `mqtt_pal.h` and `mqtt_pal.c`.
 These files declare and implement the types and calls that MQTT-C requires. Refer to 
