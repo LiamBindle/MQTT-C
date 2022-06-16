@@ -206,6 +206,7 @@ struct mqtt_fixed_header {
     MQTT_ERROR(MQTT_ERROR_INITIAL_RECONNECT)             \
     MQTT_ERROR(MQTT_ERROR_INVALID_REMAINING_LENGTH)      \
     MQTT_ERROR(MQTT_ERROR_CLEAN_SESSION_IS_REQUIRED)     \
+    MQTT_ERROR(MQTT_ERROR_RECONNECT_FAILED)              \
     MQTT_ERROR(MQTT_ERROR_RECONNECTING)
 
 /* todo: add more connection refused errors */
@@ -1151,7 +1152,7 @@ struct mqtt_client {
      * 
      * @note This is tracked using a exponential-averaging.
      */
-    double typical_response_time;
+    float typical_response_time;
 
     /**
      * @brief The callback that is called whenever a publish is received from the broker.
