@@ -24,13 +24,13 @@ int testCerts(br_x509_trust_anchor *anch);
 
 /**
  * @brief The function that would be called whenever a PUBLISH is received.
- * 
- * @note This function is not used in this example. 
+ *
+ * @note This function is not used in this example.
  */
 static void publish_callback(void** unused, struct mqtt_response_publish *published);
 
 /**
- * @brief Safely closes the socket in \p ctx before \c exit. 
+ * @brief Safely closes the socket in \p ctx before \c exit.
  */
 static void exit_example(int status, bearssl_context *ctx);
 
@@ -38,7 +38,7 @@ static void exit_example(int status, bearssl_context *ctx);
 
 /**
  * @brief Callback function to accumulate data in a buffer
- */ 
+ */
 static void vblob_append(void *cc, const void *data, size_t len);
 
 /**
@@ -54,14 +54,14 @@ static int certificate_to_trust_anchor(br_x509_certificate *xc, br_x509_trust_an
 /**
  * @brief Generates trust anchors for BearSSL from the contents of \p ca_file and stores them
  * in the \p anchoOut array (based on code in BearSSL tools)
- */ 
+ */
 static size_t get_trusted_anchors_from_file(const char *ca_file, br_x509_trust_anchor **anchOut);
 /**
  * @brief Generates trust anchors for BearSSL from the string \p ca and stores them
  * in the \p anchOut array (based on code in BearSSL tools)
- * 
+ *
  * @returns The number of trust anchors generated
- */ 
+ */
 static size_t get_trusted_anchors(const unsigned char *ca, size_t ca_len, br_x509_trust_anchor **anchOut);
 
 // Global to return Ctrl-C event
@@ -76,9 +76,9 @@ void signalHandler(int signum) {
 }
 
 /**
- * A simple program to that publishes the current time until Ctrl-C is pressed. 
+ * A simple program to that publishes the current time until Ctrl-C is pressed.
  */
-int main(int argc, const char *argv[]) 
+int main(int argc, const char *argv[])
 {
     const char* addr;
     const char* port;
@@ -126,20 +126,20 @@ int main(int argc, const char *argv[])
 
     /* generate BearSSL trusted anchors - specifically kept out of open_nb_socket since it needs to malloc */
 
-    /* 
-        Generate BearSSL trusted anchors 
+    /*
+        Generate BearSSL trusted anchors
 
-        This code converts the certificate into a format that is readable by the BearSSL library. Sadly there isn't 
+        This code converts the certificate into a format that is readable by the BearSSL library. Sadly there isn't
         a way to accomplish this without the use of malloc thus I specifically kept this code out of open_nb_socket.
         The author of the bearSSL library offers two options:
 
-        1) Do the conversion of the certificate in your code. There are examples of how to do this. The benefit of 
+        1) Do the conversion of the certificate in your code. There are examples of how to do this. The benefit of
            this is that you can run the same code against different servers by providing the appropriate trusted root
            pem file. The function get_trusted_anchors does exactly this.
 
         2) Use the tool provided with BearSSL to generate the C code that will initialize the trusted anchor structures.
-           Essentially it simply generates initialized C structures that you can copy into your code. You will not need 
-           to use malloc but you will lose some flexibility. For information on the tool see 
+           Essentially it simply generates initialized C structures that you can copy into your code. You will not need
+           to use malloc but you will lose some flexibility. For information on the tool see
            this page: https://www.bearssl.org/api1.html
     */
     ctx.ta_count = get_trusted_anchors_from_file(ca_file, &ctx.anchOut);
@@ -196,7 +196,7 @@ int main(int argc, const char *argv[])
                 exit_example(EXIT_FAILURE, &ctx);
             }
             close_socket(&ctx);
-                        
+
             if (0 != open_nb_socket(&ctx, addr, port, bearssl_iobuf, sizeof(bearssl_iobuf)))
             {
                 fprintf(stderr, "Unable to open socket: %d\n", errno);
@@ -249,7 +249,7 @@ int main(int argc, const char *argv[])
             return 4;
         }
         usleep(100000U);
-    }   
+    }
 
     /* disconnect */
     printf("\n%s disconnecting from %s\n", argv[0], addr);
@@ -266,7 +266,7 @@ int main(int argc, const char *argv[])
 
     sleep(1);
 
-    /* exit */ 
+    /* exit */
     exit_example(EXIT_SUCCESS, &ctx);
 }
 
@@ -276,7 +276,7 @@ static void exit_example(int status, bearssl_context *ctx)
     exit(status);
 }
 
-static void publish_callback(void** unused, struct mqtt_response_publish *published) 
+static void publish_callback(void** unused, struct mqtt_response_publish *published)
 {
     static const char *prelim = "Received publish('";
     /* note that published->topic_name is NOT null-terminated (here we'll change it to a c-string) */
@@ -302,7 +302,7 @@ static void vblob_append(void *cc, const void *data, size_t len)
 static void free_ta_contents(br_x509_trust_anchor *ta)
 {
 	free(ta->dn.data);
-	switch (ta->pkey.key_type) 
+	switch (ta->pkey.key_type)
     {
 	case BR_KEYTYPE_RSA:
 		free(ta->pkey.key.rsa.n);
@@ -342,7 +342,7 @@ static int certificate_to_trust_anchor(br_x509_certificate *xc, br_x509_trust_an
     ta->dn.len = vdn.data_length;
     ta->flags = 0;
 
-    if (br_x509_decoder_isCA(&dc)) 
+    if (br_x509_decoder_isCA(&dc))
     {
         ta->flags |= BR_X509_TA_CA;
     }
@@ -403,7 +403,7 @@ static size_t get_trusted_anchors_from_file(const char *ca_file, br_x509_trust_a
 
             if (certs != NULL) {
                 size_t read = fread(certs, 1, fsize, f);
-                
+
                 fclose(f);
 
                 if (read == fsize) {

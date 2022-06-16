@@ -22,7 +22,7 @@ BIO* open_nb_socket(const char* addr, const char* port) {
         return NULL;
     }
 
-    return bio; 
+    return bio;
 }
 
 #endif

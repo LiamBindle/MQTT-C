@@ -115,7 +115,7 @@ static void TEST__framing__fixed_header(void** state) {
     correct_buf[0] = (MQTT_CONTROL_PUBLISH << 4) | 0xF;
     rv = mqtt_unpack_fixed_header(&response, correct_buf, sizeof(correct_buf));
     assert_true(rv == 3);
-    
+
     correct_buf[0] = (MQTT_CONTROL_PUBLISH << 4) | 3;
     rv = mqtt_unpack_fixed_header(&response, correct_buf, sizeof(correct_buf));
     assert_true(rv == 3);
@@ -187,14 +187,14 @@ static void TEST__framing__connect(void** state) {
     ssize_t rv;
     const uint8_t correct_bytes[] = {
         (MQTT_CONTROL_CONNECT << 4) | 0, 16,
-        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 0, 120u, 
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 0, 0, 120u,
         0, 4, 'l', 'i', 'a', 'm'
     };
     const uint8_t correct_bytes2[] = {
         (MQTT_CONTROL_CONNECT << 4) | 0, 51,
-        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL, 
-        MQTT_CONNECT_WILL_FLAG | MQTT_CONNECT_USER_NAME | MQTT_CONNECT_PASSWORD, 
-        0, 120u, 
+        0, 4, 'M', 'Q', 'T', 'T', MQTT_PROTOCOL_LEVEL,
+        MQTT_CONNECT_WILL_FLAG | MQTT_CONNECT_USER_NAME | MQTT_CONNECT_PASSWORD,
+        0, 120u,
         0, 4, 'l', 'i', 'a', 'm',
         0, 9, 'w', 'i', 'l', 'l', 't', 'o', 'p', 'i', 'c',
         0, 2, 'h', 'i',
@@ -251,8 +251,8 @@ static void TEST__framing__publish(void** state) {
     struct mqtt_response mqtt_response;
     struct mqtt_response_publish *response;
     response = &(mqtt_response.decoded.publish);
-    
-    
+
+
     rv = mqtt_pack_publish_request(buf, 256, "topic1", 23, "0123456789", 10, MQTT_PUBLISH_RETAIN);
     assert_true(rv == 20);
     assert_true(memcmp(buf, correct_bytes, 20) == 0);
@@ -301,7 +301,7 @@ static void TEST__utility__connect_disconnect(void** state) {
 
 static void TEST__framing__connack(void** state) {
     uint8_t buf[] = {
-        (MQTT_CONTROL_CONNACK << 4) | 0, 2,        
+        (MQTT_CONTROL_CONNACK << 4) | 0, 2,
         0, MQTT_CONNACK_ACCEPTED
     };
     struct mqtt_response mqtt_response;
@@ -458,14 +458,14 @@ static void TEST__framing__unsuback(void** state) {
 
 static void TEST__framing__disconnect(void** state) {
     uint8_t buf[2];
-    assert_true(mqtt_pack_disconnect(buf, 2) == 2);   
+    assert_true(mqtt_pack_disconnect(buf, 2) == 2);
 }
 
 static void TEST__framing__ping(void** state) {
     uint8_t buf[2];
     struct mqtt_response response;
     struct mqtt_fixed_header *fixed_header = &response.fixed_header;
-    assert_true(mqtt_pack_ping_request(buf, 2) == 2);   
+    assert_true(mqtt_pack_ping_request(buf, 2) == 2);
     assert_true(mqtt_unpack_fixed_header(&response, buf, 2) == 2);
     assert_true(fixed_header->control_type == MQTT_CONTROL_PINGREQ);
     assert_true(fixed_header->remaining_length == 0);
@@ -593,7 +593,7 @@ static void TEST__utility__message_queue(void **unused) {
     /* remove the last two */
     mqtt_mq_get(&mq, 0)->state = MQTT_QUEUED_COMPLETE;
     mqtt_mq_get(&mq, 1)->state = MQTT_QUEUED_COMPLETE;
-    mqtt_mq_clean(&mq); 
+    mqtt_mq_clean(&mq);
     assert_true(mqtt_mq_length(&mq) == 0);
     assert_true(mq.curr_sz == 32 + 3*QM_SZ);
     assert_true((void*) mq.queue_tail == mq.mem_end);
@@ -616,7 +616,7 @@ void publish_callback(void** state, struct mqtt_response_publish *publish) {
     /*char *name = (char*) malloc(publish->topic_name_size + 1);
     memcpy(name, publish->topic_name, publish->topic_name_size);
     name[publish->topic_name_size] = '\0';
-    printf("Received a PUBLISH(topic=%s, DUP=%d, QOS=%d, RETAIN=%d, pid=%d) from the broker. Data='%s'\n", 
+    printf("Received a PUBLISH(topic=%s, DUP=%d, QOS=%d, RETAIN=%d, pid=%d) from the broker. Data='%s'\n",
            name, publish->dup_flag, publish->qos_level, publish->retain_flag, publish->packet_id,
            (const char*) (publish->application_message)
     );
@@ -709,7 +709,7 @@ static void TEST__api__publish_subscribe__single(void **unused) {
 
     time_t start = time(NULL);
     while(state == 0 && time(NULL) < start + 10) {
-        assert_true(__mqtt_recv(&receiver) > 0);        
+        assert_true(__mqtt_recv(&receiver) > 0);
         usleep(10000);
     }
 
@@ -728,7 +728,7 @@ static void TEST__api__publish_subscribe__single(void **unused) {
 #define TEST_PACKET_SIZE (149)
 #define TEST_DATA_SIZE (128)
 static void TEST__api__publish_subscribe__multiple(void **unused) {
-    uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
+    uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4],
             sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
     struct mqtt_client sender, receiver;
@@ -887,7 +887,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
         assert_true(rv  > 0);
     }
 
-    /*sleep for 2 seconds while unsubscribe is sending */ 
+    /*sleep for 2 seconds while unsubscribe is sending */
     start = time(NULL);
     while(time(NULL) < start + 2) {
         if ((rv = __mqtt_recv(&receiver)) < 0) {
@@ -913,7 +913,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
-    /*sleep for 2 seconds to give the publish a chance  */ 
+    /*sleep for 2 seconds to give the publish a chance  */
     start = time(NULL);
     while(time(NULL) < start + 2) {
         if ((rv = __mqtt_recv(&receiver)) < 0) {
