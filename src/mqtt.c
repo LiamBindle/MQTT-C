@@ -172,6 +172,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0f;
     client->publish_response_callback = publish_response_callback;
+    client->pid_lfsr = 0;
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
