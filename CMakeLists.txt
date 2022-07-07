@@ -132,14 +132,14 @@ if(MQTT_C_FUZZ)
         message(FATAL_ERROR "Need clang for libFuzzer support")
     endif()
 
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer,address")
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=fuzzer,address")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer-no-link,address")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 
     add_executable(fuzzer fuzzer.c)
 
     target_include_directories(fuzzer PUBLIC mqttc)
     target_link_directories(fuzzer PUBLIC mqttc)
-    target_link_libraries(fuzzer mqttc)
+    target_link_libraries(fuzzer mqttc -fsanitize=fuzzer)
 endif()
 
 # Handle multi-lib linux systems correctly and allow custom installation locations.

@@ -85,7 +85,7 @@ port 1883 will be used.
 
 ## Fuzzer
 ```bash
-    $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DMQTT_C_FUZZ=ON -DMQTT_C_EXAMPLES=OFF ../
+    $ cmake -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DMQTT_C_FUZZ=ON ../
     $ ./fuzzer
 ```
 
