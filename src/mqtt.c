@@ -159,7 +159,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
 
     client->socketfd = (mqtt_pal_socket_handle) -1;
 
-    mqtt_mq_init(&client->mq, NULL, 0);
+    mqtt_mq_init(&client->mq, NULL, 0uL);
 
     client->recv_buffer.mem_start = NULL;
     client->recv_buffer.mem_size = 0;
@@ -902,12 +902,12 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
 #define MQTT_BITFIELD_RULE_VIOLOATION(bitfield, rule_value, rule_mask) ((bitfield ^ rule_value) & rule_mask)
 
 struct mqtt_fixed_header_rules_s{
-    const uint8_t control_type_is_valid[16];
-    const uint8_t required_flags[16];
-    const uint8_t mask_required_flags[16];
+    uint8_t control_type_is_valid[16];
+    uint8_t required_flags[16];
+    uint8_t mask_required_flags[16];
 } ;
 
-struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
+static const struct mqtt_fixed_header_rules_s mqtt_fixed_header_rules ={
         {   /* boolean value, true if type is valid */
                 0x00, /* MQTT_CONTROL_RESERVED */
                 0x01, /* MQTT_CONTROL_CONNECT */
@@ -1206,16 +1206,16 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 
     /* pack the payload */
     buf += __mqtt_pack_str(buf, client_id);
-    if (connect_flags & MQTT_CONNECT_WILL_FLAG) {
+    if (will_topic != NULL) {
         buf += __mqtt_pack_str(buf, will_topic);
         buf += __mqtt_pack_uint16(buf, (uint16_t)will_message_size);
         memcpy(buf, will_message, will_message_size);
         buf += will_message_size;
     }
-    if (connect_flags & MQTT_CONNECT_USER_NAME) {
+    if (user_name != NULL) {
         buf += __mqtt_pack_str(buf, user_name);
     }
-    if (connect_flags & MQTT_CONNECT_PASSWORD) {
+    if (password != NULL) {
         buf += __mqtt_pack_str(buf, password);
     }
 
@@ -1482,7 +1482,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
 
     /* parse all subscriptions */
     va_start(args, packet_id);
-    while(1) {
+    for(;;) {
         topic[num_subs] = va_arg(args, const char*);
         if (topic[num_subs] == NULL) {
             /* end of list */
@@ -1563,7 +1563,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 
     /* parse all subscriptions */
     va_start(args, packet_id);
-    while(1) {
+    for(;;) {
         topic[num_subs] = va_arg(args, const char*);
         if (topic[num_subs] == NULL) {
             /* end of list */
@@ -1683,7 +1683,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
 }
 
-struct mqtt_queued_message* mqtt_mq_find(struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, uint16_t *packet_id)
+struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, const uint16_t *packet_id)
 {
     struct mqtt_queued_message *curr;
     for(curr = mqtt_mq_get(mq, 0); curr >= mq->queue_tail; --curr) {
@@ -1744,14 +1744,14 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
 ssize_t __mqtt_pack_uint16(uint8_t *buf, uint16_t integer)
 {
   uint16_t integer_htons = MQTT_PAL_HTONS(integer);
-  memcpy(buf, &integer_htons, 2);
+  memcpy(buf, &integer_htons, 2uL);
   return 2;
 }
 
 uint16_t __mqtt_unpack_uint16(const uint8_t *buf)
 {
   uint16_t integer_htons;
-  memcpy(&integer_htons, buf, 2);
+  memcpy(&integer_htons, buf, 2uL);
   return MQTT_PAL_NTOHS(integer_htons);
 }
 
@@ -1770,7 +1770,7 @@ ssize_t __mqtt_pack_str(uint8_t *buf, const char* str) {
     return length + 2;
 }
 
-static const char *MQTT_ERRORS_STR[] = {
+static const char * const MQTT_ERRORS_STR[] = {
     "MQTT_UNKNOWN_ERROR",
     __ALL_MQTT_ERRORS(GENERATE_STRING)
 };
