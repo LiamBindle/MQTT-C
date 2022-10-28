@@ -676,9 +676,9 @@ enum MQTTConnectFlags {
     MQTT_CONNECT_RESERVED = 1u,
     MQTT_CONNECT_CLEAN_SESSION = 2u,
     MQTT_CONNECT_WILL_FLAG = 4u,
-    MQTT_CONNECT_WILL_QOS_0 = (0u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_1 = (1u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_2 = (2u & 0x03) << 3,
+    MQTT_CONNECT_WILL_QOS_0 = 0u << 3,
+    MQTT_CONNECT_WILL_QOS_1 = 1u << 3,
+    MQTT_CONNECT_WILL_QOS_2 = 2u << 3,
     MQTT_CONNECT_WILL_RETAIN = 32u,
     MQTT_CONNECT_PASSWORD = 64u,
     MQTT_CONNECT_USER_NAME = 128u
@@ -742,10 +742,10 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
  */
 enum MQTTPublishFlags {
     MQTT_PUBLISH_DUP = 8u,
-    MQTT_PUBLISH_QOS_0 = ((0u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_1 = ((1u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_2 = ((2u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_MASK = ((3u << 1) & 0x06),
+    MQTT_PUBLISH_QOS_0 = 0u << 1,
+    MQTT_PUBLISH_QOS_1 = 1u << 1,
+    MQTT_PUBLISH_QOS_2 = 2u << 1,
+    MQTT_PUBLISH_QOS_MASK = 3u << 1,
     MQTT_PUBLISH_RETAIN = 0x01
 };
 
