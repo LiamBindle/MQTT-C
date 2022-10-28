@@ -1478,7 +1478,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
     unsigned int num_subs = 0;
     unsigned int i;
     const char *topic[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS];
-    uint8_t max_qos[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS];
+    uint8_t max_qos[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS] = { 0 };
 
     /* parse all subscriptions */
     va_start(args, packet_id);
