@@ -150,7 +150,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 }
 
 void mqtt_init_reconnect(struct mqtt_client *client,
-                         void (*reconnect_callback)(struct mqtt_client *, void**),
+                         void (*reconnect_callback)(struct mqtt_client *client, void** state),
                          void *reconnect_state,
                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
 {
