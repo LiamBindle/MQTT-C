@@ -1190,7 +1190,7 @@ struct mqtt_client {
      * This member is always initialized to NULL but it can be manually set at any 
      * time.
      */
-    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+    enum MQTTErrors (*inspector_callback)(struct mqtt_client* client);
 
     /**
      * @brief A callback that is called whenever the client is in an error state.
@@ -1199,7 +1199,7 @@ struct mqtt_client {
      * previous sockets, and reestabilishing the connection to the broker and 
      * session configurations (i.e. subscriptions).  
      */
-    void (*reconnect_callback)(struct mqtt_client*, void**);
+    void (*reconnect_callback)(struct mqtt_client* client, void** state);
 
     /**
      * @brief A pointer to some state. A pointer to this member is passed to 
