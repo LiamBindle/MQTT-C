@@ -1619,7 +1619,7 @@ void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz)
     mq->mem_end = (uint8_t *)buf + bufsz;
     mq->curr = (uint8_t *)buf;
     mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
-    mq->curr_sz = buf == NULL ? 0 : mqtt_mq_currsz(mq);
+    mq->curr_sz = (buf == NULL) ? 0 : mqtt_mq_currsz(mq);
 }
 
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)
@@ -1632,7 +1632,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
 
     /* move curr and recalculate curr_sz */
     mq->curr += nbytes;
-    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+    mq->curr_sz = mqtt_mq_currsz(mq);
 
     return mq->queue_tail;
 }
@@ -1648,7 +1648,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     if (new_head < mq->queue_tail) {
         mq->curr = (uint8_t *)mq->mem_start;
         mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
-        mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+        mq->curr_sz = mqtt_mq_currsz(mq);
         return;
     } else if (new_head == mqtt_mq_get(mq, 0)) {
         /* do nothing */
@@ -1680,7 +1680,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     }
 
     /* get curr_sz */
-    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+    mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
 struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, const uint16_t *packet_id)

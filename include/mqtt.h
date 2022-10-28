@@ -1081,7 +1081,7 @@ struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, en
  * @brief Used internally to recalculate the \c curr_sz.
  * @ingroup details
  */
-#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr)
+#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : (size_t) (((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr))
 
 /* CLIENT */
 
