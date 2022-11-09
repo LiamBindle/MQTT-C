@@ -111,12 +111,12 @@ extern "C" {
  * @defgroup unpackers Control Packet Deserialization
  * @brief Developer documentation of the functions and datastructures used for deserializing MQTT 
  *        control packets.
- * 
- * @defgroup details Utilities
- * @brief Developer documentation for the utilities used to implement the MQTT-C client.
  *
  * @note To deserialize a packet from a buffer use \ref mqtt_unpack_response (it's the only 
  *       function you need).
+ * 
+ * @defgroup details Utilities
+ * @brief Developer documentation for the utilities used to implement the MQTT-C client.
  */
 
 
