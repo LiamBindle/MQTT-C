@@ -330,6 +330,7 @@ struct mqtt_response_connack {
 
  /**
   * @brief A publish packet received from the broker.
+  * @ingroup api
   * @ingroup unpackers
   * 
   * A publish packet is received from the broker when a client publishes to a topic that the 
@@ -666,7 +667,7 @@ ssize_t mqtt_pack_fixed_header(uint8_t *buf, size_t bufsz, const struct mqtt_fix
 
 /**
  * @brief An enumeration of CONNECT packet flags.
- * @ingroup packers
+ * @ingroup api
  * 
  * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030">
  * MQTT v3.1.1: CONNECT Variable Header.
@@ -734,7 +735,7 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
 
 /**
  * @brief An enumeration of the PUBLISH flags.
- * @ingroup packers
+ * @ingroup api
  * 
  * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718037">
  * MQTT v3.1.1: PUBLISH - Publish Message.
@@ -1087,6 +1088,7 @@ struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, en
 
 /**
  * @brief An MQTT client. 
+ * @ingroup api
  * @ingroup details
  * 
  * @note All members can be manipulated via the related functions.
