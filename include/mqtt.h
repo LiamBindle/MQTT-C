@@ -1606,7 +1606,7 @@ enum MQTTErrors mqtt_disconnect(struct mqtt_client *client);
  * @ingroup api
  * 
  * @note The user must provide a reconnect callback function for this to 
- * work as expected. See \r mqtt_client_reconnect.
+ * work as expected. See \ref mqtt_reconnect.
  * 
  * @pre mqtt_connect must have been called
 * 
