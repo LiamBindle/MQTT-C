@@ -1734,9 +1734,12 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
             rv = mqtt_unpack_unsuback_response(response, buf);
             break;
         case MQTT_CONTROL_PINGRESP:
-            return rv;
+            /* nothing to unpack */
+            rv = 0;
+            break;
         default:
-            return MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE;
+            rv = MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE;
+            break;
     }
 
     if (rv < 0) return rv;
