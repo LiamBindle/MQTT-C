@@ -1670,7 +1670,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
         /* move queue */
         {
             ssize_t new_tail_idx = new_head - mq->queue_tail;
-            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (size_t) ((new_tail_idx + 1)));
+            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (size_t) (new_tail_idx + 1));
             mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
           
             {
