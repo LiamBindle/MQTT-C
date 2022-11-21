@@ -1616,7 +1616,7 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 }
 
 /* MESSAGE QUEUE */
-void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
+void mqtt_mq_init(struct mqtt_message_queue *mq, uint8_t *buf, size_t bufsz)
 {  
     mq->mem_start = buf;
     mq->mem_end = (struct mqtt_queued_message *)(mq->mem_start + bufsz);

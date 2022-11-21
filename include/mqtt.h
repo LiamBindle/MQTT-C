@@ -1014,7 +1014,7 @@ struct mqtt_message_queue {
  * 
  * @relates mqtt_message_queue
  */
-void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
+void mqtt_mq_init(struct mqtt_message_queue *mq, uint8_t *buf, size_t bufsz);
 
 /**
  * @brief Clear as many messages from the front of the queue as possible.
