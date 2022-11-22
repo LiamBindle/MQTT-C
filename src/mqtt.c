@@ -1287,7 +1287,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     uint8_t inspected_qos;
 
     /* check for null pointers */
-    if(buf == NULL || topic_name == NULL) {
+    if (topic_name == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
 
@@ -1394,9 +1394,6 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
     const uint8_t *const start = buf;
     struct mqtt_fixed_header fixed_header;
     ssize_t rv;
-    if (buf == NULL) {
-        return MQTT_ERROR_NULLPTR;
-    }
 
     /* pack fixed header */
     fixed_header.control_type = control_type;
