@@ -676,9 +676,9 @@ enum MQTTConnectFlags {
     MQTT_CONNECT_RESERVED = 1u,
     MQTT_CONNECT_CLEAN_SESSION = 2u,
     MQTT_CONNECT_WILL_FLAG = 4u,
-    MQTT_CONNECT_WILL_QOS_0 = (0u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_1 = (1u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_2 = (2u & 0x03) << 3,
+    MQTT_CONNECT_WILL_QOS_0 = 0u << 3,
+    MQTT_CONNECT_WILL_QOS_1 = 1u << 3,
+    MQTT_CONNECT_WILL_QOS_2 = 2u << 3,
     MQTT_CONNECT_WILL_RETAIN = 32u,
     MQTT_CONNECT_PASSWORD = 64u,
     MQTT_CONNECT_USER_NAME = 128u
@@ -742,10 +742,10 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
  */
 enum MQTTPublishFlags {
     MQTT_PUBLISH_DUP = 8u,
-    MQTT_PUBLISH_QOS_0 = ((0u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_1 = ((1u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_2 = ((2u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_MASK = ((3u << 1) & 0x06),
+    MQTT_PUBLISH_QOS_0 = 0u << 1,
+    MQTT_PUBLISH_QOS_1 = 1u << 1,
+    MQTT_PUBLISH_QOS_2 = 2u << 1,
+    MQTT_PUBLISH_QOS_MASK = 3u << 1,
     MQTT_PUBLISH_RETAIN = 0x01
 };
 
@@ -973,10 +973,10 @@ struct mqtt_message_queue {
      * 
      * @warning This member should \em not be manually changed.
      */
-    void *mem_start;
+    uint8_t *mem_start;
 
     /** @brief The end of the message queue's memory block. */
-    void *mem_end;
+    struct mqtt_queued_message *mem_end;
 
     /**
      * @brief A pointer to the position in the buffer you can pack bytes at.
@@ -1014,7 +1014,7 @@ struct mqtt_message_queue {
  * 
  * @relates mqtt_message_queue
  */
-void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz);
+void mqtt_mq_init(struct mqtt_message_queue *mq, uint8_t *buf, size_t bufsz);
 
 /**
  * @brief Clear as many messages from the front of the queue as possible.
@@ -1069,19 +1069,19 @@ struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, en
  *
  * @returns The mqtt_queued_message at \p index.
  */
-#define mqtt_mq_get(mq_ptr, index) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - 1 - index)
+#define mqtt_mq_get(mq_ptr, index) ((mq_ptr)->mem_end - 1 - index)
 
 /**
  * @brief Returns the number of messages in the message queue, \p mq_ptr.
  * @ingroup details
  */
-#define mqtt_mq_length(mq_ptr) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - (mq_ptr)->queue_tail)
+#define mqtt_mq_length(mq_ptr) ((mq_ptr)->mem_end - (mq_ptr)->queue_tail)
 
 /**
  * @brief Used internally to recalculate the \c curr_sz.
  * @ingroup details
  */
-#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr)
+#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : (size_t) (((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr))
 
 /* CLIENT */
 
@@ -1190,7 +1190,7 @@ struct mqtt_client {
      * This member is always initialized to NULL but it can be manually set at any 
      * time.
      */
-    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+    enum MQTTErrors (*inspector_callback)(struct mqtt_client* client);
 
     /**
      * @brief A callback that is called whenever the client is in an error state.
@@ -1199,7 +1199,7 @@ struct mqtt_client {
      * previous sockets, and reestabilishing the connection to the broker and 
      * session configurations (i.e. subscriptions).  
      */
-    void (*reconnect_callback)(struct mqtt_client*, void**);
+    void (*reconnect_callback)(struct mqtt_client* client, void** state);
 
     /**
      * @brief A pointer to some state. A pointer to this member is passed to 

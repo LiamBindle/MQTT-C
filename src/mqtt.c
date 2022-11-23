@@ -150,7 +150,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 }
 
 void mqtt_init_reconnect(struct mqtt_client *client,
-                         void (*reconnect)(struct mqtt_client *, void**),
+                         void (*reconnect_callback)(struct mqtt_client *client, void** state),
                          void *reconnect_state,
                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
 {
@@ -176,7 +176,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
-    client->reconnect_callback = reconnect;
+    client->reconnect_callback = reconnect_callback;
     client->reconnect_state = reconnect_state;
 }
 
@@ -214,14 +214,16 @@ void mqtt_reinit(struct mqtt_client* client,
         client->error = (enum MQTTErrors)tmp;                                        \
         if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);         \
         return (enum MQTTErrors)tmp;                                                 \
-    } else if (tmp == 0) {                                          \
+    }                                                               \
+    if (tmp == 0) {                                                 \
         mqtt_mq_clean(&client->mq);                                 \
         tmp = pack_call;                                            \
         if (tmp < 0) {                                              \
             client->error = (enum MQTTErrors)tmp;                                    \
             if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);     \
             return (enum MQTTErrors)tmp;                                             \
-        } else if(tmp == 0) {                                       \
+        }                                                           \
+        if(tmp == 0) {                                              \
             client->error = MQTT_ERROR_SEND_BUFFER_IS_FULL;         \
             if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);     \
             return (enum MQTTErrors)MQTT_ERROR_SEND_BUFFER_IS_FULL;                  \
@@ -676,7 +678,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
             client->error = (enum MQTTErrors)consumed;
             MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
             return consumed;
-        } else if (consumed == 0) {
+        }
+        if (consumed == 0) {
             /* if curr_sz is 0 then the buffer is too small to ever fit the message */
             if (client->recv_buffer.curr_sz == 0) {
                 client->error = MQTT_ERROR_RECV_BUFFER_TOO_SMALL;
@@ -1284,7 +1287,7 @@ ssize_t mqtt_pack_publish_request(uint8_t *buf, size_t bufsz,
     uint8_t inspected_qos;
 
     /* check for null pointers */
-    if(buf == NULL || topic_name == NULL) {
+    if (topic_name == NULL) {
         return MQTT_ERROR_NULLPTR;
     }
 
@@ -1391,9 +1394,6 @@ ssize_t mqtt_pack_pubxxx_request(uint8_t *buf, size_t bufsz,
     const uint8_t *const start = buf;
     struct mqtt_fixed_header fixed_header;
     ssize_t rv;
-    if (buf == NULL) {
-        return MQTT_ERROR_NULLPTR;
-    }
 
     /* pack fixed header */
     fixed_header.control_type = control_type;
@@ -1478,7 +1478,7 @@ ssize_t mqtt_pack_subscribe_request(uint8_t *buf, size_t bufsz, unsigned int pac
     unsigned int num_subs = 0;
     unsigned int i;
     const char *topic[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS];
-    uint8_t max_qos[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS];
+    uint8_t max_qos[MQTT_SUBSCRIBE_REQUEST_MAX_NUM_TOPICS] = { 0 };
 
     /* parse all subscriptions */
     va_start(args, packet_id);
@@ -1613,13 +1613,13 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 }
 
 /* MESSAGE QUEUE */
-void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
+void mqtt_mq_init(struct mqtt_message_queue *mq, uint8_t *buf, size_t bufsz)
 {  
     mq->mem_start = buf;
-    mq->mem_end = (uint8_t *)buf + bufsz;
-    mq->curr = (uint8_t *)buf;
-    mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
-    mq->curr_sz = buf == NULL ? 0 : mqtt_mq_currsz(mq);
+    mq->mem_end = (struct mqtt_queued_message *)(mq->mem_start + bufsz);
+    mq->curr = mq->mem_start;
+    mq->queue_tail = mq->mem_end;
+    mq->curr_sz = (buf == NULL) ? 0 : mqtt_mq_currsz(mq);
 }
 
 struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size_t nbytes)
@@ -1632,7 +1632,7 @@ struct mqtt_queued_message* mqtt_mq_register(struct mqtt_message_queue *mq, size
 
     /* move curr and recalculate curr_sz */
     mq->curr += nbytes;
-    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+    mq->curr_sz = mqtt_mq_currsz(mq);
 
     return mq->queue_tail;
 }
@@ -1646,11 +1646,12 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     
     /* check if everything can be removed */
     if (new_head < mq->queue_tail) {
-        mq->curr = (uint8_t *)mq->mem_start;
-        mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
-        mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+        mq->curr = mq->mem_start;
+        mq->queue_tail = mq->mem_end;
+        mq->curr_sz = mqtt_mq_currsz(mq);
         return;
-    } else if (new_head == mqtt_mq_get(mq, 0)) {
+    }
+    if (new_head == mqtt_mq_get(mq, 0)) {
         /* do nothing */
         return;
     }
@@ -1658,15 +1659,15 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     /* move buffered data */
     {
         size_t n = (size_t) (mq->curr - new_head->start);
-        size_t removing = (size_t) (new_head->start - (uint8_t*) mq->mem_start);
+        size_t removing = (size_t) (new_head->start - mq->mem_start);
         memmove(mq->mem_start, new_head->start, n);
-        mq->curr = (unsigned char*)mq->mem_start + n;
+        mq->curr = mq->mem_start + n;
       
 
         /* move queue */
         {
             ssize_t new_tail_idx = new_head - mq->queue_tail;
-            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (size_t) ((new_tail_idx + 1)));
+            memmove(mqtt_mq_get(mq, new_tail_idx), mq->queue_tail, sizeof(struct mqtt_queued_message) * (size_t) (new_tail_idx + 1));
             mq->queue_tail = mqtt_mq_get(mq, new_tail_idx);
           
             {
@@ -1680,7 +1681,7 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     }
 
     /* get curr_sz */
-    mq->curr_sz = (size_t) (mqtt_mq_currsz(mq));
+    mq->curr_sz = mqtt_mq_currsz(mq);
 }
 
 struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, enum MQTTControlPacketType control_type, const uint16_t *packet_id)
@@ -1703,7 +1704,7 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
     const uint8_t *const start = buf;
     ssize_t rv = mqtt_unpack_fixed_header(response, buf, bufsz);
     if (rv <= 0) return rv;
-    else buf += rv;
+    buf += rv;
     switch(response->fixed_header.control_type) {
         case MQTT_CONTROL_CONNACK:
             rv = mqtt_unpack_connack_response(response, buf);
@@ -1730,9 +1731,12 @@ ssize_t mqtt_unpack_response(struct mqtt_response* response, const uint8_t *buf,
             rv = mqtt_unpack_unsuback_response(response, buf);
             break;
         case MQTT_CONTROL_PINGRESP:
-            return rv;
+            /* nothing to unpack */
+            rv = 0;
+            break;
         default:
-            return MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE;
+            rv = MQTT_ERROR_RESPONSE_INVALID_CONTROL_TYPE;
+            break;
     }
 
     if (rv < 0) return rv;
