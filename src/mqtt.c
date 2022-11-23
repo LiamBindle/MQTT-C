@@ -1619,9 +1619,9 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
 {  
     mq->mem_start = buf;
-    mq->mem_end = (uint8_t *)buf + bufsz;
-    mq->curr = (uint8_t *)buf;
-    mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
+    mq->mem_end = (struct mqtt_queued_message *)(mq->mem_start + bufsz);
+    mq->curr = mq->mem_start;
+    mq->queue_tail = mq->mem_end;
     mq->curr_sz = (buf == NULL) ? 0 : mqtt_mq_currsz(mq);
 }
 
@@ -1649,8 +1649,8 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     
     /* check if everything can be removed */
     if (new_head < mq->queue_tail) {
-        mq->curr = (uint8_t *)mq->mem_start;
-        mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
+        mq->curr = mq->mem_start;
+        mq->queue_tail = mq->mem_end;
         mq->curr_sz = mqtt_mq_currsz(mq);
         return;
     }
@@ -1662,9 +1662,9 @@ void mqtt_mq_clean(struct mqtt_message_queue *mq) {
     /* move buffered data */
     {
         size_t n = (size_t) (mq->curr - new_head->start);
-        size_t removing = (size_t) (new_head->start - (uint8_t*) mq->mem_start);
+        size_t removing = (size_t) (new_head->start - mq->mem_start);
         memmove(mq->mem_start, new_head->start, n);
-        mq->curr = (unsigned char*)mq->mem_start + n;
+        mq->curr = mq->mem_start + n;
       
 
         /* move queue */

@@ -973,10 +973,10 @@ struct mqtt_message_queue {
      * 
      * @warning This member should \em not be manually changed.
      */
-    void *mem_start;
+    uint8_t *mem_start;
 
     /** @brief The end of the message queue's memory block. */
-    void *mem_end;
+    struct mqtt_queued_message *mem_end;
 
     /**
      * @brief A pointer to the position in the buffer you can pack bytes at.
@@ -1069,13 +1069,13 @@ struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, en
  *
  * @returns The mqtt_queued_message at \p index.
  */
-#define mqtt_mq_get(mq_ptr, index) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - 1 - index)
+#define mqtt_mq_get(mq_ptr, index) ((mq_ptr)->mem_end - 1 - index)
 
 /**
  * @brief Returns the number of messages in the message queue, \p mq_ptr.
  * @ingroup details
  */
-#define mqtt_mq_length(mq_ptr) (((struct mqtt_queued_message*) ((mq_ptr)->mem_end)) - (mq_ptr)->queue_tail)
+#define mqtt_mq_length(mq_ptr) ((mq_ptr)->mem_end - (mq_ptr)->queue_tail)
 
 /**
  * @brief Used internally to recalculate the \c curr_sz.
