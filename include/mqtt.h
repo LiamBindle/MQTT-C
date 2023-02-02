@@ -347,7 +347,7 @@ struct mqtt_response_publish {
     uint8_t dup_flag;
 
     /** 
-     * @brief The quality of service level.
+     * @brief The retain flag of this publish message
      * 
      * @see <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_3.11_-">
      * MQTT v3.1.1: QoS Definitions
@@ -355,7 +355,7 @@ struct mqtt_response_publish {
      */
     uint8_t qos_level;
 
-    /** @brief The retain flag of this publish message. */
+    /** @brief The quality of service level.. */
     uint8_t retain_flag;
 
     /** @brief Size of the topic name (number of characters). */
