@@ -1193,17 +1193,25 @@ struct mqtt_client {
     enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
 
     /**
+     * @brief A callback that is called when the connection is established.
+     * 
+     * This callback is invoked when CONNACK is received, and can be used for
+     * things like session configurations (i.e. subscriptions).  
+     */
+    void (*connected_callback)(struct mqtt_client*, void**);
+
+    /**
      * @brief A callback that is called whenever the client is in an error state.
      * 
      * This callback is responsible for: application level error handling, closing
-     * previous sockets, and reestabilishing the connection to the broker and 
-     * session configurations (i.e. subscriptions).  
+     * previous sockets, and reestabilishing the connection to the broker.
      */
     void (*reconnect_callback)(struct mqtt_client*, void**);
 
     /**
      * @brief A pointer to some state. A pointer to this member is passed to 
-     *        \ref mqtt_client.reconnect_callback.
+     *        \ref mqtt_client.reconnect_callback and
+     *        \ref mqtt_client.connected_callback.
      */
     void* reconnect_state;
 
@@ -1379,6 +1387,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
  * @pre None.
  * 
  * @param[in,out] client The MQTT client that will be initialized.
+ * @param[in] connected_callback The callback that will be called when a connection has been
+ *            established.
  * @param[in] reconnect_callback The callback that will be called to connect/reconnect the 
  *            client to the broker and perform application level error handling. 
  * @param[in] reconnect_state A pointer to some state data for your \p reconnect_callback.
@@ -1396,6 +1406,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
  *
  */
 void mqtt_init_reconnect(struct mqtt_client *client,
+                         void (*connected_callback)(struct mqtt_client *client, void** state),
                          void (*reconnect_callback)(struct mqtt_client *client, void** state),
                          void *reconnect_state,
                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
