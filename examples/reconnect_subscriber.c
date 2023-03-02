@@ -35,6 +35,13 @@ struct reconnect_state_t {
  */
 void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr);
 
+
+/**
+ * @brief My connect callback. This is called when we receive a CONNACK from
+ *        the broker. We use it to subscribe to our topics.
+ */
+void connect_client(struct mqtt_client* client, void **reconnect_state_vptr);
+
 /**
  * @brief The function will be called whenever a PUBLISH message is received.
  */
@@ -98,7 +105,7 @@ int main(int argc, const char *argv[])
     /* setup a client */
     struct mqtt_client client;
 
-    mqtt_init_reconnect(&client,
+    mqtt_init_reconnect(&client, connect_client,
                         reconnect_client, &reconnect_state,
                         publish_callback
     );
@@ -165,6 +172,11 @@ void reconnect_client(struct mqtt_client* client, void **reconnect_state_vptr)
     uint8_t connect_flags = MQTT_CONNECT_CLEAN_SESSION;
     /* Send connection request to the broker. */
     mqtt_connect(client, client_id, NULL, NULL, 0, NULL, NULL, connect_flags, 400);
+}
+
+void connect_client(struct mqtt_client* client, void **reconnect_state_vptr)
+{
+    struct reconnect_state_t *reconnect_state = *((struct reconnect_state_t**) reconnect_state_vptr);
 
     /* Subscribe to the topic. */
     mqtt_subscribe(client, reconnect_state->topic, 0);

@@ -143,6 +143,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
+    client->connected_callback = NULL;
     client->reconnect_callback = NULL;
     client->reconnect_state = NULL;
 
@@ -150,7 +151,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 }
 
 void mqtt_init_reconnect(struct mqtt_client *client,
-                         void (*reconnect)(struct mqtt_client *, void**),
+                         void (*connected_callback)(struct mqtt_client *, void**),
+                         void (*reconnect_callback)(struct mqtt_client *, void**),
                          void *reconnect_state,
                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
 {
@@ -176,7 +178,8 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->send_offset = 0;
 
     client->inspector_callback = NULL;
-    client->reconnect_callback = reconnect;
+    client->connected_callback = connected_callback;
+    client->reconnect_callback = reconnect_callback;
     client->reconnect_state = reconnect_state;
 }
 
@@ -719,6 +722,7 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
         MQTT_CONTROL_PINGRESP:
             -> release PINGREQ
         */
+	int has_connected = 0;
         switch (response.fixed_header.control_type) {
             case MQTT_CONTROL_CONNACK:
                 /* release associated CONNECT */
@@ -741,6 +745,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                         mqtt_recv_ret = MQTT_ERROR_CONNECTION_REFUSED;
                     }
                     break;
+                } else {
+                    has_connected = 1;
                 }
                 break;
             case MQTT_CONTROL_PUBLISH:
@@ -890,10 +896,16 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
           client->recv_buffer.curr -= consumed;
           client->recv_buffer.curr_sz += (unsigned long)consumed;
         }
+	if (has_connected && client->connected_callback != NULL) {
+		MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+		client->connected_callback(client, &client->reconnect_state);
+		MQTT_PAL_MUTEX_LOCK(&client->mutex);
+	}
     }
 
     /* In case there was some error handling the (well formed) message, we end up here */
     MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+
     return mqtt_recv_ret;
 }
 
