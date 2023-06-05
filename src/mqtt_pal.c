@@ -53,6 +53,11 @@ ssize_t mqtt_pal_sendall(mqtt_pal_socket_handle fd, const void* buf, size_t len,
     while(sent < len) {
         int rv = mbedtls_ssl_write(fd, (const unsigned char*)buf + sent, len - sent);
         if (rv < 0) {
+#if defined(MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+            if (rv == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET) {
+                continue;
+            }
+#endif
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
                 rv == MBEDTLS_ERR_SSL_WANT_WRITE
 #if defined(MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS)
@@ -99,6 +104,11 @@ ssize_t mqtt_pal_recvall(mqtt_pal_socket_handle fd, void* buf, size_t bufsz, int
             break;
         }
         if (rv < 0) {
+#if defined(MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+            if (rv == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET) {
+                continue;
+            }
+#endif
             if (rv == MBEDTLS_ERR_SSL_WANT_READ ||
                 rv == MBEDTLS_ERR_SSL_WANT_WRITE
 #if defined(MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS)
