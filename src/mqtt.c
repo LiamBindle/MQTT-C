@@ -614,12 +614,13 @@ ssize_t __mqtt_send(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_AWAITING_ACK;
             }
             break;
+        case MQTT_CONTROL_PINGREQ:
+            client->number_of_keep_alives += 1;
         case MQTT_CONTROL_CONNECT:
         case MQTT_CONTROL_PUBREC:
         case MQTT_CONTROL_PUBREL:
         case MQTT_CONTROL_SUBSCRIBE:
         case MQTT_CONTROL_UNSUBSCRIBE:
-        case MQTT_CONTROL_PINGREQ:
             msg->state = MQTT_QUEUED_AWAITING_ACK;
             break;
         default:
