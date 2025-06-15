@@ -14,22 +14,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up MinGW
-      uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW64
-        update: true
-        install: mingw-w64-x86_64-gcc mingw-w64-x86_64-make
+    - name: Set up MSVC
+      uses: microsoft/setup-msbuild@v1.1
 
     - name: Build Static Library
       run: |
         cd src
-        mingw32-make CC=gcc AR=ar RANLIB=ranlib libmqtt.a
+        cl /c mqtt.c mqtt_pal.c /I../include
+        lib /OUT:mqtt-c.lib mqtt.obj mqtt_pal.obj
       env:
-        PATH: /mingw64/bin:$PATH
+        PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64;C:\Windows\System32
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: mqtt-lib
-        path: src/libmqtt.a
+        path: src/mqtt-c.lib
