@@ -1,0 +1,32 @@
+name: Build MQTT-C Static Library
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up MSVC
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Build Static Library
+      run: |
+        cd src
+        cl /c mqtt.c mqtt_pal.c /I../include
+        lib /OUT:mqtt-c.lib mqtt.obj mqtt_pal.obj
+      env:
+        PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64;C:\Windows\System32
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: mqtt-lib
+        path: src/mqtt-c.lib
