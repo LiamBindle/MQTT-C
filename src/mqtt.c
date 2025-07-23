@@ -114,7 +114,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
                mqtt_pal_socket_handle sockfd,
                uint8_t *sendbuf, size_t sendbufsz,
                uint8_t *recvbuf, size_t recvbufsz,
-               void (*publish_response_callback)(void** state,struct mqtt_response_publish *publish))
+               void (*publish_response_callback)(void** state,struct mqtt_response_publish *publish),
+               void (*puback_response_callback)(void** state, uint16_t packet_id))
 {
     if (client == NULL || sendbuf == NULL || recvbuf == NULL) {
         return MQTT_ERROR_NULLPTR;
@@ -139,6 +140,7 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0f;
     client->publish_response_callback = publish_response_callback;
+    client->puback_response_callback = puback_response_callback;
     client->pid_lfsr = 0;
     client->send_offset = 0;
 
@@ -152,7 +154,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 void mqtt_init_reconnect(struct mqtt_client *client,
                          void (*reconnect)(struct mqtt_client *, void**),
                          void *reconnect_state,
-                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish))
+                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish),
+                         void (*puback_response_callback)(void** state, uint16_t packet_id))
 {
     /* initialize mutex */
     MQTT_PAL_MUTEX_INIT(&client->mutex);
@@ -172,6 +175,7 @@ void mqtt_init_reconnect(struct mqtt_client *client,
     client->number_of_keep_alives = 0;
     client->typical_response_time = -1.0f;
     client->publish_response_callback = publish_response_callback;
+    client->puback_response_callback = puback_response_callback;
     client->pid_lfsr = 0;
     client->send_offset = 0;
 
@@ -279,6 +283,40 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
     uint16_t packet_id;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
     packet_id = __mqtt_next_pid(client);
+
+
+    /* try to pack the message */
+    MQTT_CLIENT_TRY_PACK(
+        rv, msg, client, 
+        mqtt_pack_publish_request(
+            client->mq.curr, client->mq.curr_sz,
+            topic_name,
+            packet_id,
+            application_message,
+            application_message_size,
+            publish_flags
+        ), 
+        1
+    );
+    /* save the control type and packet id of the message */
+    msg->control_type = MQTT_CONTROL_PUBLISH;
+    msg->packet_id = packet_id;
+
+    MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+    return MQTT_OK;
+}
+
+enum MQTTErrors mqtt_publish2(struct mqtt_client *client,
+                     const char* topic_name,
+                     const void* application_message,
+                     size_t application_message_size,
+                     uint8_t publish_flags,
+                     uint16_t* packet_id)
+{
+    struct mqtt_queued_message *msg;
+    ssize_t rv;
+    MQTT_PAL_MUTEX_LOCK(&client->mutex);
+    *packet_id = __mqtt_next_pid(client);
 
 
     /* try to pack the message */
@@ -779,6 +817,8 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 msg->state = MQTT_QUEUED_COMPLETE;
                 /* update response time */
                 client->typical_response_time = 0.875f * (client->typical_response_time) + 0.125f * (float) (MQTT_PAL_TIME() - msg->time_sent);
+                /* call PUBACK callback */
+                client->puback_response_callback(&client->publish_response_callback_state, &response.decoded.puback.packet_id);
                 break;
             case MQTT_CONTROL_PUBREC:
                 /* check if this is a duplicate */

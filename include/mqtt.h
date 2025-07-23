@@ -1168,6 +1168,15 @@ struct mqtt_client {
     void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish);
 
     /**
+     * @brief The callback that is called whenever a PUBACK is received from the broker.
+     * 
+     * @note A pointer to publish_response_callback_state is always passed to the callback.
+     *       Use publish_response_callback_state to keep track of any state information you 
+     *       need.
+     */
+    void (*puback_response_callback)(void** state, uint16_t packet_id);
+
+    /**
      * @brief A pointer to any publish_response_callback state information you need.
      * 
      * @note A pointer to this pointer will always be publish_response_callback upon 
@@ -1312,6 +1321,8 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client);
  * @param[in] recvbuf A buffer that will be used for receiving messages from the broker.
  * @param[in] recvbufsz The size of \p recvbuf in bytes.
  * @param[in] publish_response_callback The callback to call whenever application messages
+ *            are received from the broker.
+  * @param[in] puback_response_callback The callback to call whenever PUBACK messages
  *            are received from the broker. 
  * 
  * @post mqtt_connect must be called.
@@ -1349,7 +1360,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
                           mqtt_pal_socket_handle sockfd,
                           uint8_t *sendbuf, size_t sendbufsz,
                           uint8_t *recvbuf, size_t recvbufsz,
-                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
+                          void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish),
+                          void (*puback_response_callback)(void** state, uint16_t packet_id));
 
 /**
  * @brief Initializes an MQTT client and enables automatic reconnections.
@@ -1387,6 +1399,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
  *            pointer is passed as the second argumnet to \p reconnect_callback. 
  * @param[in] publish_response_callback The callback to call whenever application messages
  *            are received from the broker. 
+ * @param[in] puback_response_callback The callback to call whenever PUBACK messages
+ *            are received from the broker. 
  * 
  * @post Call \p reconnect_callback yourself, or call \ref mqtt_sync 
  *       (which will trigger the call to \p reconnect_callback).
@@ -1398,7 +1412,8 @@ enum MQTTErrors mqtt_init(struct mqtt_client *client,
 void mqtt_init_reconnect(struct mqtt_client *client,
                          void (*reconnect_callback)(struct mqtt_client *client, void** state),
                          void *reconnect_state,
-                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish));
+                         void (*publish_response_callback)(void** state, struct mqtt_response_publish *publish),
+                         void (*puback_response_callback)(void** state, uint16_t packet_id));
 
 /**
  * @brief Safely assign/reassign a socket and buffers to an new/existing client.
@@ -1490,6 +1505,33 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
                              const void* application_message,
                              size_t application_message_size,
                              uint8_t publish_flags);
+
+
+/**
+ * @brief Publish an application message.
+ * @ingroup api
+ * 
+ * Publishes an application message to the MQTT broker.
+ * 
+ * @pre mqtt_connect must have been called.
+ * 
+ * @param[in,out] client The MQTT client.
+ * @param[in] topic_name The name of the topic.
+ * @param[in] application_message The data to be published.
+ * @param[in] application_message_size The size of \p application_message in bytes.
+ * @param[in] publish_flags \ref MQTTPublishFlags to be used, namely the QOS level to 
+ *            publish at (MQTT_PUBLISH_QOS_[0,1,2]) or whether or not the broker should 
+ *            retain the publish (MQTT_PUBLISH_RETAIN).
+ * @param[out] packet_id The packet_id that was used for the PUBLISH message.
+ * 
+ * @returns \c MQTT_OK upon success, an \ref MQTTErrors otherwise.
+ */
+enum MQTTErrors mqtt_publish2(struct mqtt_client *client,
+                             const char* topic_name,
+                             const void* application_message,
+                             size_t application_message_size,
+                             uint8_t publish_flags,
+                             uint16_t* packet_id);
 
 /**
  * @brief Acknowledge an ingree publish with QOS==1.
