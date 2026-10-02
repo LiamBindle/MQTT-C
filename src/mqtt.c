@@ -1776,15 +1776,16 @@ static const char * const MQTT_ERRORS_STR[] = {
 };
 
 const char* mqtt_error_str(enum MQTTErrors error) {
-    int offset = error - MQTT_ERROR_UNKNOWN;
-    if (offset >= 0) {
-        return MQTT_ERRORS_STR[offset];
+    if (error < 0) {
+        unsigned int offset = (unsigned int) (error - MQTT_ERROR_UNKNOWN);
+        if (offset < sizeof(MQTT_ERRORS_STR) / sizeof(MQTT_ERRORS_STR[0])) {
+            return MQTT_ERRORS_STR[offset];
+        }
+        return MQTT_ERRORS_STR[0];
     } else if (error == 0) {
         return "MQTT_ERROR: Buffer too small.";
-    } else if (error > 0) {
-        return "MQTT_OK";
     } else {
-        return MQTT_ERRORS_STR[0];
+        return "MQTT_OK";
     }
 }
 
