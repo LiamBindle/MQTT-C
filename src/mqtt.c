@@ -881,6 +881,14 @@ ssize_t __mqtt_recv(struct mqtt_client *client)
                 mqtt_recv_ret = MQTT_ERROR_MALFORMED_RESPONSE;
                 break;
         }
+        if ((size_t) consumed
+            > (size_t) (client->recv_buffer.curr - client->recv_buffer.mem_start)) {
+            /* Defensive: an unpacker must never report more bytes consumed than it
+             * was given. Refuse rather than memmove() with a wrapped size. */
+            client->error = MQTT_ERROR_MALFORMED_RESPONSE;
+            mqtt_recv_ret = MQTT_ERROR_MALFORMED_RESPONSE;
+            break;
+        }
         {
           /* we've handled the response, now clean the buffer */
           void* dest = (unsigned char*)client->recv_buffer.mem_start;
@@ -1362,6 +1370,17 @@ ssize_t mqtt_unpack_publish_response(struct mqtt_response *mqtt_response, const 
     /* parse variable header */
     response->topic_name_size = __mqtt_unpack_uint16(buf);
     buf += 2;
+
+    /* The topic name, plus the packet identifier when QoS > 0, must fit in the
+     * declared remaining length (MQTT 3.1.1 section 3.3). Without this check a
+     * topic length larger than the packet walks the cursor out of the buffer and
+     * makes the payload size computed below underflow. */
+    if ((size_t) response->topic_name_size + 2u
+            + ((response->qos_level > 0) ? 2u : 0u)
+        > (size_t) fixed_header->remaining_length) {
+        return MQTT_ERROR_MALFORMED_RESPONSE;
+    }
+
     response->topic_name = buf;
     buf += response->topic_name_size;
 
