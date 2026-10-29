@@ -541,10 +541,14 @@ static void TEST__utility__error_str(void **unused) {
 
 #define QM_SZ (int) sizeof(struct mqtt_queued_message)
 static void TEST__utility__message_queue(void **unused) {
-    uint8_t mem[32 + 4*QM_SZ];
+    union {
+        uint8_t mem[32 + 4*QM_SZ];
+        struct mqtt_queued_message align; /* keep the end of the buffer aligned so no bytes are trimmed */
+    } buf;
+    uint8_t *mem = buf.mem;
     struct mqtt_message_queue mq;
     struct mqtt_queued_message *tail;
-    mqtt_mq_init(&mq, mem, sizeof(mem));
+    mqtt_mq_init(&mq, mem, sizeof(buf.mem));
 
     /* check that it fills up correctly */
     assert_true(mqtt_mq_length(&mq) == 0);
@@ -624,6 +628,31 @@ static void TEST__utility__message_queue(void **unused) {
     assert_true(mqtt_mq_length(&mq) == 0);
     assert_true(mq.curr_sz == 32 + 3*QM_SZ);
     assert_true((void*) mq.queue_tail == mq.mem_end);
+}
+
+static void TEST__utility__message_queue_alignment(void **unused) {
+    struct alignment_probe { char c; struct mqtt_queued_message msg; };
+    const size_t alignment = offsetof(struct alignment_probe, msg);
+    union {
+        uint8_t mem[64 + 4*QM_SZ];
+        struct mqtt_queued_message align;
+    } buf;
+    struct mqtt_message_queue mq;
+    struct mqtt_queued_message *tail;
+    size_t offset, trim;
+
+    /* queued messages must be aligned whatever the address and size of the buffer */
+    for(offset = 0; offset < alignment; ++offset) {
+        for(trim = 0; trim < alignment; ++trim) {
+            mqtt_mq_init(&mq, buf.mem + offset, sizeof(buf.mem) - offset - trim);
+            assert_true((uint8_t*) mq.mem_end <= buf.mem + sizeof(buf.mem) - trim);
+            tail = mqtt_mq_register(&mq, 8);
+            assert_true((uintptr_t) tail % alignment == 0);
+            tail->control_type = MQTT_CONTROL_PUBLISH;
+            tail->packet_id = 1;
+            assert_true(mqtt_mq_length(&mq) == 1);
+        }
+    }
 }
 
 static void TEST__utility__pid_lfsr(void **unused) {
@@ -754,9 +783,14 @@ static void TEST__api__publish_subscribe__single(void **unused) {
 
 #define TEST_PACKET_SIZE (149)
 #define TEST_DATA_SIZE (128)
+#define SENDMEM_SZ (TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4)
+#define SENDSTORE_LEN ((SENDMEM_SZ + sizeof(struct mqtt_queued_message) - 1) / sizeof(struct mqtt_queued_message))
 static void TEST__api__publish_subscribe__multiple(void **unused) {
-    uint8_t sendmem1[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4], 
-            sendmem2[TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4];
+    /* 4 messages fill exactly SENDMEM_SZ bytes. The queue rounds the end of its buffer down to
+       an aligned address, so end the buffers on one to keep them exactly that size. */
+    struct mqtt_queued_message sendstore1[SENDSTORE_LEN], sendstore2[SENDSTORE_LEN];
+    uint8_t *sendmem1 = (uint8_t*) (sendstore1 + SENDSTORE_LEN) - SENDMEM_SZ;
+    uint8_t *sendmem2 = (uint8_t*) (sendstore2 + SENDSTORE_LEN) - SENDMEM_SZ;
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
     struct mqtt_client sender, receiver;
     ssize_t rv;
@@ -765,10 +799,10 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
 
     /* initialize sender */
     int sockfd = open_nb_socket(addr, port);
-    mqtt_init(&sender, sockfd, sendmem1, sizeof(sendmem1), recvmem1, sizeof(recvmem1), publish_callback);
+    mqtt_init(&sender, sockfd, sendmem1, SENDMEM_SZ, recvmem1, sizeof(recvmem1), publish_callback);
 
     sockfd = open_nb_socket(addr, port);
-    mqtt_init(&receiver, sockfd, sendmem2, sizeof(sendmem2), recvmem2, sizeof(recvmem2), publish_callback);
+    mqtt_init(&receiver, sockfd, sendmem2, SENDMEM_SZ, recvmem2, sizeof(recvmem2), publish_callback);
     receiver.publish_response_callback_state = &state;
 
     /* connect both */
@@ -1035,6 +1069,7 @@ int main(int argc, const char *argv[]) {
     const struct CMUnitTest util_tests[] = {
         cmocka_unit_test(TEST__utility__error_str),
         cmocka_unit_test(TEST__utility__message_queue),
+        cmocka_unit_test(TEST__utility__message_queue_alignment),
         cmocka_unit_test(TEST__utility__pid_lfsr),
         cmocka_unit_test(TEST__utility__connect_disconnect),
         cmocka_unit_test(TEST__utility__ping),
