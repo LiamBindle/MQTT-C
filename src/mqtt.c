@@ -616,6 +616,7 @@ ssize_t __mqtt_send(struct mqtt_client *client)
             break;
         case MQTT_CONTROL_PINGREQ:
             client->number_of_keep_alives += 1;
+            /* fall through */
         case MQTT_CONTROL_CONNECT:
         case MQTT_CONTROL_PUBREC:
         case MQTT_CONTROL_PUBREL:
