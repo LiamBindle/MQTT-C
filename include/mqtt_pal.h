@@ -46,30 +46,78 @@ extern "C" {
  *      - \c size_t, \c ssize_t
  *      - \c uint8_t, \c uint16_t, \c uint32_t
  *      - \c va_list
- *      - \c mqtt_pal_time_t : return type of \c MQTT_PAL_TIME() 
- *      - \c mqtt_pal_mutex_t : type of the argument that is passed to \c MQTT_PAL_MUTEX_LOCK and 
- *        \c MQTT_PAL_MUTEX_RELEASE
+ *      - \ref mqtt_pal_time_t
+ *      - \ref mqtt_pal_mutex_t
  *  - Functions:
  *      - \c memcpy, \c strlen
  *      - \c va_start, \c va_arg, \c va_end
  *  - Constants:
  *      - \c INT_MIN
  * 
- * Additionally, three macro's are required:
- *  - \c MQTT_PAL_HTONS(s) : host-to-network endian conversion for uint16_t.
- *  - \c MQTT_PAL_NTOHS(s) : network-to-host endian conversion for uint16_t.
- *  - \c MQTT_PAL_TIME()   : returns [type: \c mqtt_pal_time_t] current time in seconds. 
- *  - \c MQTT_PAL_MUTEX_LOCK(mtx_pointer) : macro that locks the mutex pointed to by \c mtx_pointer.
- *  - \c MQTT_PAL_MUTEX_RELEASE(mtx_pointer) : macro that unlocks the mutex pointed to by 
- *    \c mtx_pointer.
+ * Additionally, six macro's are required:
+ *  - \c MQTT_PAL_HTONS(s)
+ *  - \c MQTT_PAL_NTOHS(s)
+ *  - \c MQTT_PAL_TIME()
+ *  - \c MQTT_PAL_MUTEX_INIT(mtx_ptr)
+ *  - \c MQTT_PAL_MUTEX_LOCK(mtx_ptr)
+ *  - \c MQTT_PAL_MUTEX_UNLOCK(mtx_ptr)
  * 
  * Lastly, \ref mqtt_pal_sendall and \ref mqtt_pal_recvall, must be implemented in mqtt_pal.c 
  * for sending and receiving data using the platforms socket calls.
  */
 
+#if defined(__DOXYGEN)
+/**
+ * @brief host-to-network endian conversion for uint16_t.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_HTONS(s)
 
-/* UNIX-like platform support */
-#if defined(__unix__) || defined(__APPLE__) || defined(__NuttX__)
+/**
+ * @brief network-to-host endian conversion for uint16_t.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_NTOHS(s)
+
+/**
+ * @brief returns [type: \c mqtt_pal_time_t] current time in seconds.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_TIME()
+
+/**
+ * @brief macro that initializes the mutex pointed to by \c mtx_ptr.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_MUTEX_INIT(mtx_ptr)
+
+/**
+ * @brief macro that locks the mutex pointed to by \c mtx_ptr.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_MUTEX_LOCK(mtx_ptr)
+
+/**
+ * @brief macro that unlocks the mutex pointed to by \c mtx_ptr.
+ * @ingroup pal
+ */
+    #define MQTT_PAL_MUTEX_UNLOCK(mtx_ptr)
+
+/**
+ * @brief return type of \c MQTT_PAL_TIME()
+ * @ingroup pal
+ */
+    typedef void mqtt_pal_time_t;
+
+/**
+ * @brief type of the argument that is passed to \c MQTT_PAL_MUTEX_INIT(),
+ * \c MQTT_PAL_MUTEX_LOCK() and \c MQTT_PAL_MUTEX_UNLOCK().
+ * @ingroup pal
+ */
+    typedef void mqtt_pal_mutex_t;
+
+#elif defined(__unix__) || defined(__APPLE__) || defined(__NuttX__)
+    /* UNIX-like platform support */
     #include <limits.h>
     #include <string.h>
     #include <stdarg.h>
