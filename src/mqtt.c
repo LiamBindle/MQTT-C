@@ -1633,10 +1633,25 @@ ssize_t mqtt_pack_unsubscribe_request(uint8_t *buf, size_t bufsz, unsigned int p
 }
 
 /* MESSAGE QUEUE */
+
+/* Queued messages are stored as an array growing down from mem_end, so mem_end must be
+   aligned for struct mqtt_queued_message. This gets that alignment without C11's _Alignof. */
+struct mqtt_mq_alignment_probe {
+    char c;
+    struct mqtt_queued_message msg;
+};
+#define MQTT_MQ_ALIGNMENT (sizeof(struct mqtt_mq_alignment_probe) - sizeof(struct mqtt_queued_message))
+
 void mqtt_mq_init(struct mqtt_message_queue *mq, void *buf, size_t bufsz) 
 {  
+    /* round mem_end down to MQTT_MQ_ALIGNMENT (only the low bits of the address matter) */
+    size_t misalignment = ((size_t) buf + bufsz) % MQTT_MQ_ALIGNMENT;
+    if (misalignment > bufsz) {
+        misalignment = bufsz;
+    }
+
     mq->mem_start = buf;
-    mq->mem_end = (uint8_t *)buf + bufsz;
+    mq->mem_end = (uint8_t *)buf + bufsz - misalignment;
     mq->curr = (uint8_t *)buf;
     mq->queue_tail = (struct mqtt_queued_message *)mq->mem_end;
     mq->curr_sz = buf == NULL ? 0 : mqtt_mq_currsz(mq);
