@@ -35,5 +35,6 @@ $(MQTT_C_UNITTESTS): tests.c $(MQTT_C_SOURCES)
 clean:
 	rm -rf $(BINDIR)
 
+# optionally run against another broker, e.g. make check TEST_BROKER="localhost 1883"
 check: all
-	./$(MQTT_C_UNITTESTS)
+	./$(MQTT_C_UNITTESTS) $(TEST_BROKER)

@@ -9,17 +9,22 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   quick-test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Install cmocka
+        uses: actions/checkout@v4
+      - name: Install cmocka and mosquitto
         run: |
           sudo apt-get update
-          sudo apt-get install libcmocka-dev
+          sudo apt-get install libcmocka-dev mosquitto
       - name: make
         run: make
+      - name: Start a local MQTT broker
+        run: mosquitto -d -p 18830
       - name: make check
-        run: make check
+        run: make check TEST_BROKER="127.0.0.1 18830"
