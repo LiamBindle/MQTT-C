@@ -1,5 +1,9 @@
 <map id="include/mqtt_pal.h" name="include/mqtt_pal.h">
-<area shape="rect" id="node2" href="$mqtt_8h.html" title="Declares all the MQTT&#45;C functions and datastructures. " alt="" coords="53,80,157,107"/>
-<area shape="rect" id="node3" href="$mqtt_8c.html" title="Implements the functionality of MQTT&#45;C. " alt="" coords="5,155,87,181"/>
-<area shape="rect" id="node4" href="$mqtt__pal_8c.html" title="Implements mqtt_pal_sendall and mqtt_pal_recvall and any platform&#45;specific helpers you&#39;d like..." alt="" coords="111,155,216,181"/>
+<area shape="rect" id="Node000001" title="Includes/supports the types/calls required by the MQTT&#45;C client." alt="" coords="39,5,166,32"/>
+<area shape="rect" id="Node000002" href="$mqtt_8h.html" title="Declares all the MQTT&#45;C functions and datastructures." alt="" coords="51,80,154,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,48,106,80,100,80,100,48"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html" title="Implements the functionality of MQTT&#45;C." alt="" coords="5,155,86,181"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="86,121,57,156,53,153,81,117"/>
+<area shape="rect" id="Node000004" href="$mqtt__pal_8c.html" title="Implements mqtt_pal_sendall and mqtt_pal_recvall and any platform&#45;specific helpers you&#39;d like." alt="" coords="109,155,214,181"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="125,117,153,153,149,156,121,121"/>
 </map>

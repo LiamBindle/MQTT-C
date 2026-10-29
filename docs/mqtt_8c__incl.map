@@ -1,4 +1,7 @@
 <map id="src/mqtt.c" name="src/mqtt.c">
-<area shape="rect" id="node2" href="$mqtt_8h.html" title="Declares all the MQTT&#45;C functions and datastructures. " alt="" coords="17,80,76,107"/>
-<area shape="rect" id="node3" href="$mqtt__pal_8h.html" title="Includes/supports the types/calls required by the MQTT&#45;C client. " alt="" coords="5,155,88,181"/>
+<area shape="rect" id="Node000001" title="Implements the functionality of MQTT&#45;C." alt="" coords="6,5,87,32"/>
+<area shape="rect" id="Node000002" href="$mqtt_8h.html" title="Declares all the MQTT&#45;C functions and datastructures." alt="" coords="17,80,76,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="49,33,49,64,44,64,44,33"/>
+<area shape="rect" id="Node000003" href="$mqtt__pal_8h.html" title="Includes/supports the types/calls required by the MQTT&#45;C client." alt="" coords="5,155,88,181"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="49,107,49,139,44,139,44,107"/>
 </map>
