@@ -5,7 +5,7 @@
 
 <p align="center">
     <img width="70%" src="docs/mqtt-c-logo.png"><br>
-    <a href="https://liambindle.ca/MQTT-C"><img src="https://img.shields.io/badge/docs-passing-brightgreen.svg"></a>
+    <a href="https://liambindle.github.io/MQTT-C/"><img src="https://img.shields.io/badge/docs-passing-brightgreen.svg"></a>
     <a href="https://github.com/LiamBindle/MQTT-C/issues"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg"></a>
     <a href="https://GitHub.com/LiamBindle/MQTT-C/issues/"><img src="https://img.shields.io/github/issues/LiamBindle/MQTT-C.svg"></a>
     <a href="https://github.com/LiamBindle/MQTT-C/issues"><img src="https://img.shields.io/github/issues-closed/LiamBindle/MQTT-C.svg"></a>
@@ -48,7 +48,7 @@ And we can publish to a topic like so:
     int temperature = 67;
     mqtt_publish(&client, "coffee/temperature", &temperature, sizeof(int), MQTT_PUBLISH_QOS_1);
 ```
-Those are the basics! From here the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) and [API documentation](https://liambindle.ca/MQTT-C/group__api.html) are good places to get started.
+Those are the basics! From here the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) and [API documentation](https://liambindle.github.io/MQTT-C/group__api.html) are good places to get started.
 
 ## Building
 There are **only two source files** that need to be built, `mqtt.c` and `mqtt_pal.c`.
@@ -59,7 +59,7 @@ Then, simply <code>\#include <mqtt.h></code>.
 Alternatively, you can build MQTT-C with CMake or the provided Makefile. These are provided for convenience.
 
 ## Documentation
-Pre-built documentation can be found here: [https://liambindle.ca/MQTT-C](https://liambindle.ca/MQTT-C). Be sure to check out the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) too.
+Pre-built documentation can be found here: [https://liambindle.github.io/MQTT-C/](https://liambindle.github.io/MQTT-C/). Be sure to check out the [examples](https://github.com/LiamBindle/MQTT-C/tree/master/examples) too.
 
 The @ref api documentation contains all the documentation application programmers should need. 
 The @ref pal documentation contains everything you should need to port MQTT-C to a new platform,
