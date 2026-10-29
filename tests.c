@@ -785,6 +785,13 @@ static void TEST__api__publish_subscribe__single(void **unused) {
 #define TEST_DATA_SIZE (128)
 #define SENDMEM_SZ (TEST_PACKET_SIZE*4 + sizeof(struct mqtt_queued_message)*4)
 #define SENDSTORE_LEN ((SENDMEM_SZ + sizeof(struct mqtt_queued_message) - 1) / sizeof(struct mqtt_queued_message))
+
+/* copy text into buf, zero-padded to TEST_DATA_SIZE bytes, so every test message is that long */
+static const char* test_data(char buf[TEST_DATA_SIZE], const char *text) {
+    strncpy(buf, text, TEST_DATA_SIZE);
+    return buf;
+}
+
 static void TEST__api__publish_subscribe__multiple(void **unused) {
     /* 4 messages fill exactly SENDMEM_SZ bytes. The queue rounds the end of its buffer down to
        an aligned address, so end the buffers on one to keep them exactly that size. */
@@ -792,6 +799,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     uint8_t *sendmem1 = (uint8_t*) (sendstore1 + SENDSTORE_LEN) - SENDMEM_SZ;
     uint8_t *sendmem2 = (uint8_t*) (sendstore2 + SENDSTORE_LEN) - SENDMEM_SZ;
     uint8_t recvmem1[TEST_PACKET_SIZE], recvmem2[TEST_PACKET_SIZE];
+    char data[TEST_DATA_SIZE];
     struct mqtt_client sender, receiver;
     ssize_t rv;
 
@@ -839,7 +847,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     state = 0;
 
     /* publish with retain */
-    if ((rv = mqtt_publish(&sender, "liam-test-ret1", "this was initial retain with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1 | MQTT_PUBLISH_RETAIN)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-ret1", test_data(data, "this was initial retain with qos 1"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1 | MQTT_PUBLISH_RETAIN)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
@@ -892,19 +900,19 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
     assert_true(state == 1);
 
     /* now publish 4 perfect sized messages */
-    if ((rv = mqtt_publish(&sender, "liam-test-ret1", "retain with qos1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-ret1", test_data(data, "retain with qos1"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
-    if ((rv = mqtt_publish(&sender, "liam-test-qos0", "test with qos 0", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_0)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-qos0", test_data(data, "test with qos 0"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_0)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
-    if ((rv = mqtt_publish(&sender, "liam-test-qos1", "test with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-qos1", test_data(data, "test with qos 1"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
-    if ((rv = mqtt_publish(&sender, "liam-test-qos2", "test with qos 2", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_2)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-qos2", test_data(data, "test with qos 2"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_2)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
@@ -970,7 +978,7 @@ static void TEST__api__publish_subscribe__multiple(void **unused) {
         usleep(10000);
     }
     /* publish qos1 (should be received by receiver) */
-    if ((rv = mqtt_publish(&sender, "liam-test-qos1", "test with qos 1", TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
+    if ((rv = mqtt_publish(&sender, "liam-test-qos1", test_data(data, "test with qos 1"), TEST_DATA_SIZE, MQTT_PUBLISH_QOS_1)) <= 0) {
         printf("error: %s\n", mqtt_error_str(rv));
         assert_true(rv  > 0);
     }
