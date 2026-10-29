@@ -189,6 +189,7 @@ void mqtt_reinit(struct mqtt_client* client,
     client->socketfd = socketfd;
 
     mqtt_mq_init(&client->mq, sendbuf, sendbufsz);
+    client->send_offset = 0;
 
     client->recv_buffer.mem_start = recvbuf;
     client->recv_buffer.mem_size = recvbufsz;
