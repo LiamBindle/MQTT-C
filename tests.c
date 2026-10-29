@@ -512,6 +512,33 @@ static void TEST__utility__ping(void** state) {
     close(client.socketfd);
 }
 
+static void TEST__utility__error_str(void **unused) {
+    static const enum MQTTErrors errors[] = {
+        __ALL_MQTT_ERRORS(GENERATE_ENUM)
+    };
+    static const char * const names[] = {
+        __ALL_MQTT_ERRORS(GENERATE_STRING)
+    };
+    size_t i;
+
+    assert_string_equal(mqtt_error_str(MQTT_OK), "MQTT_OK");
+    assert_string_equal(mqtt_error_str((enum MQTTErrors) INT_MAX), "MQTT_OK");
+    assert_string_equal(mqtt_error_str((enum MQTTErrors) 0),
+                        "MQTT_ERROR: Buffer too small.");
+    assert_string_equal(mqtt_error_str(MQTT_ERROR_UNKNOWN), "MQTT_UNKNOWN_ERROR");
+    for (i = 0; i < sizeof(errors) / sizeof(errors[0]); ++i) {
+        assert_string_equal(mqtt_error_str(errors[i]), names[i]);
+    }
+    assert_string_equal(mqtt_error_str((enum MQTTErrors)
+                        (errors[sizeof(errors) / sizeof(errors[0]) - 1] + 1)),
+                        "MQTT_UNKNOWN_ERROR");
+    assert_string_equal(mqtt_error_str((enum MQTTErrors) -1), "MQTT_UNKNOWN_ERROR");
+#if INT_MAX > 65536
+    assert_string_equal(mqtt_error_str((enum MQTTErrors) (INT_MIN + 65537)),
+                        "MQTT_UNKNOWN_ERROR");
+#endif
+}
+
 #define QM_SZ (int) sizeof(struct mqtt_queued_message)
 static void TEST__utility__message_queue(void **unused) {
     uint8_t mem[32 + 4*QM_SZ];
@@ -1006,6 +1033,7 @@ int main(int argc, const char *argv[]) {
 
     printf("\n[MQTT-C Utilities Tests]\n");
     const struct CMUnitTest util_tests[] = {
+        cmocka_unit_test(TEST__utility__error_str),
         cmocka_unit_test(TEST__utility__message_queue),
         cmocka_unit_test(TEST__utility__pid_lfsr),
         cmocka_unit_test(TEST__utility__connect_disconnect),
