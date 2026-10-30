@@ -677,9 +677,9 @@ enum MQTTConnectFlags {
     MQTT_CONNECT_RESERVED = 1u,
     MQTT_CONNECT_CLEAN_SESSION = 2u,
     MQTT_CONNECT_WILL_FLAG = 4u,
-    MQTT_CONNECT_WILL_QOS_0 = (0u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_1 = (1u & 0x03) << 3,
-    MQTT_CONNECT_WILL_QOS_2 = (2u & 0x03) << 3,
+    MQTT_CONNECT_WILL_QOS_0 = 0u << 3,
+    MQTT_CONNECT_WILL_QOS_1 = 1u << 3,
+    MQTT_CONNECT_WILL_QOS_2 = 2u << 3,
     MQTT_CONNECT_WILL_RETAIN = 32u,
     MQTT_CONNECT_PASSWORD = 64u,
     MQTT_CONNECT_USER_NAME = 128u
@@ -743,10 +743,10 @@ ssize_t mqtt_pack_connection_request(uint8_t* buf, size_t bufsz,
  */
 enum MQTTPublishFlags {
     MQTT_PUBLISH_DUP = 8u,
-    MQTT_PUBLISH_QOS_0 = ((0u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_1 = ((1u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_2 = ((2u << 1) & 0x06),
-    MQTT_PUBLISH_QOS_MASK = ((3u << 1) & 0x06),
+    MQTT_PUBLISH_QOS_0 = 0u << 1,
+    MQTT_PUBLISH_QOS_1 = 1u << 1,
+    MQTT_PUBLISH_QOS_2 = 2u << 1,
+    MQTT_PUBLISH_QOS_MASK = 3u << 1,
     MQTT_PUBLISH_RETAIN = 0x01
 };
 
@@ -1082,7 +1082,7 @@ struct mqtt_queued_message* mqtt_mq_find(const struct mqtt_message_queue *mq, en
  * @brief Used internally to recalculate the \c curr_sz.
  * @ingroup details
  */
-#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : ((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr)
+#define mqtt_mq_currsz(mq_ptr) (((mq_ptr)->curr >= (uint8_t*) ((mq_ptr)->queue_tail - 1)) ? 0 : (size_t) (((uint8_t*) ((mq_ptr)->queue_tail - 1)) - (mq_ptr)->curr))
 
 /* CLIENT */
 
@@ -1192,7 +1192,7 @@ struct mqtt_client {
      * This member is always initialized to NULL but it can be manually set at any 
      * time.
      */
-    enum MQTTErrors (*inspector_callback)(struct mqtt_client*);
+    enum MQTTErrors (*inspector_callback)(struct mqtt_client* client);
 
     /**
      * @brief A callback that is called whenever the client is in an error state.
@@ -1201,7 +1201,7 @@ struct mqtt_client {
      * previous sockets, and reestabilishing the connection to the broker and 
      * session configurations (i.e. subscriptions).  
      */
-    void (*reconnect_callback)(struct mqtt_client*, void**);
+    void (*reconnect_callback)(struct mqtt_client* client, void** state);
 
     /**
      * @brief A pointer to some state. A pointer to this member is passed to 
