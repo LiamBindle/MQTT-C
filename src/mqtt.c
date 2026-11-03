@@ -83,14 +83,23 @@ enum MQTTErrors mqtt_sync(struct mqtt_client *client) {
 }
 
 uint16_t __mqtt_next_pid(struct mqtt_client *client) {
-    int pid_exists = 0;
+    unsigned probe;
     if (client->pid_lfsr == 0) {
         client->pid_lfsr = 163u;
     }
     /* LFSR taps taken from: https://en.wikipedia.org/wiki/Linear-feedback_shift_register */
     
-    do {
+    /* The LFSR cycles through the 0xFFFF non-zero 16 bit values, so a queue that already
+       holds 0xFFFF messages cannot provide a free packet ID. Bail out in O(1) instead of
+       walking such a queue 0xFFFF times. */
+    if (mqtt_mq_length(&client->mq) >= 0xFFFF) {
+        return 0;
+    }
+
+    /* The search has to terminate even when every packet ID is taken. */
+    for(probe = 0; probe < 0xFFFF; ++probe) {
         struct mqtt_queued_message *curr;
+        int pid_exists = 0;
         unsigned lsb = client->pid_lfsr & 1;
         (client->pid_lfsr) >>= 1;
         if (lsb) {
@@ -98,7 +107,6 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
         }
 
         /* check that the PID is unique */
-        pid_exists = 0;
         for(curr = mqtt_mq_get(&(client->mq), 0); curr >= client->mq.queue_tail; --curr) {
             if (curr->packet_id == client->pid_lfsr) {
                 pid_exists = 1;
@@ -106,8 +114,14 @@ uint16_t __mqtt_next_pid(struct mqtt_client *client) {
             }
         }
 
-    } while(pid_exists);
-    return client->pid_lfsr;
+        if (!pid_exists) {
+            return client->pid_lfsr;
+        }
+
+    }
+
+    /* No free packet ID. The LFSR never produces 0, so 0 is a safe sentinel. */
+    return 0;
 }
 
 enum MQTTErrors mqtt_init(struct mqtt_client *client,
@@ -279,8 +293,14 @@ enum MQTTErrors mqtt_publish(struct mqtt_client *client,
     ssize_t rv;
     uint16_t packet_id;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
-    packet_id = __mqtt_next_pid(client);
 
+    /* reclaim the space of the messages that are already complete */
+    mqtt_mq_clean(&client->mq);
+    packet_id = __mqtt_next_pid(client);
+    if (packet_id == 0) {
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+        return MQTT_ERROR_SEND_BUFFER_IS_FULL;
+    }
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -395,7 +415,14 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
     uint16_t packet_id;
     struct mqtt_queued_message *msg;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
+
+    /* reclaim the space of the messages that are already complete */
+    mqtt_mq_clean(&client->mq);
     packet_id = __mqtt_next_pid(client);
+    if (packet_id == 0) {
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+        return MQTT_ERROR_SEND_BUFFER_IS_FULL;
+    }
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
@@ -420,10 +447,18 @@ enum MQTTErrors mqtt_subscribe(struct mqtt_client *client,
 enum MQTTErrors mqtt_unsubscribe(struct mqtt_client *client,
                          const char* topic_name)
 {
-    uint16_t packet_id = __mqtt_next_pid(client);
+    uint16_t packet_id;
     ssize_t rv;
     struct mqtt_queued_message *msg;
     MQTT_PAL_MUTEX_LOCK(&client->mutex);
+
+    /* reclaim the space of the messages that are already complete */
+    mqtt_mq_clean(&client->mq);
+    packet_id = __mqtt_next_pid(client);
+    if (packet_id == 0) {
+        MQTT_PAL_MUTEX_UNLOCK(&client->mutex);
+        return MQTT_ERROR_SEND_BUFFER_IS_FULL;
+    }
 
     /* try to pack the message */
     MQTT_CLIENT_TRY_PACK(
