@@ -668,6 +668,34 @@ static void TEST__utility__pid_lfsr(void **unused) {
     assert_true(period == 65535u);
 }
 
+static void TEST__utility__packet_id_clean_before_alloc(void **unused) {
+    struct mqtt_client client;
+    uint8_t send[16384], recv[256];
+    const size_t num_messages = 100;
+    size_t i;
+
+    mqtt_init(&client, -1, send, sizeof(send), recv, sizeof(recv), NULL);
+
+    /* mqtt_init leaves the mutex locked, mqtt_connect unlocks it */
+    assert_int_equal(mqtt_connect(&client, "client-id", NULL, NULL, 0, NULL, NULL, 0, 30), MQTT_OK);
+
+    /* queue a batch of QoS 0 publishes (the CONNECT message is queued as well) */
+    for (i = 0; i < num_messages; ++i) {
+        assert_int_equal(mqtt_publish(&client, "topic", "data", 4, MQTT_PUBLISH_QOS_0), MQTT_OK);
+    }
+    assert_int_equal(mqtt_mq_length(&client.mq), num_messages + 1);
+
+    /* the messages have been delivered, they only have to be reclaimed */
+    for (i = 0; i < (size_t) mqtt_mq_length(&client.mq); ++i) {
+        mqtt_mq_get(&client.mq, i)->state = MQTT_QUEUED_COMPLETE;
+    }
+
+    /* allocating the next packet ID has to reclaim them first, otherwise completed
+       messages pile up until every one of the 0xFFFF packet IDs is taken */
+    assert_int_equal(mqtt_publish(&client, "topic", "data", 4, MQTT_PUBLISH_QOS_0), MQTT_OK);
+    assert_int_equal(mqtt_mq_length(&client.mq), 1);
+}
+
 void publish_callback(void** state, struct mqtt_response_publish *publish) {
     /*char *name = (char*) malloc(publish->topic_name_size + 1);
     memcpy(name, publish->topic_name, publish->topic_name_size);
@@ -1079,6 +1107,7 @@ int main(int argc, const char *argv[]) {
         cmocka_unit_test(TEST__utility__message_queue),
         cmocka_unit_test(TEST__utility__message_queue_alignment),
         cmocka_unit_test(TEST__utility__pid_lfsr),
+        cmocka_unit_test(TEST__utility__packet_id_clean_before_alloc),
         cmocka_unit_test(TEST__utility__connect_disconnect),
         cmocka_unit_test(TEST__utility__ping),
     };
