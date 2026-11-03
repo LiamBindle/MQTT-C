@@ -206,7 +206,8 @@ void mqtt_reinit(struct mqtt_client* client,
  *      3) Upon successful pack, registers the new message.
  */
 #define MQTT_CLIENT_TRY_PACK(tmp, msg, client, pack_call, release)  \
-    if (client->error < 0) {                                        \
+    if (client->error < 0 &&                                        \
+        client->error != MQTT_ERROR_SEND_BUFFER_IS_FULL) {          \
         if (release) MQTT_PAL_MUTEX_UNLOCK(&client->mutex);         \
         return client->error;                                       \
     }                                                               \
@@ -228,6 +229,7 @@ void mqtt_reinit(struct mqtt_client* client,
             return (enum MQTTErrors)MQTT_ERROR_SEND_BUFFER_IS_FULL;                  \
         }                                                           \
     }                                                               \
+    client->error = MQTT_OK;                                        \
     msg = mqtt_mq_register(&client->mq, (size_t)tmp);                       \
 
 

@@ -668,6 +668,23 @@ static void TEST__utility__pid_lfsr(void **unused) {
     assert_true(period == 65535u);
 }
 
+static void TEST__utility__send_buffer_full_recovery(void **unused) {
+    struct mqtt_client client;
+    uint8_t send[512], recv[256];
+
+    mqtt_init(&client, -1, send, sizeof(send), recv, sizeof(recv), NULL);
+
+    /* mqtt_init leaves the mutex locked, mqtt_connect unlocks it */
+    assert_int_equal(mqtt_connect(&client, "client-id", NULL, NULL, 0, NULL, NULL, 0, 30), MQTT_OK);
+
+    /* the state a client is left in when its send buffer fills up */
+    client.error = MQTT_ERROR_SEND_BUFFER_IS_FULL;
+
+    /* the queue has plenty of room, so the client must recover by itself */
+    assert_int_equal(mqtt_publish(&client, "topic", "data", 4, MQTT_PUBLISH_QOS_0), MQTT_OK);
+    assert_int_equal(client.error, MQTT_OK);
+}
+
 void publish_callback(void** state, struct mqtt_response_publish *publish) {
     /*char *name = (char*) malloc(publish->topic_name_size + 1);
     memcpy(name, publish->topic_name, publish->topic_name_size);
@@ -1079,6 +1096,7 @@ int main(int argc, const char *argv[]) {
         cmocka_unit_test(TEST__utility__message_queue),
         cmocka_unit_test(TEST__utility__message_queue_alignment),
         cmocka_unit_test(TEST__utility__pid_lfsr),
+        cmocka_unit_test(TEST__utility__send_buffer_full_recovery),
         cmocka_unit_test(TEST__utility__connect_disconnect),
         cmocka_unit_test(TEST__utility__ping),
     };
